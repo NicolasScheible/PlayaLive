@@ -278,11 +278,28 @@ Architekturregel: kein direkter Datenbankzugriff aus Screens/Komponenten; wieder
 Hooks kapseln die Kommunikation zwischen UI und Services; Komponenten enthalten ausschließlich
 Präsentationslogik.
 
-🔴 **Offene Architekturentscheidung:** Struktur/Aufteilung der Zustand-Stores (ein globaler Store vs.
-mehrere themenbezogene Stores), Query-Key-Konventionen für TanStack Query, Cache-Invalidierungsstrategie
-im Detail je Entität. Zusätzlich führt `docs/PRD.md` Kapitel 15 „Sprache" explizit als Teil des
-Zustand-Client-State auf, ohne dass irgendwo eine Mehrsprachigkeits-/i18n-Strategie (unterstützte
-Sprachen, i18n-Bibliothek, Übersetzungsverwaltung) entschieden wäre — ebenfalls offen.
+### Store-Aufteilung, Query-Keys, Cache-Invalidierung, i18n
+
+✅ Entschieden (Architekturentscheidung 6, Product Owner):
+
+- **Zustand-Stores:** mehrere themenbezogene Stores mit klar definierter Verantwortung statt eines
+  großen globalen Stores — z. B. `authStore`, `uiStore`, `filterStore`, `mapStore`, `settingsStore`.
+- **TanStack-Query-Keys:** einheitliche, hierarchische Struktur, z. B. `['locations','list',filters]`,
+  `['locations','detail',id]`, `['events','today']`, `['artists','detail',id]`,
+  `['reviews','location',locationId]` — hält Cache-Invalidierung und Realtime-Updates nachvollziehbar.
+- **Cache-Strategie:** Realtime-Daten werden unmittelbar über Supabase Realtime aktualisiert (Kapitel
+  11); alle übrigen Daten werden nach Mutationen gezielt per `invalidateQueries` aktualisiert — keine
+  unnötigen vollständigen Cache-Resets.
+- **Mehrsprachigkeit (i18n):** Version 1.0 unterstützt **Deutsch und Englisch**, umschaltbar in den
+  Einstellungen (bereits in den UI-Designs als Menüpunkt sichtbar). Alle sichtbaren UI-Texte laufen
+  ausschließlich über die i18n-Infrastruktur; die Architektur ist so aufgebaut, dass weitere Sprachen
+  (z. B. Spanisch) später ohne Refactoring ergänzt werden können.
+
+Grundprinzip: globaler Zustand ausschließlich über Zustand, Serverdaten ausschließlich über TanStack
+Query — die Verantwortlichkeiten werden niemals vermischt.
+
+🔴 **Offene Architekturentscheidung:** konkrete i18n-Bibliothek (z. B. `i18next`/`react-i18next` vs.
+Expo-eigene Lösung), Struktur/Format der Übersetzungsdateien.
 
 ## 11. Realtime-Architektur
 
@@ -619,7 +636,7 @@ bestätigt ist.
 | 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
-| 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
+| 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
 | 8 | Passwort-Reset-Flow, E-Mail-Verifizierung (Session-Refresh-Verhalten bereits entschieden) | 12 |
 | 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
