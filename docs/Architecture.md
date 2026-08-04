@@ -314,9 +314,11 @@ genaues Debouncing-Zeitfenster für gebündelte Events.
 
 Diagramm des Login-Flows: siehe Kapitel 23.3 „Auth-Flow".
 
-🔴 **Offene Architekturentscheidung:** Verhalten bei abgelaufener Session während aktiver Nutzung
-(stiller Refresh vs. erzwungener Re-Login), Passwort-Reset-Flow im Detail, Umgang mit
-E-Mail-Verifizierung.
+- **Session-Ablauf** (Architekturentscheidung 4): automatischer stiller Token-Refresh im Hintergrund;
+  Weiterleitung zum Login nur bei endgültig ungültigem/abgelaufenem Refresh-Token — siehe Kapitel 7
+  „Navigation".
+
+🔴 **Offene Architekturentscheidung:** Passwort-Reset-Flow im Detail, Umgang mit E-Mail-Verifizierung.
 
 ## 13. Rollenmodell
 
@@ -618,7 +620,7 @@ bestätigt ist.
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
 | 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
-| 8 | Session-Refresh-Verhalten, Passwort-Reset-Flow, E-Mail-Verifizierung | 12 |
+| 8 | Passwort-Reset-Flow, E-Mail-Verifizierung (Session-Refresh-Verhalten bereits entschieden) | 12 |
 | 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
 | 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
 | 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
