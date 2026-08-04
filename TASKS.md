@@ -113,8 +113,12 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [ ] Supabase-Projekte aufgesetzt (Development, Staging, Production — siehe `docs/Architecture.md`
   Kapitel 17)
-- [ ] Datenbankschema gemäß `docs/Database.md` umgesetzt
-- [ ] Row-Level-Security-Regeln definiert
+- [x] Datenbankschema gemäß `docs/Database.md` umgesetzt (`supabase/migrations/`: profiles, locations,
+  artists, events/event_artists, favorites, reports/report_flags + aggregierte
+  `location_live_status`-View; specials/happy_hours/reviews/review_flags/notifications/partners/
+  trust_score_events noch offen)
+- [x] Row-Level-Security-Regeln definiert (alle Tabellen + Storage-Objekte, „Deny by Default" gemäß
+  `docs/PRD.md` Kapitel 15)
 - [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer, bisher `AuthService`;
   weitere Services folgen mit den jeweiligen Features)
 - [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig implementiert

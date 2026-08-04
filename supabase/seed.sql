@@ -1,0 +1,9 @@
+-- Seed-Datei für `supabase db reset` (siehe supabase/config.toml → [db.seed]).
+--
+-- Bewusst ohne Beispieldaten: Locations/Artists/Events/Reports sind reale Stammdaten
+-- (docs/PRD.md Kapitel 14 „Datenpflege & Datenquellen"), keine Fixtures für diesen Schritt. Rollen,
+-- Testnutzer oder fachliche Beispieldatensätze werden erst ergänzt, wenn dafür ein expliziter Auftrag
+-- vorliegt (siehe CLAUDE.md: „Keine Annahmen ohne Rückfrage").
+--
+-- Referenzsystem-Datensätze ohne fachlichen Inhalt (z. B. Lookup-Werte) können künftig hier ergänzt
+-- werden, sobald sie entschieden sind.
