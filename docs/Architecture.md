@@ -501,17 +501,38 @@ Entwicklung um den React-Native-Performance-Profiler und Expo-Performance-Tools.
   Mehrfachbestätigung, Meldefunktion, automatische Missbrauchserkennung — alle Prüfungen serverseitig.
 - Storage: kein Upload ohne Authentifizierung; Schreibrechte je Bucket rollenbasiert (siehe
   `docs/PRD.md` Kapitel 15 „Storage-Buckets").
-- **Datenschutz (DSGVO):** `docs/PRD.md` Kapitel 20 „Risiken" nennt die Verarbeitung von Standort- und
-  personenbezogenen Daten (Geofencing, Trust Score) explizit als Risiko und fordert DSGVO-konforme
-  Verarbeitung, transparente Datenschutzerklärung, Einwilligung für Standortzugriff und Speicherung nur
-  notwendiger Daten. Die konkrete technische Umsetzung ist noch offen (siehe unten).
+### Secrets, Umgebungen, Security-Reviews, Standort-Consent, DSGVO-Rechte
 
-🔴 **Offene Architekturentscheidung:** konkrete Verwaltung von Umgebungsvariablen/Secrets (.env-Strategie,
-Trennung Dev/Staging/Prod, Handling von Supabase-/Mapbox-/Firebase-/OpenWeather-Keys — in `docs/PRD.md`
-Kapitel 22 bereits als offen vermerkt), Zertifikats-/Transport-Sicherheit über die Supabase-Standards
-hinaus, Verantwortlichkeit für periodische Sicherheitsüberprüfungen, konkreter Consent-Flow für den
-Standortzugriff (Geofencing) sowie technische Umsetzung von DSGVO-Betroffenenrechten (Datenauskunft,
-Löschung).
+✅ Entschieden (Architekturentscheidung 11, Product Owner):
+
+- **Secrets-Verwaltung:** ausschließlich über Umgebungsvariablen. Lokal `.env.local` (nicht versioniert,
+  `.gitignore`); CI/CD und Builds über Expo EAS Secrets (ggf. ergänzt um GitHub Secrets). API-Schlüssel,
+  Tokens oder Zugangsdaten dürfen niemals im Quellcode oder Repository landen.
+- **Umgebungen:** drei vollständig getrennte Umgebungen — **Development, Staging, Production** — jede
+  mit eigenem Supabase-Projekt, eigener Datenbank, eigenen Storage-Buckets, eigenen Edge Functions und
+  eigenen API-Keys/Secrets. Produktionsdaten werden niemals für Entwicklungs-/Testzwecke verwendet.
+- **Security-Reviews:** ereignisbasiert statt nach festem Zeitintervall — verpflichtend vor jedem
+  App-Store-Release sowie nach Änderungen an Authentifizierung, RLS-Policies, Edge Functions oder
+  sonstigen sicherheitsrelevanten Infrastrukturänderungen. Der Product Owner trägt die Verantwortung für
+  die Freigabe.
+- **Standort-Consent:** die App fordert **nie** beim ersten Start automatisch eine Standortberechtigung
+  an. Die Berechtigung wird erst angefragt, wenn eine Funktion sie tatsächlich benötigt (Live-Karte,
+  Community Report, Navigation) — vor der System-Abfrage erklärt ein kurzer Hinweis den Mehrwert der
+  Freigabe. Standortdaten werden nur verarbeitet, wenn für die jeweilige Funktion erforderlich, keine
+  dauerhafte Hintergrund-Ortung.
+- **DSGVO-Betroffenenrechte:** in den Einstellungen (bereits in den UI-Designs sichtbar) verfügbar: Konto
+  deaktivieren, Konto dauerhaft löschen, eigene Daten exportieren — Export als Self-Service direkt in
+  der App, ausschließlich die personenbezogenen Daten des jeweiligen Nutzers. Nach erfolgreicher
+  Konto-Löschung werden personenbezogene Daten gemäß definierten Aufbewahrungs-/Löschrichtlinien entfernt
+  oder anonymisiert, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+
+Grundprinzip: Sicherheit und Datenschutz sind integraler Bestandteil der Architektur — neue Funktionen
+müssen den bestehenden Richtlinien entsprechen und dürfen sie nicht umgehen.
+
+🔴 **Offene Architekturentscheidung:** konkrete Aufbewahrungs-/Löschfristen nach Konto-Löschung je
+Datentyp (z. B. wie mit vergangenen Community Reports/Reviews eines gelöschten Kontos umgegangen wird —
+vollständige Löschung vs. Anonymisierung zur Erhaltung aggregierter Statistiken), genaues Format des
+Datenexports.
 
 ## 18. Logging
 
@@ -716,7 +737,7 @@ bestätigt ist.
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
-| 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
+| 11 | Konkrete Aufbewahrungs-/Löschfristen je Datentyp nach Konto-Löschung, Format des Datenexports (Secrets/Umgebungen/Security-Reviews/Standort-Consent/Löschung-Grundsatz bereits entschieden) | 17 |
 | 12 | Teststrategie im Detail (Framework, Testpyramide, Coverage-Ziel — grobe Testarten bereits in `TASKS.md` vorgesehen) | 19 |
 
 Diese Punkte sollten — analog zum bisherigen Vorgehen beim PRD — vor der jeweils betroffenen
