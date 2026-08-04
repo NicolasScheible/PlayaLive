@@ -414,8 +414,34 @@ Diagramme: siehe Kapitel 23.1 „Schichtenarchitektur" (Basis-Datenfluss) und Ka
 - Fehler werden zentral protokolliert, ohne personenbezogene Daten zu loggen (siehe Kapitel 18
   „Logging").
 
-🔴 **Offene Architekturentscheidung:** exaktes Fehlerobjekt-Format (Felder, Fehlercode-Katalog),
-konkrete Retry-Parameter (Anzahl Versuche, Backoff-Strategie).
+### Fehlerobjekt, Fehlercode-Katalog, Retry-Parameter
+
+✅ Entschieden (Architekturentscheidung 9, Product Owner):
+
+**`AppError`-Format** (einheitlich für die gesamte App):
+
+| Feld | Zweck |
+|---|---|
+| `code` | eindeutiger technischer Fehlercode |
+| `messageKey` | i18n-Schlüssel für die lokalisierte Nutzeranzeige (siehe Kapitel 10 „i18n") |
+| `technicalMessage` | technische Meldung, ausschließlich für Logging/Sentry |
+| `context` (optional) | Zusatzinformationen zur Fehleranalyse |
+| `errorId` (optional) | eindeutige Fehler-ID zur Zuordnung zwischen Nutzeranfrage und Monitoring |
+
+**Fehlercode-Katalog**, nach Domäne strukturiert — z. B. `AUTH_INVALID_CREDENTIALS`,
+`AUTH_EMAIL_NOT_VERIFIED`, `REPORT_RATE_LIMITED`, `REPORT_GEOFENCE_TOO_FAR`, `REPORT_DUPLICATE`,
+`REVIEW_NOT_ALLOWED`, `NETWORK_OFFLINE`, `NETWORK_TIMEOUT`, `LOCATION_NOT_FOUND`, `EVENT_NOT_FOUND`,
+`SERVER_ERROR`, `UNKNOWN_ERROR` — ermöglicht präzise, verständliche Fehlermeldungen statt generischem
+„Etwas ist schiefgelaufen" (Beispiele: „Bitte überprüfe deine Internetverbindung.", „Du befindest dich
+zu weit von der Location entfernt.", „Bitte bestätige zuerst deine E-Mail-Adresse.").
+
+**Retry-Strategie:** 3 automatische Versuche bei temporären Netzwerkfehlern, mit exponentiellem Backoff
+(1 s / 2 s / 4 s), danach Anzeige des Fehlers. **Nie automatisch wiederholt:** Authentifizierungsfehler,
+Berechtigungsfehler, Validierungsfehler, Geofencing-Fehler, Rate Limiting, RLS-Verletzungen, nicht
+vorhandene Daten.
+
+Alle unerwarteten Fehler werden zusätzlich an Sentry übertragen (Kapitel 18) — ausschließlich technische
+Informationen, keine personenbezogenen Daten.
 
 ## 16. Performance
 
@@ -672,7 +698,6 @@ bestätigt ist.
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
-| 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
 | 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
 | 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
 | 12 | Teststrategie im Detail (Framework, Testpyramide, Coverage-Ziel — grobe Testarten bereits in `TASKS.md` vorgesehen) | 19 |
