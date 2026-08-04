@@ -716,7 +716,7 @@ docs/
 └── ADR/
     ├── 001-State-Management.md      ✅ erstellt
     ├── 002-Authentication.md        ✅ erstellt
-    ├── 003-Realtime.md              🔴 geplant
+    ├── 003-Realtime.md              ✅ erstellt
     ├── 004-Database.md              🔴 geplant
     ├── 005-API-Architecture.md      🔴 geplant
     ├── 006-Maps.md                  🔴 geplant
