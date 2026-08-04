@@ -26,25 +26,35 @@ export const SpecialService = {
     return data;
   },
 
-  // docs/API.md Kapitel 6 „Aktuell gültige Specials ... einer Location abrufen" — `end_date` wird
-  // clientseitig gefiltert, da PostgREST-Filter für „Spalte ist NULL ODER Spalte >= Wert" ohne
-  // zusätzliche `.or()`-Query-Syntax nicht mit dem übrigen Filterkettenstil dieses Services
-  // kombinierbar sind; für die kleine, je Location erwartete Special-Anzahl ausreichend.
-  async getActiveSpecialsForLocation(locationId: string): Promise<Special[]> {
+  // docs/PRD.md Kapitel 10 „Highlights heute"/„Specials" (Home Dashboard) — aktuell gültige Specials
+  // standortübergreifend, optional nach Location eingrenzbar. `end_date` wird clientseitig gefiltert,
+  // da PostgREST-Filter für „Spalte ist NULL ODER Spalte >= Wert" ohne zusätzliche `.or()`-Query-Syntax
+  // nicht mit dem übrigen Filterkettenstil dieses Services kombinierbar sind; für die kleine,
+  // insgesamt erwartete Special-Anzahl ausreichend.
+  async getActiveSpecials(filters: SpecialFilters = {}): Promise<Special[]> {
     const today = new Date().toISOString().slice(0, 10);
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('specials')
       .select('*')
-      .eq('location_id', locationId)
       .eq('is_active', true)
-      .lte('start_date', today)
-      .order('priority', { ascending: false });
+      .lte('start_date', today);
+
+    if (filters.locationId) {
+      query = query.eq('location_id', filters.locationId);
+    }
+
+    const { data, error } = await query.order('priority', { ascending: false });
 
     if (error) {
       throw mapDatabaseError(error);
     }
 
     return data.filter((special) => special.end_date === null || special.end_date >= today);
+  },
+
+  // docs/API.md Kapitel 6 „Aktuell gültige Specials ... einer Location abrufen".
+  getActiveSpecialsForLocation(locationId: string): Promise<Special[]> {
+    return this.getActiveSpecials({ locationId });
   },
 };

@@ -1,0 +1,98 @@
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
+
+import { Header } from '../../../components/Header';
+import { theme } from '../../../theme/theme';
+import { CurrentActsSection } from '../components/CurrentActsSection';
+import { GreetingHeader } from '../components/GreetingHeader';
+import { HappyHoursSection } from '../components/HappyHoursSection';
+import { LiveOccupancySection } from '../components/LiveOccupancySection';
+import { MapQuickAccessButton } from '../components/MapQuickAccessButton';
+import { NextActSection } from '../components/NextActSection';
+import { SpecialsSection } from '../components/SpecialsSection';
+import { TodayHighlightsSection } from '../components/TodayHighlightsSection';
+import { WeatherWidget } from '../components/WeatherWidget';
+import { useHomeDashboard } from '../hooks/useHomeDashboard';
+
+// Home Dashboard gemäß docs/PRD.md Kapitel 10 — orchestriert ausschließlich über `useHomeDashboard()`
+// (CLAUDE.md → Vorgehensweise: keine Business-Logik/Datenzugriff im Screen, ausschließlich Hooks).
+// Der Map-Schnellzugriff navigiert noch nirgends hin, da der Map-Screen nicht Teil dieses Auftrags ist
+// (siehe MapQuickAccessButton.tsx) — sobald er existiert, ersetzt `navigation.navigate('Map')` diesen
+// Platzhalter-Callback.
+export function HomeScreen() {
+  const dashboard = useHomeDashboard();
+
+  return (
+    <ScrollView
+      testID="home-screen-scroll"
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={dashboard.isRefreshing}
+          onRefresh={dashboard.onRefresh}
+          tintColor={theme.colors.brand.primary}
+        />
+      }
+    >
+      <Header />
+      <GreetingHeader
+        greeting={dashboard.greeting.greeting}
+        displayName={dashboard.greeting.displayName}
+      />
+      <WeatherWidget
+        weather={dashboard.weather.weather}
+        isLoading={dashboard.weather.isLoading}
+        isError={dashboard.weather.isError}
+        error={dashboard.weather.error}
+      />
+      <MapQuickAccessButton onPress={() => {}} />
+      <LiveOccupancySection
+        occupancies={dashboard.liveOccupancy.occupancies}
+        isLoading={dashboard.liveOccupancy.isLoading}
+        isError={dashboard.liveOccupancy.isError}
+        error={dashboard.liveOccupancy.error}
+      />
+      <TodayHighlightsSection
+        events={dashboard.todayHighlights.events}
+        isLoading={dashboard.todayHighlights.isLoading}
+        isError={dashboard.todayHighlights.isError}
+        error={dashboard.todayHighlights.error}
+      />
+      <CurrentActsSection
+        acts={dashboard.currentActs.acts}
+        isLoading={dashboard.currentActs.isLoading}
+        isError={dashboard.currentActs.isError}
+        error={dashboard.currentActs.error}
+      />
+      <NextActSection
+        nextAct={dashboard.nextAct.nextAct}
+        isLoading={dashboard.nextAct.isLoading}
+        isError={dashboard.nextAct.isError}
+        error={dashboard.nextAct.error}
+      />
+      <HappyHoursSection
+        happyHours={dashboard.happyHours.happyHours}
+        isLoading={dashboard.happyHours.isLoading}
+        isError={dashboard.happyHours.isError}
+        error={dashboard.happyHours.error}
+      />
+      <SpecialsSection
+        specials={dashboard.specials.specials}
+        isLoading={dashboard.specials.isLoading}
+        isError={dashboard.specials.isError}
+        error={dashboard.specials.error}
+      />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background.base,
+  },
+  content: {
+    paddingVertical: theme.spacing.md,
+    gap: theme.spacing.lg,
+  },
+});

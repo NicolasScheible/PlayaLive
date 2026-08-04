@@ -36,6 +36,20 @@ erforderlich:
   siehe `.env.example`) sowie ein Mapbox-Downloads-Token für den nativen Build (als
   `RNMapboxMapsDownloadToken` im `@rnmapbox/maps`-Plugin-Eintrag in `app.json`, sobald vorhanden).
 
+## Supabase Edge Functions
+
+Die Edge Function `weather` (`supabase/functions/weather/`) ist ein serverseitiger Proxy zu
+OpenWeather (siehe `docs/PRD.md` Kapitel 15 „Wetter-API": Wetterdaten werden nie direkt aus dem
+Frontend abgefragt). Sie benötigt einen OpenWeather-API-Key als Supabase-Secret — **kein**
+`EXPO_PUBLIC_`-Client-Wert, da der Key ausschließlich serverseitig verwendet wird:
+
+```bash
+supabase secrets set OPENWEATHER_API_KEY=<dein-openweather-api-key>
+```
+
+Ohne gesetztes Secret liefert die Function `503 WEATHER_NOT_CONFIGURED` — das Wetter-Widget im
+Home Dashboard zeigt in diesem Fall seinen Fehlerzustand statt Daten.
+
 ## Verfügbare Scripts
 
 | Script                                            | Zweck                                                      |

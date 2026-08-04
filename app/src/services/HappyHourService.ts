@@ -39,21 +39,31 @@ export const HappyHourService = {
     return data;
   },
 
-  // docs/API.md Kapitel 6 „Aktuell gültige ... Happy Hours einer Location abrufen" — „aktuell gültig"
-  // bei wiederkehrenden Angeboten bedeutet „heute" (Wochentag), nicht ein Datum wie bei Specials.
-  async getActiveHappyHoursForLocation(locationId: string): Promise<HappyHour[]> {
-    const { data, error } = await supabase
+  // docs/PRD.md Kapitel 10 „Happy Hours" (Home Dashboard) — aktuell gültige Happy Hours
+  // standortübergreifend, optional nach Location eingrenzbar. „Aktuell gültig" bei wiederkehrenden
+  // Angeboten bedeutet „heute" (Wochentag), nicht ein Datum wie bei Specials.
+  async getActiveHappyHours(filters: HappyHourFilters = {}): Promise<HappyHour[]> {
+    let query = supabase
       .from('happy_hours')
       .select('*')
-      .eq('location_id', locationId)
       .eq('is_active', true)
-      .eq('weekday', currentWeekday())
-      .order('start_time', { ascending: true });
+      .eq('weekday', currentWeekday());
+
+    if (filters.locationId) {
+      query = query.eq('location_id', filters.locationId);
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: true });
 
     if (error) {
       throw mapDatabaseError(error);
     }
 
     return data;
+  },
+
+  // docs/API.md Kapitel 6 „Aktuell gültige ... Happy Hours einer Location abrufen".
+  getActiveHappyHoursForLocation(locationId: string): Promise<HappyHour[]> {
+    return this.getActiveHappyHours({ locationId });
   },
 };

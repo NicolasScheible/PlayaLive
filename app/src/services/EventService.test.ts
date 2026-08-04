@@ -22,6 +22,33 @@ describe('EventService', () => {
     expect(builder.lte).toHaveBeenCalledWith('start_time', '2026-12-31T00:00:00.000Z');
   });
 
+  describe('getCurrentEvents', () => {
+    it('filtert nach start_time <= now und optional nach Location', async () => {
+      const builder = createQueryBuilderMock({ data: [], error: null });
+      mockFrom.mockReturnValue(builder);
+
+      await EventService.getCurrentEvents({ locationId: 'loc-1' });
+
+      expect(builder.lte).toHaveBeenCalledWith('start_time', expect.any(String));
+      expect(builder.eq).toHaveBeenCalledWith('location_id', 'loc-1');
+    });
+
+    it('filtert bereits beendete Events (end_time in der Vergangenheit) clientseitig heraus', async () => {
+      const past = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      const events = [
+        { id: 'event-ongoing-no-end', end_time: null },
+        { id: 'event-ongoing', end_time: future },
+        { id: 'event-ended', end_time: past },
+      ];
+      mockFrom.mockReturnValue(createQueryBuilderMock({ data: events, error: null }));
+
+      const result = await EventService.getCurrentEvents();
+
+      expect(result.map((event) => event.id)).toEqual(['event-ongoing-no-end', 'event-ongoing']);
+    });
+  });
+
   it('getEventById gibt null zurück, wenn das Event nicht existiert', async () => {
     mockFrom.mockReturnValue(createQueryBuilderMock({ data: null, error: null }));
 

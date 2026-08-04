@@ -23,6 +23,12 @@ export const theme = {
     border: {
       subtle: 'rgba(255, 255, 255, 0.15)',
     },
+    // Dunkles Verlaufs-/Scrim-Overlay für Bild-Cards (Kapitel 12: „dunkles Verlaufs-Overlay am unteren
+    // Bildrand, damit darüberliegender weißer Text lesbar bleibt") sowie Badge-Hintergründe auf Bildern
+    // — Opazitäts-Ableitung von Schwarz, kein neuer Marken-/Statuswert.
+    overlay: {
+      scrim: 'rgba(0, 0, 0, 0.4)',
+    },
   },
   spacing: {
     xs: 4,
@@ -33,8 +39,14 @@ export const theme = {
   },
   radius: {
     pill: 999,
+    // 🔴 Provisorisch (siehe Kommentar oben): Kapitel 7 verlangt „großzügig abgerundete" Cards/Bilder,
+    // ohne exakten px/pt-Wert. `card` als deutlich sichtbarer, aber nicht vollständig ovaler Radius.
+    card: 20,
   },
   typography: {
+    // Kapitel 4, Hierarchiestufe 1: „Große, fette Zahlen/Headlines für zentrale Werte (z. B.
+    // Temperatur „28°", Auslastung „85%", Countdown-Timer)" — deutlich größer als `title`.
+    hero: { fontSize: 40, fontWeight: '700' },
     title: { fontSize: 24, fontWeight: '700' },
     body: { fontSize: 16, fontWeight: '400' },
     label: { fontSize: 14, fontWeight: '600' },

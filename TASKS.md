@@ -57,8 +57,9 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Navigation
 
-- [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator, noch mit
-  Platzhalter-Screens)
+- [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
+  seit dem Home Dashboard den echten `HomeScreen` statt des früheren Platzhalters, noch als einfacher
+  Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -71,11 +72,17 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Home Screen
 
-- [ ] Live-Auslastung-Übersicht und „Spielt gerade"-Anzeige
-- [ ] Übersicht: aktuelle Highlights (Top-Events, Top-Locations, Trends), Party Radar
-- [ ] Happy-Hours-Übersicht eingebunden
-- [ ] Einstieg in Live Map, Events, Artists
-- [ ] Wetter-Anzeige eingebunden
+- [x] Live-Auslastung-Übersicht und „Spielt gerade"-Anzeige (`LiveOccupancySection`,
+  `CurrentActsSection`, `NextActSection` — `useLiveOccupancy`/`useCurrentActs`/`useNextAct`)
+- [x] Übersicht: aktuelle Highlights (`TodayHighlightsSection`/`useTodayHighlights`, umgesetzt als
+  „heutige Events" statt einer nicht dokumentierten „Top"/„Trend"-Rangfolge — „Top-Locations"/„Trends"/
+  „Party Radar" bewusst nicht erfunden, da PRD/Database.md kein Ranking-Kriterium definieren)
+- [x] Happy-Hours-Übersicht eingebunden (`HappyHoursSection`, inkl. Specials, `SpecialsSection`)
+- [x] Einstieg in Live Map (`MapQuickAccessButton` — Button ohne Navigationsziel, da der Map-Screen
+  selbst noch nicht existiert); Einstieg in Events/Artists bewusst nicht Teil dieses Schritts
+- [x] Wetter-Anzeige eingebunden (`WeatherWidget`/`useWeather`, siehe Abschnitt „Wetter")
+- [x] Header, Begrüßung, Ladezustände (Skeleton), Fehlerzustände, Pull-to-Refresh je Section
+  (`useHomeDashboard`, `src/components/Skeleton*`/`ErrorState`/`EmptyState`)
 
 ## Map Screen
 
@@ -123,7 +130,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer: `AuthService`,
   `LocationService`, `ArtistService`, `EventService`, `FavoriteService`, `ReportService` +
   `ReportRepository`, `SpecialService`, `HappyHourService`, `ReviewService` + `ReviewRepository`,
-  `NotificationService`)
+  `NotificationService`, `WeatherService`)
+- [x] Edge Function `weather` (`supabase/functions/weather/`) als serverseitiger OpenWeather-Proxy —
+  OpenWeather-API-Key muss vor Betrieb per `supabase secrets set OPENWEATHER_API_KEY=...` gesetzt
+  werden (siehe `app/README.md` → „Supabase Edge Functions")
 - [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig implementiert
   (E-Mail/Passwort: Login, Registrierung, Passwort-Reset, Session-Handling), serverseitige
   Supabase-Projekt-Konfiguration (Rate Limits, Redirect-URLs, E-Mail-Templates) noch offen; Apple/
@@ -158,7 +168,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Wetter
 
 - [x] Wetter-API-Anbindung ausgewählt (OpenWeather API, über eigenen `WeatherService`)
-- [ ] Temperatur- und Wetterbedingungs-Anzeige (Home Screen, ggf. Map)
+- [x] Temperatur- und Wetterbedingungs-Anzeige (Home Screen: `WeatherWidget`) — kompakte Anzeige
+  (Temperatur, gefühlte Temperatur, Zustand, Luftfeuchtigkeit, Wind); Regenwahrscheinlichkeit/
+  UV-Index/Sonnenauf-/-untergang folgen mit dem Wetter-Detailscreen (benötigen die kostenpflichtige
+  OpenWeather-One-Call-API); Map-Anzeige nicht Teil dieses Schritts
 - [ ] Eigener Wetter-Screen im Menü (siehe `docs/PRD.md` Kapitel 10/11)
 
 ## Testing

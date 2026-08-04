@@ -34,6 +34,29 @@ export const EventService = {
     return data;
   },
 
+  // docs/PRD.md Kapitel 10 „Spielt gerade" (Home Dashboard) — Events, die jetzt laufen
+  // (start_time <= now <= end_time), im Unterschied zu `getUpcomingEvents` (start_time >= now), das
+  // bereits begonnene Events nicht mehr liefern würde. `end_time` wird clientseitig gefiltert, analog
+  // zu `SpecialService.getActiveSpecialsForLocation` (kein `.or()`-Filter für „NULL ODER >= Wert" in
+  // diesem Service-Stil).
+  async getCurrentEvents(filters: EventFilters = {}): Promise<Event[]> {
+    const now = new Date().toISOString();
+
+    let query = supabase.from('events').select('*').is('deleted_at', null).lte('start_time', now);
+
+    if (filters.locationId) {
+      query = query.eq('location_id', filters.locationId);
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: false });
+
+    if (error) {
+      throw mapDatabaseError(error);
+    }
+
+    return data.filter((event) => event.end_time === null || event.end_time >= now);
+  },
+
   // docs/API.md Kapitel 4 „Event-Details abrufen (inkl. zugeordneter Location und Artists)".
   async getEventById(id: string): Promise<EventWithDetails | null> {
     const { data: event, error: eventError } = await supabase

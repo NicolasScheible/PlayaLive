@@ -25,22 +25,35 @@ describe('SpecialService', () => {
     });
   });
 
-  describe('getActiveSpecialsForLocation', () => {
-    it('filtert Specials ohne end_date oder mit end_date in der Zukunft heraus', async () => {
+  describe('getActiveSpecials', () => {
+    it('filtert Specials ohne end_date oder mit end_date in der Zukunft heraus, standortübergreifend', async () => {
       const today = new Date().toISOString().slice(0, 10);
       const specials = [
         { id: 'special-1', end_date: null },
         { id: 'special-2', end_date: '2099-01-01' },
         { id: 'special-3', end_date: '2000-01-01' },
       ];
-      mockFrom.mockReturnValue(createQueryBuilderMock({ data: specials, error: null }));
+      const builder = createQueryBuilderMock({ data: specials, error: null });
+      mockFrom.mockReturnValue(builder);
 
-      const result = await SpecialService.getActiveSpecialsForLocation('loc-1');
+      const result = await SpecialService.getActiveSpecials();
 
+      expect(builder.eq).not.toHaveBeenCalledWith('location_id', expect.anything());
       expect(result.map((special) => special.id)).toEqual(['special-1', 'special-2']);
       expect(
         result.every((special) => special.end_date === null || special.end_date >= today),
       ).toBe(true);
+    });
+  });
+
+  describe('getActiveSpecialsForLocation', () => {
+    it('delegiert an getActiveSpecials mit gesetzter locationId', async () => {
+      const builder = createQueryBuilderMock({ data: [], error: null });
+      mockFrom.mockReturnValue(builder);
+
+      await SpecialService.getActiveSpecialsForLocation('loc-1');
+
+      expect(builder.eq).toHaveBeenCalledWith('location_id', 'loc-1');
     });
   });
 });

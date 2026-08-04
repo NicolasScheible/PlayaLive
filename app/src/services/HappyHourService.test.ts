@@ -25,8 +25,8 @@ describe('HappyHourService', () => {
     });
   });
 
-  describe('getActiveHappyHoursForLocation', () => {
-    it('filtert nach dem heutigen Wochentag', async () => {
+  describe('getActiveHappyHours', () => {
+    it('filtert nach dem heutigen Wochentag, standortübergreifend', async () => {
       const weekdays = [
         'sunday',
         'monday',
@@ -40,10 +40,21 @@ describe('HappyHourService', () => {
       const builder = createQueryBuilderMock({ data: [], error: null });
       mockFrom.mockReturnValue(builder);
 
+      await HappyHourService.getActiveHappyHours();
+
+      expect(builder.eq).not.toHaveBeenCalledWith('location_id', expect.anything());
+      expect(builder.eq).toHaveBeenCalledWith('weekday', today);
+    });
+  });
+
+  describe('getActiveHappyHoursForLocation', () => {
+    it('delegiert an getActiveHappyHours mit gesetzter locationId', async () => {
+      const builder = createQueryBuilderMock({ data: [], error: null });
+      mockFrom.mockReturnValue(builder);
+
       await HappyHourService.getActiveHappyHoursForLocation('loc-1');
 
       expect(builder.eq).toHaveBeenCalledWith('location_id', 'loc-1');
-      expect(builder.eq).toHaveBeenCalledWith('weekday', today);
     });
   });
 });
