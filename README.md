@@ -2,24 +2,23 @@
 
 ## Projektübersicht
 
-PlayaLive ist eine mobile App, die Nutzern in Echtzeit Informationen über Strände liefert — Andrang,
-Wetter, Wasserbedingungen und Sicherheitshinweise — kombiniert mit einer Community-Funktion, um
-Strandbesuche live zu teilen und zu koordinieren.
+PlayaLive ist eine mobile App, die Besuchern der Playa de Palma (Mallorca) in Echtzeit zeigt, was im
+Nightlife gerade läuft: Clubs, Bars, Events, Künstler, Auslastung, Öffnungszeiten, Specials und
+Community-Meldungen.
 
 Details zu Vision, Zielgruppe und Funktionsumfang: siehe [`PROJECT.md`](./PROJECT.md).
 
 ## Ziel der App
 
-Nutzer sollen jederzeit schnell einschätzen können, wie es an einem Strand gerade aussieht, und sich mit
-anderen Strandgängern live austauschen können — statt sich auf veraltete oder gar keine Informationen zu
-verlassen.
+Nutzer sollen jederzeit wissen: "Was passiert gerade in Playa de Palma und wo lohnt es sich
+hinzugehen?" — anhand von Live-Auslastung, aktuellen Events und Künstlern statt Rumfragen oder Raten.
 
 ## Technologien
 
 - **App:** React Native mit Expo, TypeScript
 - **Backend:** Supabase (Auth, Postgres-Datenbank, Realtime, Storage)
 - **Karten:** Mapbox
-- **Notifications:** Expo Notifications
+- **Notifications:** Firebase Notifications
 
 Der vollständige, begründete Tech-Stack steht in [`PROJECT.md`](./PROJECT.md).
 
@@ -47,7 +46,7 @@ Der detaillierte Fortschritt wird in [`TASKS.md`](./TASKS.md) als Checkliste gef
 ```bash
 # TODO: Voraussetzungen (Node-Version, Expo CLI, etc.)
 # TODO: Installation
-# TODO: Umgebungsvariablen (.env) — Supabase- und Mapbox-Keys
+# TODO: Umgebungsvariablen (.env) — Supabase-, Mapbox- und Firebase-Keys
 # TODO: Lokalen Entwicklungsserver starten
 ```
 

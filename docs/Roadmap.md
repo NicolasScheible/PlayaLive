@@ -24,7 +24,8 @@
 ## Meilenstein 3 — MVP-Kernfunktionen
 
 - Zeitraum: _TODO_
-- Inhalt: Karte, Strand-Details, Check-in, Auth, Live-Updates
+- Inhalt: Live Map (Clubs/Bars, Auslastung), Events, Künstlerprofile, Favoriten, Community Reports,
+  Wetter, Auth
 - Status: offen
 
 ## Meilenstein 4 — Backend-Integration

@@ -1,71 +1,86 @@
 # PROJECT.md — PlayaLive
 
-> Hinweis: Dieses Dokument definiert die inhaltliche Grundlage von PlayaLive. Da zu Projektbeginn noch keine
-> detaillierte Spezifikation vorlag, wurden sinnvolle Annahmen getroffen (insbesondere zu Zielgruppe und
-> Kernfunktionen). Diese Annahmen sind explizit markiert und sollten mit dem Projektverantwortlichen
-> abgeglichen und bei Bedarf angepasst werden.
-
 ## Projektbeschreibung
 
-PlayaLive ist eine mobile App (React Native / Expo), die Strand- und Küstenbesuchern in Echtzeit
-Informationen über Strände liefert und eine soziale Komponente bietet, um Erlebnisse am Strand zu teilen
-und zu koordinieren.
+PlayaLive ist eine mobile App (React Native / Expo), die Besuchern von **Playa de Palma, Mallorca** in
+Echtzeit zeigt, was gerade im Nightlife- und Party-Geschehen der Region passiert: Clubs, Bars, Events,
+Künstler, Auslastung, Öffnungszeiten, Specials und Community-Meldungen.
 
-Kernidee: Bevor oder während man an den Strand fährt, sieht man auf einer Karte den aktuellen Zustand
-verschiedener Strände (Andrang, Wetter, Wasserbedingungen, Sicherheitshinweise/Flaggen) und kann sich mit
-anderen Nutzern live austauschen (Check-ins, Fotos, Status-Updates, Events).
-
-*(Annahme: "Playa" = spanisch für Strand. Der Fokus liegt auf Strand-/Küstenregionen. Falls eine andere
-Bedeutung/Ausrichtung gemeint ist, bitte in PROJECT.md korrigieren.)*
+Kernidee: Statt selbst herumzufragen oder zu raten, sieht der Nutzer auf einen Blick, wo gerade etwas los
+ist, wie voll welche Location ist, welche Events und Künstler heute laufen — und kann direkt hingehen.
 
 ## Vision
 
-PlayaLive soll die zentrale App für alles rund um den Strandbesuch werden: Nutzer sollen in Sekunden
-wissen, wie voll ein Strand ist, wie das Wetter und die Wasserbedingungen sind, ob es Sicherheitswarnungen
-gibt, und was gerade dort passiert (Events, Treffen, Aktivitäten) — live und community-getrieben statt
-statisch.
+PlayaLive ist die zentrale Live-App für Besucher von Playa de Palma.
+
+Die App zeigt in Echtzeit:
+- Clubs
+- Bars
+- Events
+- Künstler
+- Partystimmung
+- Auslastung
+- Öffnungszeiten
+- Specials
+- Community-Meldungen
+
+Ziel ist, dass Nutzer jederzeit wissen: **"Was passiert gerade in Playa de Palma und wo lohnt es sich
+hinzugehen?"**
 
 Langfristig soll PlayaLive:
-- die verlässlichste Live-Datenquelle für Strände in der Zielregion sein,
-- eine aktive, hilfsbereite Community aus Strandgängern aufbauen,
-- lokalen Anbietern (Beachclubs, Rettungsschwimmer, Veranstalter) eine Plattform bieten, um Informationen
-  und Events zu teilen.
+- die verlässlichste Live-Datenquelle für das Nightlife an der Playa de Palma sein,
+- eine aktive Community aufbauen, die Auslastung und Stimmung in Echtzeit meldet,
+- Clubs, Bars und Veranstaltern eine Plattform bieten, um Events, Künstler und Specials sichtbar zu
+  machen.
 
 ## Zielgruppe
 
-- **Primär:** Strandgänger und Wassersportler (Schwimmer, Surfer, Familien), die regelmäßig Strände
-  besuchen und aktuelle Informationen vor Ort brauchen.
-- **Sekundär:** Touristen, die eine Region nicht kennen und Orientierung zu Stränden suchen.
-- **Tertiär (später):** Lokale Anbieter (Beachbars, Rettungsschwimmer-Stationen, Event-Veranstalter), die
-  Informationen offiziell bereitstellen möchten.
-
-*(Annahme, bitte bei Bedarf präzisieren: Altersgruppe, Region/Land, Sprache(n).)*
+- Urlauber auf Mallorca
+- Partyurlauber
+- Junge Erwachsene
+- Gruppen (Freundesgruppen, Junggesellenabschiede etc.)
+- Eventbesucher
+- Besucher von Clubs und Bars
 
 ## MVP (Minimum Viable Product)
 
-Der MVP soll den Kernnutzen so schlank wie möglich demonstrieren:
+1. **Live Map** — Karte mit Clubs/Bars an der Playa de Palma, Live-Auslastung (Leer/Mittel/Voll)
+2. **Events** — Tagesprogramm, kommende Events, Künstler, Startzeiten
+3. **Künstlerprofile** — DJs, Auftritte, Favoriten
+4. **Favoriten** — Locations und Künstler speichern, Benachrichtigungen erhalten
+5. **Community Reports** — Nutzer melden Auslastung, Echtzeit-Updates
+6. **Wetter** — Temperatur, Wetterbedingungen
 
-1. Kartenansicht mit Stränden in der Nähe (Mapbox)
-2. Detailansicht pro Strand: aktuelle Bedingungen (manuell/community-gepflegt oder externe Quelle),
-   Andrang-Einschätzung
-3. Nutzer-Check-in an einem Strand
-4. Einfache Live-Statusmeldungen von Nutzern (Text + optional Foto) pro Strand
-5. Registrierung/Login (Supabase Auth)
-6. Push-Benachrichtigungen für ausgewählte Strände (z. B. neue Meldung, Warnung)
+## Hauptfunktionen
 
-Alles darüber hinaus (Events, Chat, Beachclub-Profile, Gamification, Freundesystem etc.) ist Post-MVP.
+### 1. Live Map
+- Karte mit Locations (Clubs und Bars)
+- Live-Auslastung pro Location
+- Auslastungs-Status: Leer / Mittel / Voll
 
-## Hauptfunktionen (Gesamtübersicht, über MVP hinaus)
+### 2. Events
+- Tagesprogramm
+- Kommende Events
+- Künstler pro Event
+- Startzeiten
 
-- Interaktive Karte mit allen erfassten Stränden
-- Live-Strandstatus: Andrang, Wetter, Wassertemperatur, Wellenbedingungen, Sicherheitsflaggen
-- Community Check-ins und Live-Updates (Text/Foto)
-- Strand-Detailseiten mit Historie und Bewertungen
-- Events an Stränden (z. B. Beachvolleyball, Konzerte, Treffen)
-- Freunde/Follow-System, um zu sehen wer wo ist
-- Push-Benachrichtigungen (Warnungen, Freunde in der Nähe, Events)
-- Benutzerprofile
-- (Später) Verifizierte Anbieter-Accounts für offizielle Informationen
+### 3. Künstlerprofile
+- DJs
+- Auftritte (aktuelle und kommende)
+- Favoriten
+
+### 4. Favoriten
+- Locations speichern
+- Künstler speichern
+- Benachrichtigungen bei Neuigkeiten zu Favoriten
+
+### 5. Community Reports
+- Nutzer melden aktuelle Auslastung einer Location
+- Echtzeit-Updates für andere Nutzer sichtbar
+
+### 6. Wetter
+- Temperatur
+- Wetterbedingungen
 
 ## Technologie-Stack
 
@@ -73,9 +88,8 @@ Alles darüber hinaus (Events, Chat, Beachclub-Profile, Gamification, Freundesys
 - **Navigation:** React Navigation
 - **Backend/Datenbank:** Supabase (Postgres, Auth, Realtime, Storage, Edge Functions)
 - **Karten:** Mapbox
-- **State Management:** wird in der Architekturphase festgelegt (z. B. Zustand oder React Query +
-  Context), kein Overengineering
-- **Push Notifications:** Expo Notifications
+- **Push Notifications:** Firebase Notifications
+- **State Management:** wird in der Architekturphase festgelegt, kein Overengineering
 - **Sprache:** TypeScript durchgängig (Frontend und ggf. Edge Functions)
 
 Details und Begründungen folgen in `docs/Database.md` und `docs/API.md`, sobald die Architekturphase
@@ -83,12 +97,18 @@ beginnt.
 
 ## Design-Richtlinien
 
-- Klar, hell, "sommerlich" — an Strand/Wasser/Sonne angelehnte Farbwelt (Details folgen in
-  `docs/Design.md`)
-- Mobile-first, große Touch-Ziele, wenig Text, viel visuelle Information (Karte, Icons, Badges)
+Modernes iOS-Design mit Premium-Nightlife-Look:
+
+- Dark Mode als Basis
+- Neon-Akzente
+- Große, klare Karten (Cards) für Locations, Events und Künstler
+- Moderne, reduzierte Navigation
+- Mobile-first, große Touch-Ziele, viel visuelle Information (Karte, Icons, Badges für Auslastung)
 - Konsistente Komponentenbibliothek statt Einzellösungen pro Screen
-- Barrierefreiheit (Kontraste, Lesbarkeit) von Anfang an mitdenken
+- Barrierefreiheit (Kontraste, Lesbarkeit) auch im Dark-Mode/Neon-Look mitdenken
 - Performance: Karte und Live-Daten müssen auch bei schlechter mobiler Verbindung nutzbar bleiben
+
+Details folgen in `docs/Design.md`.
 
 ## Entwicklungsprinzipien
 

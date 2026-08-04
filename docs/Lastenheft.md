@@ -1,6 +1,7 @@
 # Lastenheft — PlayaLive
 
 > Status: leer/strukturell — wird in der Planungsphase ausgefüllt.
+> Scope: Live-Event- und Party-App für Playa de Palma, Mallorca (siehe `PROJECT.md`).
 
 ## 1. Zielbestimmung
 
@@ -14,7 +15,8 @@ _TODO_
 
 ### 1.3 Abgrenzungskriterien (was PlayaLive nicht ist/nicht tut)
 
-_TODO_
+_TODO_ (Hinweis: kein allgemeiner Strand-/Reiseführer, sondern fokussiert auf Nightlife/Events an der
+Playa de Palma)
 
 ## 2. Produkteinsatz
 
