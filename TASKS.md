@@ -36,6 +36,7 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Kapitel 17: Dev/Staging/Prod, EAS Secrets)
 - [x] Technische Architektur vollständig dokumentiert (`docs/Architecture.md`, 12 Architekturentscheidungen)
 - [x] Design System mit konkreten Werten aus den finalen UI-Designs erstellt (`docs/DesignSystem.md`)
+- [x] ADR-Dokumente erstellt (`docs/ADR/001`–`008`, je eine bereits getroffene Entscheidung)
 
 ## Expo Setup
 

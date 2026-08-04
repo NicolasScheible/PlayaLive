@@ -8,10 +8,9 @@
 > Prinzip-Ebene getroffen wurde (z. B. konkrete Design-Werte), ist das an der jeweiligen Stelle vermerkt.
 >
 > Die in Kapitel 21 beschriebenen Architektur-Dokumente `docs/Architecture.md` und `docs/DesignSystem.md`
-> sind inzwischen erstellt und enthalten die technischen bzw. gestalterischen Detailentscheidungen, die
-> über den in diesem PRD dokumentierten Rahmen hinausgehen. Nächster Schritt: die ADR-Dokumente unter
-> `docs/ADR/` (siehe Kapitel 21) werden auf Basis der bereits getroffenen Entscheidungen einzeln
-> ausgearbeitet, bevor mit der Implementierung begonnen wird.
+> sowie die begleitenden ADR-Dokumente unter `docs/ADR/` (siehe Kapitel 21) sind inzwischen erstellt und
+> enthalten die technischen bzw. gestalterischen Detailentscheidungen, die über den in diesem PRD
+> dokumentierten Rahmen hinausgehen.
 
 ## 1. Produktvision
 
@@ -708,8 +707,9 @@ und Datenschutz besitzen höchste Priorität; Risiken werden dokumentiert und be
 `docs/Architecture.md` (technische Architektur, inkl. 12 im Detail geklärter Architekturentscheidungen)
 und `docs/DesignSystem.md` (Design System auf Basis der finalen UI-Designs) sind erstellt und verbindlich.
 
-Die begleitenden ADR-Dokumente werden einzeln, in numerischer Reihenfolge und ausschließlich auf Basis
-bereits getroffener Entscheidungen erstellt:
+Die begleitenden ADR-Dokumente unter `docs/ADR/` sind vollständig erstellt — jedes dokumentiert
+ausschließlich eine bereits getroffene Entscheidung, ohne neue Produkt-, Architektur- oder
+Designentscheidungen:
 
 ```
 docs/
@@ -721,7 +721,7 @@ docs/
     ├── 005-API-Architecture.md      ✅ erstellt
     ├── 006-Maps.md                  ✅ erstellt
     ├── 007-Notifications.md         ✅ erstellt
-    └── 008-Security.md              🔴 geplant
+    └── 008-Security.md              ✅ erstellt
 ```
 
 ## 22. Offene Punkte

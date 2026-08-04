@@ -60,6 +60,7 @@ Der detaillierte Fortschritt wird in [`TASKS.md`](./TASKS.md) als Checkliste gef
 - [`docs/Lastenheft.md`](./docs/Lastenheft.md) — Funktionale/nicht-funktionale Anforderungen
 - [`docs/Roadmap.md`](./docs/Roadmap.md) — Zeitliche/inhaltliche Meilensteine
 - [`docs/Architecture.md`](./docs/Architecture.md) — Technische Architektur
+- [`docs/ADR/`](./docs/ADR/) — Architecture Decision Records
 - [`docs/Database.md`](./docs/Database.md) — Datenbankmodell
 - [`docs/API.md`](./docs/API.md) — API-Design
 - [`docs/Design.md`](./docs/Design.md) — Design-Prinzipien (Kurzübersicht)
