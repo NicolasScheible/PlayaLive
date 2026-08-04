@@ -102,7 +102,7 @@ Integritätsprüfung).
 Community-Meldungen zur aktuellen Auslastung, Wartezeit und Stimmung einer Location.
 
 - Felder (geplant): ID, User-Referenz, Location-Referenz, gemeldetes Auslastungslevel, Wartezeit,
-  Stimmung, Geokoordinaten (zur Geofencing-Prüfung), Zeitstempel
+  Stimmung, Musikrichtung, optionaler Kommentar, Geokoordinaten (zur Geofencing-Prüfung), Zeitstempel
 - Beziehungen: gehört zu einem Profile, gehört zu einer Location, kann mehrere Report Flags haben
 - Aggregationslogik (Zeitgewichtung, Vertrauensscore, Mindestanzahl, Mehrfachbestätigung): siehe
   `docs/PRD.md` → Community-Report-Aggregation

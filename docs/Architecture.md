@@ -146,19 +146,27 @@ Diese Struktur gilt erst nach ausdrücklicher Bestätigung als verbindlich.
 
 ## 7. Navigation
 
-✅ Entschieden (`docs/PRD.md` Kapitel 11):
+✅ Entschieden (`docs/PRD.md` Kapitel 11, nach Design-Review mit den finalen UI-Designs aktualisiert):
 
-- Grundstruktur: Tab-/Stack-Navigation mit den Bereichen **Home → Map → Events → Artists → Favorites →
-  Profile**.
+- **Bottom Navigation** mit fünf Elementen: **Home → Map → Community-Report-Schnellzugriff → Events →
+  Profile**. Home, Map, Events und Profile sind vollwertige Tabs; der mittlere Button ist kein
+  Navigationsziel, sondern ein Schnellzugriff auf den Community-Report-Flow.
+- **Hamburger-Menü** für sekundäre Bereiche ohne dauerhafte Bottom-Tab-Sichtbarkeit: Artists, Favorites,
+  Happy Hours, Weather, Services, Settings, Help, Privacy, About.
 - Da Login ab v1.0 verpflichtend ist (kein Gastmodus), durchläuft jeder Nutzer vor der Hauptnavigation
   einen Login-/Registrierungs-Flow (Apple Sign-In / Google Sign-In / E-Mail & Passwort — siehe
   `docs/PRD.md` Kapitel 12). Es gibt keinen „App-Flow ohne Login".
-- Der Community-Report-Flow ist kein eigener Tab, sondern Teil des Map-/Location-Kontexts
-  (`docs/PRD.md` Kapitel 10).
+
+Das Hamburger-Menü ist technisch ein zusätzliches Navigations-Pattern (Drawer) neben Tabs und Stacks —
+das war in der vorherigen Fassung dieses Dokuments nicht vorgesehen und wirkt sich auf die
+Navigationsstruktur in Kapitel 5 (Ordnerstruktur, `navigation/`) aus.
 
 🔴 **Offene Architekturentscheidung:** genaue Stack-Verschachtelung pro Tab (z. B. ob Location-Details
-als Modal oder als Stack-Screen geöffnet werden), Deep-Linking-Konzept, Verhalten beim Session-Ablauf
-während der Nutzung (automatischer Rücksprung zum Login vs. In-App-Hinweis).
+als Modal oder als Stack-Screen geöffnet werden — die UI-Designs zeigen hierfür einen eigenen
+Stack-Screen, siehe `docs/DesignSystem.md` Kapitel 17, das aber noch nicht als Architekturentscheidung
+nachgezogen wurde), technische Umsetzung des Drawer-/Menü-Patterns in React Navigation, Deep-Linking-
+Konzept, Verhalten beim Session-Ablauf während der Nutzung (automatischer Rücksprung zum Login vs.
+In-App-Hinweis).
 
 ## 8. Service Layer
 
@@ -546,7 +554,7 @@ bestätigt ist.
 | 1 | Konkrete Paketversionen, Expo-SDK, Node-Version, ESLint-/Prettier-Regelwerk (Tools selbst bereits in `TASKS.md` vorgesehen) | 3 |
 | 2 | Logging-/Monitoring-Anbieter | 3, 18 |
 | 3 | Verortung des App-Codes im Repository (Root vs. Unterordner) | 4 |
-| 4 | Genaue Navigations-Stack-Verschachtelung, Deep-Linking, Session-Ablauf-Verhalten | 7 |
+| 4 | Genaue Navigations-Stack-Verschachtelung, technische Umsetzung des Hamburger-Menü/Drawer-Patterns, Deep-Linking, Session-Ablauf-Verhalten | 7 |
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
 | 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |

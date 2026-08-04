@@ -58,8 +58,10 @@ Favoriten werden über eine zentrale, polymorphe Tabelle abgebildet (siehe `docs
 
 ## 8. Reports
 
-- Community-Report zur Auslastung/Wartezeit/Stimmung einer Location erstellen (serverseitig geprüft:
-  Login, Rate Limiting, Geofencing — siehe `docs/PRD.md` → Missbrauchsschutz)
+- Community-Report zur Auslastung/Wartezeit/Stimmung/Musikrichtung (optional mit Kommentar) einer
+  Location erstellen — über den zentralen Schnellzugriff-Button der Bottom Navigation (`docs/PRD.md`
+  Kapitel 11), serverseitig geprüft: Login, Rate Limiting, Geofencing (siehe `docs/PRD.md` →
+  Missbrauchsschutz)
 - Aktuellen, aggregierten Live-Status einer Location abrufen (Zeitgewichtung, Vertrauensscore,
   Mehrfachbestätigung — siehe `docs/PRD.md` → Community-Report-Aggregation)
 - Eigene abgegebene Reports abrufen

@@ -195,28 +195,77 @@ abgeschlossen ist.
 
 ## 10. Screenübersicht
 
-| Screen | Inhalt |
-|---|---|
-| Home | Highlights (Top-Events, Top-Locations, Trends), Party Radar, Einstieg in Map/Events/Artists, Wetter-Anzeige |
-| Map | Live Map mit Locations, Live-Auslastungs-Anzeige pro Location, Location-Detailansicht (Öffnungszeiten, Specials, Happy Hours, Events) |
-| Events | Tagesprogramm-Ansicht, kommende Events, Event-Detailansicht (Künstler, Startzeit, Location) |
-| Artists | Künstlerprofile (DJs), Auftritte (aktuell/kommend) pro Künstler, favorisierbar |
-| Favorites | Gespeicherte Locations, Künstler und Events, Benachrichtigungen bei Neuigkeiten |
-| Profile | Profilseite (Nutzerdaten, Vertrauenslevel), Einstellungen (u. a. Benachrichtigungen), Login/Logout |
+Verbindlich festgelegt auf Basis der finalen UI-Designs (Design-Review, siehe `docs/DesignSystem.md`
+Kapitel 16). Unterschieden wird zwischen Screens in der Bottom Navigation und Screens, die über das
+Hamburger-Menü erreichbar sind (siehe Kapitel 11).
 
-Zusätzlich existiert ein **Community-Report-Flow** (Teil des Map/Location-Kontexts, kein eigener Tab).
+| Screen | Zugriff | Inhalt |
+|---|---|---|
+| Home | Bottom-Tab | Highlights (Top-Events, Top-Locations, Trends), Party Radar, Einstieg in Map/Events/Artists, Wetter-Anzeige |
+| Map | Bottom-Tab | Live Map mit Locations, Live-Auslastungs-Anzeige pro Location, Location-Detailansicht (Öffnungszeiten, Specials, Happy Hours, Events) |
+| Events | Bottom-Tab | Tagesprogramm-Ansicht, kommende Events, Event-Detailansicht (Künstler, Startzeit, Location) |
+| Profile | Bottom-Tab | Profilseite (Nutzerdaten, Vertrauenslevel), Einstellungen (u. a. Benachrichtigungen), Login/Logout |
+| Artists | Menü | Künstlerprofile (DJs), Auftritte (aktuell/kommend) pro Künstler, favorisierbar |
+| Favorites | Menü | Gespeicherte Locations, Künstler und Events, Benachrichtigungen bei Neuigkeiten |
+| Happy Hours | Menü | Übersicht aktueller Happy Hours/Specials je Location |
+| Weather | Menü | Detaillierte Wetteransicht (siehe Kapitel 14) |
+| Services | Menü | Zusatzangebote der Locations — Inhalt für Version 1.0 durch die Nicht-Ziele (Kapitel 6) begrenzt, nicht abschließend spezifiziert |
+| Settings | Menü | App-/Kontoeinstellungen |
+| Help / Privacy / About | Menü | Hilfe & Support, Datenschutz, Über PlayaLive |
 
-Konkrete Wireframes/visuelle Entwürfe existieren aktuell noch nicht — siehe Kapitel 17 und Kapitel 21
-(geplantes `DesignSystem.md`).
+Der **Community-Report-Flow** ist kein eigener Screen im obigen Sinn, sondern über den zentralen
+Schnellzugriff-Button der Bottom Navigation erreichbar (siehe Kapitel 11).
+
+Konkrete Wireframes/visuelle Entwürfe: siehe die vom Product Owner bereitgestellten UI-Designs,
+ausgewertet in `docs/DesignSystem.md`.
 
 ## 11. Hauptnavigation
 
-Grundstruktur: Tab-/Stack-Navigation mit den Bereichen, in dieser Reihenfolge:
+Verbindlich festgelegt auf Basis der finalen UI-Designs (Design-Review Punkt 1).
 
-**Home → Map → Events → Artists → Favorites → Profile**
+### Bottom Navigation
+
+Fünf Elemente, in dieser Reihenfolge:
+
+**Home → Map → Community-Report-Schnellzugriff → Events → Profile**
+
+Home, Map, Events und Profile sind vollwertige Bottom-Tabs. Der mittlere, hervorgehobene Button ist
+**kein** Navigationsziel und **kein** allgemeiner Floating-Action-Button, sondern ausschließlich ein
+Schnellzugriff auf den Community-Report-Flow.
+
+### Community-Report-Schnellzugriff
+
+Über den zentralen Button meldet der Nutzer innerhalb weniger Sekunden Live-Informationen zu einer
+Location:
+
+- Auslastung
+- Wartezeit
+- Stimmung
+- Musikrichtung
+- optional: Kommentar
+
+Dies unterstützt direkt den Kernnutzen von PlayaLive (Kapitel 1) und soll ohne Umwege über die Bottom
+Navigation erreichbar sein.
+
+> Hinweis: „Musikrichtung" und ein optionaler Kommentar sind gegenüber dem bisherigen Datenmodell
+> (Kapitel 16, `docs/Database.md` 2.10) zusätzliche Report-Felder — im Datenmodell nachgezogen.
+
+### Hamburger-Menü
+
+Zusätzlich zur Bottom Navigation gibt es ein Menü (Zugriff über ein Menü-Icon in der Kopfzeile) für
+sekundäre Bereiche, die nicht dauerhaft sichtbar sein müssen: Künstler, Favoriten, Happy Hours, Wetter,
+Services, Einstellungen, Hilfe & Support, Datenschutz, Über PlayaLive. Diese Bereiche bleiben
+vollständiger Bestandteil der App, sind aber nicht Teil der Bottom Navigation.
 
 Da Login ab Version 1.0 verpflichtend ist (siehe Kapitel 12), gibt es keinen separaten „App-Flow ohne
 Login" — jeder Nutzer durchläuft vor der Hauptnavigation einen Login-/Registrierungs-Flow.
+
+### Nicht Bestandteil von Version 1.0
+
+Die UI-Designs enthalten zusätzliche Screens (Community-/Social-Feed mit Gruppen, Gamification/Rewards,
+Ticketing, Zahlungsmethoden, VIP-/Tisch-/Getränke-/Transport-Services). Diese sind laut Product Owner
+**Design- bzw. Zukunftskonzepte** und ändern die bereits in Kapitel 6 (Nicht-Ziele) und Kapitel 8
+(Priorisierung) getroffenen Entscheidungen für Version 1.0 nicht.
 
 ## 12. Rollenmodell & Authentifizierung
 
@@ -519,7 +568,7 @@ JSON-Felder für strukturierte Inhalte, Beziehungen ausschließlich über Foreig
 | `specials` | Zeitlich begrenzte Aktionen einer Location | location_id, title, description, image, category, start_date, end_date, start_time, end_time, recurring, sponsored, priority, is_active |
 | `happy_hours` | Wiederkehrende Angebote einer Location | location_id, title, description, weekday, start_time, end_time, offer_text, sponsored, priority, is_active |
 | `favorites` | Favoriten (polymorph) | user_id, target_type (location/artist/event), target_id |
-| `reports` | Community-Meldungen zur Auslastung | user_id, location_id, occupancy_level, wait_time, mood, latitude, longitude, created_at |
+| `reports` | Community-Meldungen zur Auslastung | user_id, location_id, occupancy_level, wait_time, mood, music_genre, comment (optional), latitude, longitude, created_at |
 | `report_flags` | Meldungen zu verdächtigen Reports | report_id, flagged_by_user_id, reason |
 | `reviews` | Bewertungen (Detailstruktur offen, siehe Kapitel 7) | user_id, … |
 | `comments` | Kommentare (Detailstruktur offen, siehe Kapitel 7) | user_id, … |

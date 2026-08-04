@@ -13,13 +13,14 @@
 > hinreichender Sicherheit hervorgehen (z. B. exakte Schriftart, exakte px-Maße, Animationstiming),
 > bleiben weiterhin als 🔴 offene Designentscheidung markiert — hier wurden keine Annahmen getroffen.
 >
-> **Wichtiger Hinweis (Scope):** Einige Screens der Mockups zeigen Inhalte, die über den bisher in
-> `docs/PRD.md` entschiedenen Funktionsumfang von Version 1.0 hinausgehen oder ihm an einzelnen Stellen
-> widersprechen (z. B. Bottom-Navigation, Community-/Social-Feed, Gamification, Ticketing/Payment,
-> VIP-/Tisch-/Getränke-Services). Dieses Dokument übernimmt daraus **ausschließlich reine Darstellungs-/
-> Stilwerte** (Farben, Typografie-Muster, Abstände, Komponentenstile), **keine neuen Produktfunktionen**.
-> Die inhaltlichen Diskrepanzen sind nicht Teil dieses Dokuments und wurden separat an den Product Owner
-> zurückgemeldet.
+> **Wichtiger Hinweis (Scope):** Die Mockups enthielten mehrere Screens/Elemente, die vom bisher in
+> `docs/PRD.md` entschiedenen Funktionsumfang von Version 1.0 abwichen. Diese werden in einer
+> strukturierten Design-Review Punkt für Punkt mit dem Product Owner geklärt. Bereits entschieden:
+> die Navigation (5 Bottom-Tabs + Community-Report-Schnellzugriff + Hamburger-Menü, siehe Kapitel 16)
+> sowie die Bestätigung, dass Community-/Social-Feed, Gamification/Rewards, Ticketing/Payment und
+> VIP-/Tisch-/Getränke-/Transport-Services **Design- bzw. Zukunftskonzepte** sind und nicht Teil von
+> Version 1.0 werden (`docs/PRD.md` Kapitel 11 „Nicht Bestandteil von Version 1.0"). Noch offene
+> Review-Punkte (u. a. Reviews-/Bewertungsstruktur) werden gesondert nachgezogen, sobald entschieden.
 >
 > **Legende:**
 > - ✅ **Entschieden** — eindeutig aus den UI-Designs erkennbar (ggf. per Pixel-Sampling verifiziert)
@@ -294,25 +295,21 @@ Rahmen/Outline.
 
 ## 16. Navigation
 
-✅ **Eindeutig aus den Mockups erkennbar:**
+✅ **Entschieden** (Design-Review mit dem Product Owner, `docs/PRD.md` Kapitel 11):
 
-- **Bottom-Navigation mit 5 Elementen** plus zentralem, erhöhtem, kreisrundem **Floating-Action-Button**
-  in Markenfarbe (Plus-Symbol) — sichtbar auf allen Hauptscreens.
+- **Bottom-Navigation mit 5 Elementen**: Home, Karte, ein zentraler, erhöhter, kreisrunder Button in
+  Markenfarbe, Events, Profil.
+- Der zentrale Button ist **kein Floating-Action-Button und kein Navigationsziel**, sondern
+  ausschließlich ein **Schnellzugriff auf den Community-Report-Flow** (Auslastung, Wartezeit, Stimmung,
+  Musikrichtung, optional Kommentar).
 - Aktives Tab-Icon + Label in der Markenfarbe, inaktive in Weiß/Grau.
-- Zusätzliches Hamburger-Menü-Icon „☰" oben links auf mehreren Screens (Home, Karte, Events, Künstler,
-  Wetter, Community) — vermutlich für weitere/sekundäre Navigationsziele.
+- **Hamburger-Menü** (Icon „☰" oben links auf mehreren Screens) für sekundäre Bereiche: Künstler,
+  Favoriten, Happy Hours, Wetter, Services, Einstellungen, Hilfe, Datenschutz, Über PlayaLive.
 - Header-Varianten: Übersichts-Screens zeigen Logo mittig + Suche/Benachrichtigung/Kalender rechts;
   Detail-Screens (Location, Event, Künstler) zeigen runde Icon-Buttons „Zurück / Teilen / Favorisieren".
 
-⚠️ **Wichtiger Konflikt mit bestehender Dokumentation (nicht in diesem Dokument aufgelöst):** Die
-Bottom-Navigation der Mockups (Home, Karte, **[+]**, Events, Profil bzw. teils Community) weicht von der
-in `docs/PRD.md` Kapitel 11 festgelegten 6-teiligen Navigation („Home → Map → Events → Artists →
-Favorites → Profile", ohne zentralen Aktions-Button) ab. Diese Diskrepanz ist eine **Produkt-/
-Architekturfrage** (welche Screens sind Bottom-Tabs vs. über das Hamburger-Menü erreichbar, wofür der
-zentrale „+"-Button steht) und wird hier bewusst **nicht** entschieden — siehe Rückmeldung im Chat.
-
-🔴 **Offene Designentscheidung (reine Gestaltung, unabhängig vom obigen Konflikt):** exakte
-Tab-Bar-Maße, Blur-/Transparenzstärke (siehe Kapitel 9).
+🔴 **Offene Designentscheidung:** exakte Tab-Bar-Maße, Blur-/Transparenzstärke (siehe Kapitel 9),
+visuelle Gestaltung des Hamburger-Menüs selbst (Slide-in vs. Vollbild, Reihenfolge der Einträge).
 
 ## 17. Bottom Sheets
 
@@ -460,7 +457,7 @@ unten als 🔴 offen gelistet.
 | 12 | Eingabefeld-Stil für Login-Formular/Community-Post, Fehler-/Fokus-Zustand | 13 |
 | 13 | Exakte Badge-Maße je Typ, Vertrauenslevel-Darstellung | 14 |
 | 14 | Exakte Chip-Maße/-Abstände | 15 |
-| 15 | Tab-Bar-Maße, Blur-Stärke (unabhängig vom in Kapitel 16 benannten Navigations-Konflikt) | 16 |
+| 15 | Tab-Bar-Maße, Blur-Stärke, visuelle Gestaltung des Hamburger-Menüs | 16 |
 | 16 | Bottom-Sheet-Snap-Points, Drag-Handle-Stil | 17 |
 | 17 | Zeilenhöhen und Swipe-Aktionen in Listen | 18 |
 | 18 | Gestaltung des „wenig Meldungen"-Zustands, Fortschrittsring-Strichstärke | 19 |
