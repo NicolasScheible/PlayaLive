@@ -9,9 +9,9 @@
 >
 > Die in Kapitel 21 beschriebenen Architektur-Dokumente `docs/Architecture.md` und `docs/DesignSystem.md`
 > sind inzwischen erstellt und enthalten die technischen bzw. gestalterischen Detailentscheidungen, die
-> über den in diesem PRD dokumentierten Rahmen hinausgehen. Nächster Schritt: die geplanten
-> ADR-Dokumente (siehe Kapitel 21) auf Basis der bereits getroffenen Entscheidungen ausarbeiten, bevor
-> mit der Implementierung begonnen wird.
+> über den in diesem PRD dokumentierten Rahmen hinausgehen. Nächster Schritt: die ADR-Dokumente unter
+> `docs/ADR/` (siehe Kapitel 21) werden auf Basis der bereits getroffenen Entscheidungen einzeln
+> ausgearbeitet, bevor mit der Implementierung begonnen wird.
 
 ## 1. Produktvision
 
@@ -708,19 +708,20 @@ und Datenschutz besitzen höchste Priorität; Risiken werden dokumentiert und be
 `docs/Architecture.md` (technische Architektur, inkl. 12 im Detail geklärter Architekturentscheidungen)
 und `docs/DesignSystem.md` (Design System auf Basis der finalen UI-Designs) sind erstellt und verbindlich.
 
-Noch als geplant vermerkt und nicht erstellt sind die begleitenden ADR-Dokumente:
+Die begleitenden ADR-Dokumente werden einzeln, in numerischer Reihenfolge und ausschließlich auf Basis
+bereits getroffener Entscheidungen erstellt:
 
 ```
 docs/
 └── ADR/
-    ├── 001-State-Management.md
-    ├── 002-Authentication.md
-    ├── 003-Realtime.md
-    ├── 004-Database.md
-    ├── 005-API-Architecture.md
-    ├── 006-Maps.md
-    ├── 007-Notifications.md
-    └── 008-Security.md
+    ├── 001-State-Management.md      ✅ erstellt
+    ├── 002-Authentication.md        🔴 geplant
+    ├── 003-Realtime.md              🔴 geplant
+    ├── 004-Database.md              🔴 geplant
+    ├── 005-API-Architecture.md      🔴 geplant
+    ├── 006-Maps.md                  🔴 geplant
+    ├── 007-Notifications.md         🔴 geplant
+    └── 008-Security.md              🔴 geplant
 ```
 
 ## 22. Offene Punkte
