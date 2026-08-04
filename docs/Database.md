@@ -45,6 +45,28 @@ Clubs und Bars an der Playa de Palma.
 - Beziehungen: hat viele Events, hat viele Specials, hat viele Happy Hours, hat viele Reports, wird von
   vielen Profiles favorisiert (über Favorites)
 
+**Schema von `opening_hours` (JSONB), festgelegt durch den Product Owner beim Live-Map-Feature:**
+ein Objekt mit einem Schlüssel je Wochentag (dieselben englischen, technischen Werte wie das
+`weekday`-Enum aus 2.8 „Happy Hours": `monday` … `sunday`). Der Wert je Wochentag ist entweder `null`
+(an diesem Tag geschlossen) oder `{ "open": "HH:MM", "close": "HH:MM" }` (24-Stunden-Format). Ist
+`close` kleiner oder gleich `open`, gilt die Öffnungszeit als über Mitternacht hinausgehend (z. B.
+`open: "22:00", close: "04:00"` = geöffnet von 22:00 bis 04:00 des Folgetags) — für Clubs/Bars der
+Regelfall. Fehlt ein Wochentag oder ist `opening_hours` insgesamt `null`, gilt die Location für den
+„geöffnet"-Filter als nicht zweifelsfrei geöffnet (ausgeschlossen, nicht automatisch eingeschlossen).
+Beispiel:
+
+```json
+{
+  "monday": null,
+  "tuesday": null,
+  "wednesday": null,
+  "thursday": { "open": "23:00", "close": "05:00" },
+  "friday": { "open": "23:00", "close": "06:00" },
+  "saturday": { "open": "23:00", "close": "06:00" },
+  "sunday": null
+}
+```
+
 ### 2.4 Artists
 
 DJs/Künstler, die an der Playa de Palma auftreten.

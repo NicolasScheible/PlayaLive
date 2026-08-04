@@ -1,3 +1,4 @@
+import { NavigationContainer } from '@react-navigation/native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { RefreshControl } from 'react-native';
 
@@ -28,7 +29,11 @@ describe('HomeScreen', () => {
   });
 
   it('zeigt Header, Begrüßung, Wetter-Widget und alle Section-Überschriften', () => {
-    render(<HomeScreen />);
+    render(
+      <NavigationContainer>
+        <HomeScreen />
+      </NavigationContainer>,
+    );
 
     expect(screen.getByLabelText('PlayaLive')).toBeTruthy();
     expect(screen.getByText('Guten Abend, Lisa!')).toBeTruthy();
@@ -42,7 +47,11 @@ describe('HomeScreen', () => {
   });
 
   it('ruft onRefresh beim Pull-to-Refresh auf', () => {
-    render(<HomeScreen />);
+    render(
+      <NavigationContainer>
+        <HomeScreen />
+      </NavigationContainer>,
+    );
 
     fireEvent(screen.UNSAFE_getByType(RefreshControl), 'refresh');
 

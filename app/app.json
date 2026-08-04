@@ -22,6 +22,16 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["@rnmapbox/maps", "@react-native-firebase/app", "@react-native-firebase/messaging"]
+    "plugins": [
+      "@rnmapbox/maps",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PlayaLive nutzt deinen Standort, um dir die Live-Karte, Community-Reports und Locations in deiner Nähe anzuzeigen."
+        }
+      ]
+    ]
   }
 }

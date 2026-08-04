@@ -58,8 +58,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  seit dem Home Dashboard den echten `HomeScreen` statt des früheren Platzhalters, noch als einfacher
-  Stack ohne die übrigen Bottom-Tabs)
+  `HomeScreen`, `MapScreen` und den `LocationDetail`-Platzhalter, noch als einfacher Stack ohne die
+  übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -78,17 +78,23 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   „heutige Events" statt einer nicht dokumentierten „Top"/„Trend"-Rangfolge — „Top-Locations"/„Trends"/
   „Party Radar" bewusst nicht erfunden, da PRD/Database.md kein Ranking-Kriterium definieren)
 - [x] Happy-Hours-Übersicht eingebunden (`HappyHoursSection`, inkl. Specials, `SpecialsSection`)
-- [x] Einstieg in Live Map (`MapQuickAccessButton` — Button ohne Navigationsziel, da der Map-Screen
-  selbst noch nicht existiert); Einstieg in Events/Artists bewusst nicht Teil dieses Schritts
+- [x] Einstieg in Live Map (`MapQuickAccessButton` navigiert seit dem Live-Map-Feature zum echten
+  `MapScreen`); Einstieg in Events/Artists bewusst nicht Teil dieses Schritts
 - [x] Wetter-Anzeige eingebunden (`WeatherWidget`/`useWeather`, siehe Abschnitt „Wetter")
 - [x] Header, Begrüßung, Ladezustände (Skeleton), Fehlerzustände, Pull-to-Refresh je Section
   (`useHomeDashboard`, `src/components/Skeleton*`/`ErrorState`/`EmptyState`)
 
 ## Map Screen
 
-- [ ] Live Map mit Locations (Clubs/Bars)
-- [ ] Live-Auslastungs-Anzeige pro Location (Leer/Mittel/Voll)
-- [ ] Location-Detailansicht (Öffnungszeiten, Specials, Events)
+- [x] Live Map mit Locations (Clubs/Bars) — `MapScreen`, natives Mapbox-Clustering
+  (`LocationMarkersLayer`), Filter (Kategorie/Auslastung/geöffnet/Favoriten über `filterStore`),
+  Standort (`useUserLocation`, ohne automatische Consent-Abfrage), Zoom Controls, Kompass, Loading-/
+  Error-/Empty-State
+- [x] Live-Auslastungs-Anzeige pro Location (Leer/Mittel/Voll) — Marker-Farbe + Bottom-Sheet-Badge über
+  `location_live_status`, per Realtime aktualisiert (kein kompletter Reload)
+- [ ] Location-Detailansicht (Öffnungszeiten, Specials, Events) — Bottom Sheet zeigt bereits Happy
+  Hours/Specials/aktuelle Events kompakt; der „Details"-Button navigiert vorerst zu einem
+  Platzhalter-Screen (`LocationDetailScreen`), der eigentliche Detail-Screen ist ein eigener Auftrag
 
 ## Events
 
@@ -141,10 +147,13 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Mapbox Integration
 
-- [ ] Mapbox-Account/Token eingerichtet
-- [ ] Karten-Integration in Expo
-- [ ] Standortberechtigungen (Location Permissions) implementiert
-- [ ] Location-Marker und Clustering auf der Karte
+- [ ] Mapbox-Account/Token eingerichtet (echtes Produktions-Token — clientseitig bereits über
+  `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` vorgesehen, siehe `app/README.md`)
+- [x] Karten-Integration in Expo (`@rnmapbox/maps`, `MapScreen`)
+- [x] Standortberechtigungen (Location Permissions) implementiert (`expo-location`,
+  `useUserLocation` — Anfrage erst bei Bedarf, kein automatischer Consent beim App-Start)
+- [x] Location-Marker und Clustering auf der Karte (natives Mapbox-Clustering, keine zusätzliche
+  Bibliothek)
 
 ## Community Reports
 
@@ -154,9 +163,12 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Live Updates
 
-- [ ] Supabase-Realtime-Subscriptions für Auslastung/Reports
-- [ ] Live-Aktualisierung der Map/Location-Ansicht ohne manuelles Neuladen
-- [ ] Live-Aktualisierung von Event-/Artist-Daten bei Änderungen
+- [x] Supabase-Realtime-Subscriptions für Auslastung/Reports (`RealtimeService.subscribeToReports`,
+  zentraler Realtime Service gemäß ADR-003, `reports`-Tabelle per Migration für Realtime aktiviert)
+- [x] Live-Aktualisierung der Map/Location-Ansicht ohne manuelles Neuladen (neue Reports aktualisieren
+  gezielt die betroffene Location im TanStack-Query-Cache, kein voller Reload)
+- [ ] Live-Aktualisierung von Event-/Artist-Daten bei Änderungen (ADR-003 nennt Events/Specials/Happy
+  Hours als weitere Realtime-Kandidaten — noch nicht aktiviert, da noch kein Feature sie konsumiert)
 
 ## Notifications
 

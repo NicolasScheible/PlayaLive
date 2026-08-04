@@ -1,0 +1,11 @@
+-- Aktiviert Supabase Realtime für public.reports (docs/ADR/003-Realtime.md: „Realtime ist aktiviert
+-- für Reports [...]"). Die Publication `supabase_realtime` wird von Supabase pro Projekt automatisch
+-- angelegt — hier wird nur die Tabelle ergänzt, nicht die Publication selbst erstellt.
+--
+-- Bewusst NUR `reports`, nicht die in ADR-003 zusätzlich genannten Notifications/Events/Specials/
+-- Happy-Hours: diese sind nicht Teil des aktuellen Map-Feature-Schritts (Live-Auslastung stützt sich
+-- ausschließlich auf `reports`/`location_live_status`) und werden erst aktiviert, wenn das jeweilige
+-- Feature sie tatsächlich konsumiert (docs/ADR/003-Realtime.md: „Neue zeitkritische Datentypen müssen
+-- explizit als Realtime-Kandidat bewertet werden — Realtime wird nicht automatisch für neue Tabellen
+-- aktiviert").
+alter publication supabase_realtime add table public.reports;

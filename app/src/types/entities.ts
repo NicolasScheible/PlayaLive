@@ -36,3 +36,10 @@ export type EventWithDetails = Event & {
   location: Location;
   artists: Artist[];
 };
+
+// Schema von `locations.opening_hours` (JSONB), festgelegt beim Live-Map-Feature — siehe
+// docs/Database.md 2.3 für die vollständige Begründung/ein Beispiel. `Location['opening_hours']` bleibt
+// als `Json` typisiert (siehe database.ts, spiegelt die tatsächliche Spalten-Constraint), dieser Typ
+// beschreibt die anzunehmende Struktur für die Auswertung (src/utils/isOpenNow.ts).
+export type OpeningHoursWindow = { open: string; close: string };
+export type OpeningHoursSchedule = Partial<Record<Weekday, OpeningHoursWindow | null>>;

@@ -1,6 +1,9 @@
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { Header } from '../../../components/Header';
+import type { MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { CurrentActsSection } from '../components/CurrentActsSection';
 import { GreetingHeader } from '../components/GreetingHeader';
@@ -13,12 +16,12 @@ import { TodayHighlightsSection } from '../components/TodayHighlightsSection';
 import { WeatherWidget } from '../components/WeatherWidget';
 import { useHomeDashboard } from '../hooks/useHomeDashboard';
 
+type HomeScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Main'>;
+
 // Home Dashboard gemäß docs/PRD.md Kapitel 10 — orchestriert ausschließlich über `useHomeDashboard()`
 // (CLAUDE.md → Vorgehensweise: keine Business-Logik/Datenzugriff im Screen, ausschließlich Hooks).
-// Der Map-Schnellzugriff navigiert noch nirgends hin, da der Map-Screen nicht Teil dieses Auftrags ist
-// (siehe MapQuickAccessButton.tsx) — sobald er existiert, ersetzt `navigation.navigate('Map')` diesen
-// Platzhalter-Callback.
 export function HomeScreen() {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const dashboard = useHomeDashboard();
 
   return (
@@ -45,7 +48,7 @@ export function HomeScreen() {
         isError={dashboard.weather.isError}
         error={dashboard.weather.error}
       />
-      <MapQuickAccessButton onPress={() => {}} />
+      <MapQuickAccessButton onPress={() => navigation.navigate('Map')} />
       <LiveOccupancySection
         occupancies={dashboard.liveOccupancy.occupancies}
         isLoading={dashboard.liveOccupancy.isLoading}

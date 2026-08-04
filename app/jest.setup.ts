@@ -4,6 +4,7 @@ import 'react-native-gesture-handler/jestSetup';
 // Kein echtes Supabase-Projekt — Tests dürfen keine echten Netzwerkaufrufe an Supabase auslösen.
 process.env.EXPO_PUBLIC_SUPABASE_URL ??= 'https://test.supabase.co';
 process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ??= 'test-anon-key';
+process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ??= 'test-mapbox-token';
 
 // require() ist hier notwendig, da jest.mock-Factories von babel-plugin-jest-hoist vor alle
 // Imports gehoben werden.
