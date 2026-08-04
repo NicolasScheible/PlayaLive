@@ -356,7 +356,22 @@ Diagramm des Login-Flows: siehe Kapitel 23.3 „Auth-Flow".
   Weiterleitung zum Login nur bei endgültig ungültigem/abgelaufenem Refresh-Token — siehe Kapitel 7
   „Navigation".
 
-🔴 **Offene Architekturentscheidung:** Passwort-Reset-Flow im Detail, Umgang mit E-Mail-Verifizierung.
+### Passwort-Reset & E-Mail-Verifizierung
+
+✅ Entschieden (Architekturentscheidung 8, Product Owner):
+
+- **Passwort-Reset:** einmaliger 6-stelliger OTP-Code an die registrierte E-Mail-Adresse, direkt in der
+  App eingegeben (kein App-Wechsel). Begrenzte Gültigkeit, erneut anforderbar.
+- **E-Mail-Verifizierung:** Apple/Google Sign-In gelten automatisch als verifiziert. Bei
+  E-Mail-Registrierung ist die App **sofort nach der Registrierung nutzbar** (unverifiziert) — die
+  Verifizierung ist aber **Voraussetzung, um Community-Inhalte zu veröffentlichen** (Community Reports,
+  Reviews). Bis zur Bestätigung erinnert die App dezent an die ausstehende Verifizierung.
+
+Grundprinzip: Registrierung bleibt schnell und unkompliziert (deckungsgleich mit der bereits
+entschiedenen Login-Philosophie, Kapitel 12), während Community-Funktionen ausschließlich verifizierten
+Nutzern vorbehalten sind. Die E-Mail-Verifizierung ergänzt die bereits bestehenden
+Missbrauchsschutz-Mechanismen (Login-Pflicht, Trust Score, Rate Limiting, Geofencing, Moderation, siehe
+`docs/PRD.md` Kapitel 15) um eine weitere, unabhängige Schicht.
 
 ## 13. Rollenmodell
 
@@ -435,7 +450,8 @@ Clustering-Strategie/-Algorithmus für die Kartenmarker.
   (Audit Log); Soft Delete statt endgültigem Löschen, sofern sinnvoll; Fremdschlüssel sichern alle
   Beziehungen.
 - API-Endpunkte prüfen zusätzlich: Authentifizierung, Rolle, Berechtigung, Besitz des Datensatzes,
-  Eingabedaten, Rate Limiting.
+  Eingabedaten, Rate Limiting sowie — für das Veröffentlichen von Community-Inhalten (Reports, Reviews)
+  — den Verifizierungsstatus der E-Mail-Adresse (siehe Kapitel 12 „Passwort-Reset & E-Mail-Verifizierung").
 - **Missbrauchsschutz bei Community Reports:** Login-Pflicht, Rate Limiting (max. ein Report pro Nutzer/
   Location je Zeitfenster), Geofencing (100–150 m Radius), Vertrauensscore-Gewichtung,
   Mehrfachbestätigung, Meldefunktion, automatische Missbrauchserkennung — alle Prüfungen serverseitig.
@@ -656,7 +672,6 @@ bestätigt ist.
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
-| 8 | Passwort-Reset-Flow, E-Mail-Verifizierung (Session-Refresh-Verhalten bereits entschieden) | 12 |
 | 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
 | 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
 | 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
