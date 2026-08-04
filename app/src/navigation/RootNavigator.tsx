@@ -1,32 +1,37 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { colors } from '../theme/colors';
+import { useAuthStore } from '../store/authStore';
+import { theme } from '../theme/theme';
 
-// Platzhalter für die Root-Navigation. Die endgültige Struktur (Login-Gate, Bottom Tabs,
-// Community-Report-Schnellzugriff, Drawer-Menü) ist in docs/PRD.md Kapitel 11 und
-// docs/Architecture.md Kapitel 7 entschieden, wird aber erst mit den jeweiligen Feature-Screens
-// umgesetzt — dieses technische Setup enthält bewusst noch keine Business-Logik.
-function PlaceholderScreen() {
+import { AuthNavigator } from './AuthNavigator';
+import { MainNavigator } from './MainNavigator';
+
+// Routing zwischen Login und Haupt-App (siehe docs/Architecture.md Kapitel 7, docs/ADR/002-Authentication.md).
+// Login ist ab v1.0 verpflichtend, es gibt keinen Gastmodus — ohne Session wird ausschließlich der
+// AuthNavigator gerendert, nie die Haupt-App.
+function LoadingScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>PlayaLive</Text>
+      <ActivityIndicator color={theme.colors.brand.primary} />
     </View>
   );
 }
 
-const Stack = createNativeStackNavigator();
-
 export function RootNavigator() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Placeholder"
-        component={PlaceholderScreen}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
+  const session = useAuthStore((state) => state.session);
+  const isInitializing = useAuthStore((state) => state.isInitializing);
+  const initialize = useAuthStore((state) => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (isInitializing) {
+    return <LoadingScreen />;
+  }
+
+  return session ? <MainNavigator /> : <AuthNavigator />;
 }
 
 const styles = StyleSheet.create({
@@ -34,11 +39,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background.base,
-  },
-  text: {
-    color: colors.text.primary,
-    fontSize: 24,
-    fontWeight: '600',
+    backgroundColor: theme.colors.background.base,
   },
 });

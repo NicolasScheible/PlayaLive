@@ -57,7 +57,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Navigation
 
-- [ ] React Navigation eingerichtet
+- [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator, noch mit
+  Platzhalter-Screens)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -65,7 +66,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   `docs/Architecture.md` Kapitel 7
 - [ ] Community-Report-Schnellzugriff-Button (zentrales Bottom-Nav-Element) implementiert
 - [ ] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
-  ohne Login — siehe `docs/PRD.md` Kapitel 12)
+  ohne Login — siehe `docs/PRD.md` Kapitel 12); Routing-Grundgerüst zwischen Login und Haupt-App über
+  `authStore`/`RootNavigator` vorhanden, der eigentliche Login-Screen folgt mit dem Auth-Feature
 
 ## Home Screen
 
