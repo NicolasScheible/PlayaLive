@@ -73,6 +73,8 @@ Direkt aus `docs/PRD.md` Kapitel 15 (✅):
 | Wetter | OpenWeather API (über eigenen `WeatherService`, austauschbar) |
 | Sprache | TypeScript durchgängig (Frontend und Edge Functions) |
 | DB-Migrationen | Supabase CLI, versioniert unter `supabase/migrations/` |
+| Error-/Crash-Monitoring (Frontend) | Sentry |
+| Logging (Backend) | native Supabase-Logs (Edge Functions, DB, Auth, API) |
 
 ### Versions- und Tooling-Strategie
 
@@ -382,11 +384,22 @@ Löschung).
 
 ## 18. Logging
 
-✅ Entschieden (`docs/PRD.md` Kapitel 15 „Fehlerbehandlung"): Fehler werden zentral protokolliert, ohne
-personenbezogene Daten zu loggen.
+✅ Entschieden (`docs/PRD.md` Kapitel 15 „Fehlerbehandlung"; Anbieter: Architekturentscheidung 2,
+Product Owner): Fehler werden zentral protokolliert, ohne personenbezogene Daten zu loggen — bewusst
+getrennt nach Frontend und Backend:
 
-🔴 **Offene Architekturentscheidung:** konkretes Logging-/Monitoring-Tooling (z. B. Sentry oder
-vergleichbar), Log-Level-Konzept, Aufbewahrungsfristen, Umgang mit Logging in Supabase Edge Functions.
+- **Frontend (App): Sentry.** Übernimmt JavaScript-Fehler, native App-Abstürze, Exception-Tracking,
+  Performance-Monitoring, Stack Traces und Breadcrumbs zur Fehleranalyse.
+- **Backend: native Supabase-Logs.** Edge Functions, Datenbankfehler, Authentifizierungsfehler,
+  API-Fehler, Server-Logs — Supabase bleibt die zentrale Plattform für Server-/Datenbank-/Backend-Logs,
+  kein zusätzliches Backend-Tool.
+- **Datenschutz:** Sentry wird so konfiguriert, dass keine personenbezogenen Daten übertragen/gespeichert
+  werden — insbesondere keine E-Mail-Adressen, Namen, GPS-Koordinaten, Kommentare, Community-Report-
+  Inhalte, Tokens, Passwörter oder sonstigen Authentifizierungsdaten. Alle sensiblen Daten werden vor der
+  Übertragung entfernt oder anonymisiert.
+
+🔴 **Offene Architekturentscheidung:** konkretes Log-Level-Konzept, Aufbewahrungsfristen, technische
+Details der PII-Scrubbing-Konfiguration in Sentry.
 
 ## 19. Testing
 
@@ -569,7 +582,7 @@ bestätigt ist.
 | # | Thema | Kapitel |
 |---|---|---|
 | 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
-| 2 | Logging-/Monitoring-Anbieter | 3, 18 |
+| 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 3 | Verortung des App-Codes im Repository (Root vs. Unterordner) | 4 |
 | 4 | Genaue Navigations-Stack-Verschachtelung, technische Umsetzung des Hamburger-Menü/Drawer-Patterns, Deep-Linking, Session-Ablauf-Verhalten | 7 |
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
