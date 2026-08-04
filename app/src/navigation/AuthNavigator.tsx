@@ -1,44 +1,29 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View } from 'react-native';
 
+import { ForgotPasswordScreen } from '../features/auth/screens/ForgotPasswordScreen';
+import { LoginScreen } from '../features/auth/screens/LoginScreen';
+import { RegisterScreen } from '../features/auth/screens/RegisterScreen';
 import { theme } from '../theme/theme';
 
-// Platzhalter für den Login-/Registrierungs-Flow (Apple Sign-In, Google Sign-In, E-Mail & Passwort —
-// siehe docs/PRD.md Kapitel 12, docs/ADR/002-Authentication.md). Login ist ab v1.0 verpflichtend, es
-// gibt keinen Gastmodus — dieser Navigator wird gerendert, solange keine Session besteht. Die
-// eigentlichen Screens folgen mit dem Auth-Feature.
-function LoginPlaceholderScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Login</Text>
-    </View>
-  );
-}
+import type { AuthStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+// Login-/Registrierungs-Flow (Apple Sign-In, Google Sign-In, E-Mail & Passwort — siehe
+// docs/PRD.md Kapitel 12, docs/ADR/002-Authentication.md). Login ist ab v1.0 verpflichtend, es gibt
+// keinen Gastmodus — dieser Navigator wird gerendert, solange keine Session besteht. In diesem
+// Ausbauschritt ist ausschließlich E-Mail & Passwort umgesetzt (siehe Zusammenfassung).
+const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthNavigator() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Login"
-        component={LoginPlaceholderScreen}
-        options={{ headerShown: false }}
-      />
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.background.base },
+      }}
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.background.base,
-  },
-  text: {
-    color: theme.colors.text.primary,
-    fontSize: 24,
-    fontWeight: '600',
-  },
-});

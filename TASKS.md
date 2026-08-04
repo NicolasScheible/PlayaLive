@@ -65,9 +65,9 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Happy Hours, Weather, Services, Settings, Help, Privacy, About) — siehe `docs/PRD.md` Kapitel 11,
   `docs/Architecture.md` Kapitel 7
 - [ ] Community-Report-Schnellzugriff-Button (zentrales Bottom-Nav-Element) implementiert
-- [ ] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
-  ohne Login — siehe `docs/PRD.md` Kapitel 12); Routing-Grundgerüst zwischen Login und Haupt-App über
-  `authStore`/`RootNavigator` vorhanden, der eigentliche Login-Screen folgt mit dem Auth-Feature
+- [x] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
+  ohne Login — siehe `docs/PRD.md` Kapitel 12): Login-, Registrierungs- und Passwort-vergessen-Screen
+  über `AuthNavigator`, Routing über `authStore`/`RootNavigator`
 
 ## Home Screen
 
@@ -106,7 +106,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [ ] Profilseite (Nutzerdaten)
 - [ ] Einstellungen (u. a. Benachrichtigungen)
-- [ ] Login/Logout
+- [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — Aufruf aktuell auf dem
+  Main-Platzhalter, echter Ort folgt mit dieser Profilseite; Apple/Google Sign-In noch offen)
 
 ## Supabase Backend
 
@@ -114,8 +115,12 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Kapitel 17)
 - [ ] Datenbankschema gemäß `docs/Database.md` umgesetzt
 - [ ] Row-Level-Security-Regeln definiert
-- [ ] API-/Datenzugriffsschicht im Client implementiert
-- [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert
+- [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer, bisher `AuthService`;
+  weitere Services folgen mit den jeweiligen Features)
+- [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig implementiert
+  (E-Mail/Passwort: Login, Registrierung, Passwort-Reset, Session-Handling), serverseitige
+  Supabase-Projekt-Konfiguration (Rate Limits, Redirect-URLs, E-Mail-Templates) noch offen; Apple/
+  Google Sign-In noch nicht angebunden
 
 ## Mapbox Integration
 
