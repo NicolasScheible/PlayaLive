@@ -456,13 +456,31 @@ Informationen, keine personenbezogenen Daten.
   mehrere Bildgrößen (Thumbnail/Medium/Original) — siehe `docs/PRD.md` Kapitel 15 „Storage-Buckets".
 - Hohe Last in der Hauptsaison ist als Risiko dokumentiert (`docs/PRD.md` Kapitel 20); Gegenmaßnahmen:
   Caching, gezielte Realtime-Nutzung, optimierte DB-Abfragen, Performance-Monitoring.
-- Kartenmarker-Clustering ist als Vorhaben bereits in `TASKS.md` → Mapbox Integration vermerkt
-  („Location-Marker und Clustering auf der Karte") — die konkrete Clustering-Strategie ist offen (siehe
-  unten).
+### Performance-Ziele & Kartenclustering
 
-🔴 **Offene Architekturentscheidung:** konkrete Performance-Budgets (z. B. Zeit bis interaktiv,
-Ziel-Framerate der Kartenanimation), Monitoring-Tooling (siehe Kapitel 18 „Logging"), konkrete
-Clustering-Strategie/-Algorithmus für die Kartenmarker.
+✅ Entschieden (Architekturentscheidung 10, Product Owner):
+
+**Performance-Ziele für Version 1.0:**
+
+| Bereich | Ziel |
+|---|---|
+| App-Start bis nutzbare Oberfläche | < 3 s auf aktuellen Mittelklasse-Geräten |
+| Screen-Wechsel | < 300 ms |
+| Listen (Locations, Events, Künstler) | Datenanzeige ≤ 1 s bei normaler Verbindung |
+| Kartenbewegungen (Scrollen, Zoomen, Marker-Animationen) | möglichst 60 fps |
+| Realtime-Updates | dürfen die UI nicht sichtbar blockieren |
+
+Diese Werte sind Qualitätsziele, die während der Entwicklung regelmäßig überprüft werden — Performance
+ist fester Bestandteil der Architektur, kein nachträglicher Optimierungsschritt. Neue Funktionen dürfen
+Bedienbarkeit, Reaktionsgeschwindigkeit oder Kartenperformance nicht spürbar verschlechtern.
+
+**Kartenclustering:** ausschließlich das **native Clustering von Mapbox** (keine zusätzliche
+Bibliothek). Cluster lösen sich automatisch auf, sobald weit genug hineingezoomt wird. Für die
+überschaubare Location-Anzahl an der Playa de Palma vollständig ausreichend; bei deutlichem Wachstum in
+späteren Versionen kann die Strategie erweitert werden.
+
+**Performance-Monitoring:** Sentry Performance Monitoring (Kapitel 18) im Betrieb, ergänzt während der
+Entwicklung um den React-Native-Performance-Profiler und Expo-Performance-Tools.
 
 ## 17. Sicherheit
 
@@ -698,7 +716,6 @@ bestätigt ist.
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
-| 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
 | 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
 | 12 | Teststrategie im Detail (Framework, Testpyramide, Coverage-Ziel — grobe Testarten bereits in `TASKS.md` vorgesehen) | 19 |
 
