@@ -11,8 +11,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] README.md erstellt
 - [x] TASKS.md erstellt
 - [x] Projektdefinition auf Nightlife-/Event-App für Playa de Palma korrigiert
-- [ ] Lastenheft ausgefüllt (`docs/Lastenheft.md`)
-- [ ] Roadmap mit Meilensteinen ausgefüllt (`docs/Roadmap.md`)
+- [x] Lastenheft ausgefüllt (`docs/Lastenheft.md`)
+- [x] Roadmap mit Meilensteinen ausgefüllt (`docs/Roadmap.md`)
 
 ## UI Design
 
@@ -23,10 +23,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Architektur
 
-- [ ] Datenmodell entworfen (`docs/Database.md`)
-- [ ] API-/Datenzugriffs-Konzept entworfen (`docs/API.md`)
+- [x] Datenmodell entworfen (`docs/Database.md`)
+- [x] API-/Datenzugriffs-Konzept entworfen (`docs/API.md`)
 - [ ] Ordner-/Projektstruktur für das Expo-Projekt festgelegt
-- [ ] State-Management-Ansatz entschieden
+- [x] State-Management-Ansatz entschieden (TanStack Query + Zustand + React State)
 - [ ] Entscheidung zu Umgebungen/Konfiguration (.env, Secrets) getroffen
 
 ## Expo Setup
@@ -40,7 +40,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [ ] React Navigation eingerichtet
 - [ ] Grundstruktur (Tab-/Stack-Navigation: Home, Map, Events, Artists, Favorites, Profile) definiert
-- [ ] Auth-Flow vs. App-Flow (eingeloggt/nicht eingeloggt) abgebildet
+- [ ] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
+  ohne Login — siehe `docs/PRD.md` Kapitel 12)
 
 ## Home Screen
 
@@ -115,7 +116,7 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Wetter
 
-- [ ] Wetter-API-Anbindung ausgewählt
+- [x] Wetter-API-Anbindung ausgewählt (OpenWeather API, über eigenen `WeatherService`)
 - [ ] Temperatur- und Wetterbedingungs-Anzeige (Home Screen, ggf. Map)
 
 ## Testing

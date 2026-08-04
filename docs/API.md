@@ -1,9 +1,10 @@
 # API — PlayaLive
 
-> Status: geplante Struktur (Dokumentation) — keine Implementierung. Zugriff voraussichtlich über den
-> Supabase-Client (Postgres-Tabellen + Realtime), ggf. ergänzt um Supabase Edge Functions für
-> serverseitige Logik (z. B. Auslastungs-Aggregation). Endgültige Zugriffsstrategie wird in der
-> Architekturphase festgelegt.
+> Status: geplante Struktur (Dokumentation) — keine Implementierung. Zugriff über den Supabase-Client
+> (Postgres-Tabellen + Realtime) und Supabase Edge Functions (serverseitige Logik, z. B.
+> Auslastungs-Aggregation, Vertrauensscore-Berechnung). Alle Backendzugriffe laufen im Frontend
+> ausschließlich über den in `docs/PRD.md` (Kapitel 15) beschriebenen Service Layer — nie direkt aus
+> Screens/Komponenten.
 
 ## 1. Überblick
 
@@ -12,8 +13,10 @@ Operationen fachlich benötigt werden — nicht deren technische Umsetzung.
 
 ## 2. Authentication
 
-- Registrierung (E-Mail/Passwort, ggf. Social Login)
-- Login / Logout
+Login ist ab v1.0 verpflichtend, es gibt keinen Gastzugriff (siehe `docs/PRD.md` Kapitel 12).
+
+- Registrierung/Login via Apple Sign-In, Google Sign-In oder E-Mail & Passwort
+- Logout
 - Passwort-Reset
 - Aktuelle Session/Nutzer abrufen
 - Nutzerprofil aktualisieren (Anzeigename, Profilbild)
@@ -21,7 +24,7 @@ Operationen fachlich benötigt werden — nicht deren technische Umsetzung.
 ## 3. Locations
 
 - Liste aller Locations abrufen (für Live Map)
-- Location-Details abrufen (inkl. aktuellem Auslastungslevel, Öffnungszeiten, Specials)
+- Location-Details abrufen (inkl. aktuellem Auslastungslevel, Öffnungszeiten, Specials, Happy Hours)
 - Locations nach Kategorie (Club/Bar) filtern
 - Locations nach Nähe/Geokoordinaten abfragen (für Kartenausschnitt)
 
@@ -38,33 +41,67 @@ Operationen fachlich benötigt werden — nicht deren technische Umsetzung.
 - Artist-Details abrufen (Bio, Genres, Auftritte)
 - Auftritte (Events) eines Artists abrufen
 
-## 6. Favorites
+## 6. Specials & Happy Hours
 
-- Favorit hinzufügen (Location oder Artist)
-- Favorit entfernen
-- Eigene Favoriten abrufen (Locations und Artists getrennt oder kombiniert)
+- Aktuell gültige Specials/Happy Hours einer Location abrufen
+- Specials/Happy Hours nach Location filtern
+- Specials/Happy Hours nach Kategorie/Zeitraum filtern
 
-## 7. Reports
+## 7. Favorites
 
-- Community-Report zur Auslastung einer Location erstellen
-- Aktuelle/aggregierte Reports einer Location abrufen
-- Eigene abgegebene Reports abrufen (optional, z. B. zur Missbrauchsvermeidung)
+Favoriten werden über eine zentrale, polymorphe Tabelle abgebildet (siehe `docs/Database.md` → 2.9).
 
-## 8. Notifications
+- `addFavorite(type, id)` — Favorit hinzufügen (Location, Artist oder Event)
+- `removeFavorite(type, id)` — Favorit entfernen
+- `toggleFavorite(type, id)`
+- `getFavorites(type)` — eigene Favoriten abrufen, optional nach Typ gefiltert
+
+## 8. Reports
+
+- Community-Report zur Auslastung/Wartezeit/Stimmung einer Location erstellen (serverseitig geprüft:
+  Login, Rate Limiting, Geofencing — siehe `docs/PRD.md` → Missbrauchsschutz)
+- Aktuellen, aggregierten Live-Status einer Location abrufen (Zeitgewichtung, Vertrauensscore,
+  Mehrfachbestätigung — siehe `docs/PRD.md` → Community-Report-Aggregation)
+- Eigene abgegebene Reports abrufen
+- Verdächtigen Report melden (`report_flags`)
+
+## 9. Reviews & Comments
+
+Genaue fachliche Struktur (Bezug auf Location/Event) ist noch nicht geklärt — siehe `docs/PRD.md`
+Kapitel 22 „Offene Punkte". API-Operationen werden festgelegt, sobald diese Klärung erfolgt ist.
+
+## 10. Notifications
 
 - Eigene Benachrichtigungen abrufen
 - Benachrichtigung als gelesen markieren
 - Benachrichtigungseinstellungen abrufen/aktualisieren
 - Push-Token registrieren/aktualisieren (Firebase Notifications)
 
-## 9. Realtime-Subscriptions
+## 11. Weather
 
-_TODO — insbesondere: Auslastungsänderungen pro Location (aus Reports), neue Notifications_
+- Aktuelles Wetter (Temperatur, gefühlte Temperatur, Wetterzustand, Regenwahrscheinlichkeit,
+  Windgeschwindigkeit, Luftfeuchtigkeit, UV-Index, Sonnenauf-/-untergang) für Playa de Palma abrufen —
+  ausschließlich über den `WeatherService` (Anbieter: OpenWeather API, austauschbar, siehe
+  `docs/PRD.md` → Kapitel 14)
 
-## 10. Fehlerbehandlung
+## 12. Realtime-Subscriptions
 
-_TODO — einheitliches Fehlerformat, Umgang mit Auth-Fehlern, Netzwerkfehlern, leeren Ergebnissen_
+Realtime wird gezielt für zeitkritische Daten eingesetzt: Reports (Live-Auslastung), Notifications,
+Events, Specials & Happy Hours, sowie die Live-Daten-Felder von Locations. Alle Subscriptions laufen
+über den zentralen Realtime Service, der den TanStack-Query-Cache aktualisiert — nie direkt in
+Screens/Komponenten. Details siehe `docs/PRD.md` → Kapitel 15 „Realtime-Kanäle".
 
-## 11. Rate Limiting & Sicherheit
+## 13. Fehlerbehandlung
 
-_TODO — insbesondere Schutz vor Report-Spam/Missbrauch (z. B. ein Report pro User/Location/Zeitfenster)_
+Zentrale Fehlerbehandlung im Service Layer, einheitliches Fehlerformat, nutzerfreundliche statt
+technische Fehlermeldungen, automatische Retries nur bei temporären Netzwerkfehlern, klar definierte
+Screen-Zustände (Loading/Success/Empty/Error). Details siehe `docs/PRD.md` → Kapitel 15
+„Fehlerbehandlung".
+
+## 14. Rate Limiting & Sicherheit
+
+Schutz insbesondere für Community Reports: Login-Pflicht, Rate Limiting (max. ein Report pro Nutzer und
+Location je Zeitfenster), Geofencing, Vertrauensscore-Gewichtung, Meldefunktion, automatische
+Missbrauchserkennung. Alle Prüfungen erfolgen serverseitig. Details siehe `docs/PRD.md` → Kapitel 15
+„Missbrauchsschutz bei Community Reports". Autorisierung aller Endpunkte zusätzlich über Row-Level-
+Security (siehe `docs/Database.md` → 4.).

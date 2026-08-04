@@ -42,14 +42,23 @@ Langfristig soll PlayaLive:
 - Eventbesucher
 - Besucher von Clubs und Bars
 
+Drei verbindliche Personas (Partyurlauber, Wochenend-Paar/Freundesgruppe, Mallorca-Kenner) sowie die
+vollständige Nicht-Ziele-Abgrenzung für Version 1.0: siehe `docs/PRD.md` Kapitel 4 und 6.
+
 ## MVP (Minimum Viable Product)
 
 1. **Live Map** — Karte mit Clubs/Bars an der Playa de Palma, Live-Auslastung (Leer/Mittel/Voll)
 2. **Events** — Tagesprogramm, kommende Events, Künstler, Startzeiten
 3. **Künstlerprofile** — DJs, Auftritte, Favoriten
-4. **Favoriten** — Locations und Künstler speichern, Benachrichtigungen erhalten
-5. **Community Reports** — Nutzer melden Auslastung, Echtzeit-Updates
-6. **Wetter** — Temperatur, Wetterbedingungen
+4. **Favoriten** — Locations, Künstler und Events speichern, Benachrichtigungen erhalten
+5. **Community Reports** — Nutzer melden Auslastung, Wartezeit und Stimmung, Echtzeit-Updates
+6. **Happy Hours & Specials** — zeitlich begrenzte und wiederkehrende Angebote der Locations
+7. **Party Radar** — Highlights/Trends auf dem Home Dashboard
+8. **Wetter** — Temperatur, Wetterbedingungen (via OpenWeather API)
+9. **Benutzerkonto** — verpflichtende Registrierung/Login (Apple/Google/E-Mail), kein Gastmodus
+
+Vollständiger, verbindlicher MVP-Umfang inkl. Priorisierung über den MVP hinaus: siehe `docs/PRD.md`
+Kapitel 7 und 8.
 
 ## Hauptfunktionen
 
@@ -89,18 +98,19 @@ Langfristig soll PlayaLive:
 - **Backend/Datenbank:** Supabase (Postgres, Auth, Realtime, Storage, Edge Functions)
 - **Karten:** Mapbox
 - **Push Notifications:** Firebase Notifications
-- **State Management:** wird in der Architekturphase festgelegt, kein Overengineering
+- **State Management:** TanStack Query (Server State) + Zustand (globaler Client-State) + React State
+  (lokaler UI-State), siehe `docs/PRD.md` Kapitel 15
 - **Sprache:** TypeScript durchgängig (Frontend und ggf. Edge Functions)
 
-Details und Begründungen folgen in `docs/Database.md` und `docs/API.md`, sobald die Architekturphase
-beginnt.
+Details und Begründungen in `docs/Database.md`, `docs/API.md` und `docs/PRD.md` Kapitel 15.
 
 ## Design-Richtlinien
 
 Modernes iOS-Design mit Premium-Nightlife-Look:
 
-- Dark Mode als Basis
-- Neon-Akzente
+- **Nur Dark Mode** — kein Light Mode (verbindlich, siehe `docs/PRD.md` Kapitel 17)
+- Neon-Akzente: eine dominante Markenfarbe fürs Branding, eigenständige Statusfarben für die
+  Auslastungsanzeige
 - Große, klare Karten (Cards) für Locations, Events und Künstler
 - Moderne, reduzierte Navigation
 - Mobile-first, große Touch-Ziele, viel visuelle Information (Karte, Icons, Badges für Auslastung)

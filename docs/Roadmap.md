@@ -1,51 +1,55 @@
 # Roadmap — PlayaLive
 
-> Status: leer/strukturell — wird ausgefüllt, sobald Meilensteine und Zeitrahmen feststehen.
+> Status: Phasenstruktur mit dem Product Owner abgestimmt (siehe `docs/PRD.md` Kapitel 19). Die Roadmap
+> verwendet bewusst relative Entwicklungsphasen statt fester Kalendertermine — sie orientiert sich am
+> tatsächlichen Projektfortschritt, nicht an Datumsangaben (Begründung: frühe Entwicklungsphase, Qualität
+> hat Vorrang vor festen Terminen).
+>
 > Der inhaltliche/funktionale Fortschritt wird separat in `TASKS.md` als Checkliste geführt.
 
-## Meilenstein 0 — Projektgrundlage
+## Phase 1 — Fundament
 
-- Zeitraum: _TODO_
-- Inhalt: Dokumentation, Planung, Lastenheft
+- Ziel: technische Grundlage schaffen
+- Inhalt: Projektarchitektur, Design System, Datenbank, API, Authentifizierung, Grundlegende Navigation,
+  Backend, Basis-Komponenten
 - Status: in Arbeit
 
-## Meilenstein 1 — Design & Architektur
+## Phase 2 — MVP (Version 1.0)
 
-- Zeitraum: _TODO_
-- Inhalt: UI/UX-Konzept, Datenmodell, API-Design
+- Ziel: erster veröffentlichungsfähiger Funktionsumfang
+- Inhalt: Home Dashboard, Live-Karte, Locations, Künstler, Events/Eventkalender, Party Radar, Favoriten,
+  Community Reports, Live-Auslastung, Happy Hours & Specials, Push-Benachrichtigungen, Wetter,
+  Benutzerkonto (Login-Pflicht)
 - Status: offen
 
-## Meilenstein 2 — Technisches Fundament
+## Phase 3 — Optimierung
 
-- Zeitraum: _TODO_
-- Inhalt: Expo-Setup, Navigation, Grundkomponenten
+- Ziel: Stabilisierung nach dem Launch
+- Inhalt: Fehlerbehebungen, Performance, UX-Optimierungen, Stabilität, Verbesserungen auf Basis von
+  Nutzerfeedback
 - Status: offen
 
-## Meilenstein 3 — MVP-Kernfunktionen
+## Phase 4 — Partnerprogramm (Version 2.0)
 
-- Zeitraum: _TODO_
-- Inhalt: Live Map (Clubs/Bars, Auslastung), Events, Künstlerprofile, Favoriten, Community Reports,
-  Wetter, Auth
+- Ziel: Einführung der ersten Business-Funktionen
+- Inhalt: Location Manager Portal, Partner-Dashboard, Verwaltung von Specials/Events durch Partner,
+  Premium-Platzierungen, erweiterte Statistiken, gesponserte Inhalte, KI-Auslastungsprognosen,
+  Warteschlangen-Prognosen, QR-Check-ins, erweiterte Community-Funktionen
 - Status: offen
 
-## Meilenstein 4 — Backend-Integration
+## Phase 5 — Plattformausbau (Version 3.0)
 
-- Zeitraum: _TODO_
-- Inhalt: Supabase (Auth, DB, Realtime, Storage), Mapbox
+- Ziel: langfristige Weiterentwicklung / Skalierung
+- Inhalt: Ausbau auf weitere Regionen Mallorcas, erweiterte Business-/Analysefunktionen, zusätzliche
+  Monetarisierungsmöglichkeiten, weitere Partner-Integrationen, Partnerplattform, Business Dashboard
 - Status: offen
 
-## Meilenstein 5 — Notifications & Testing
+## Grundprinzipien
 
-- Zeitraum: _TODO_
-- Inhalt: Push-Benachrichtigungen, Teststrategie und -durchführung
-- Status: offen
+- Die Roadmap orientiert sich am tatsächlichen Entwicklungsfortschritt, nicht an fixen Terminen.
+- Qualität hat Vorrang vor Geschwindigkeit.
+- Neue Funktionen werden erst umgesetzt, wenn die vorherige Phase stabil abgeschlossen ist.
+- Änderungen an der Roadmap werden dokumentiert und nachvollziehbar begründet.
 
-## Meilenstein 6 — Release
-
-- Zeitraum: _TODO_
-- Inhalt: Store-Vorbereitung, Build-Pipeline, Veröffentlichung
-- Status: offen
-
-## Post-MVP / Ausblick
-
-_TODO — Funktionen jenseits des MVP, siehe `PROJECT.md` → Hauptfunktionen_
+Details zu den Monetarisierungsphasen (Launch-Werbung → Partnerprogramm → Premium Business Partner →
+erweiterte Geschäftsmodelle) und den KPIs je Phase: siehe `docs/PRD.md` Kapitel 13 und 18.
