@@ -1,43 +1,70 @@
 # API — PlayaLive
 
-> Status: leer/strukturell — wird in der Architekturphase ausgefüllt.
+> Status: geplante Struktur (Dokumentation) — keine Implementierung. Zugriff voraussichtlich über den
+> Supabase-Client (Postgres-Tabellen + Realtime), ggf. ergänzt um Supabase Edge Functions für
+> serverseitige Logik (z. B. Auslastungs-Aggregation). Endgültige Zugriffsstrategie wird in der
+> Architekturphase festgelegt.
 
 ## 1. Überblick
 
-_TODO — Zugriffsstrategie (Supabase Client direkt vs. eigene Abstraktionsschicht/Edge Functions)_
+Die API-Struktur orientiert sich an den Tabellen aus `docs/Database.md`. Jeder Bereich beschreibt, welche
+Operationen fachlich benötigt werden — nicht deren technische Umsetzung.
 
-## 2. Auth
+## 2. Authentication
 
-_TODO_
+- Registrierung (E-Mail/Passwort, ggf. Social Login)
+- Login / Logout
+- Passwort-Reset
+- Aktuelle Session/Nutzer abrufen
+- Nutzerprofil aktualisieren (Anzeigename, Profilbild)
 
-## 3. Beaches
+## 3. Locations
 
-_TODO — Endpunkte/Queries für Strandliste, Strand-Details_
+- Liste aller Locations abrufen (für Live Map)
+- Location-Details abrufen (inkl. aktuellem Auslastungslevel, Öffnungszeiten, Specials)
+- Locations nach Kategorie (Club/Bar) filtern
+- Locations nach Nähe/Geokoordinaten abfragen (für Kartenausschnitt)
 
-## 4. Check-ins
+## 4. Events
 
-_TODO_
+- Liste kommender Events abrufen (Tagesprogramm, kommende Events)
+- Event-Details abrufen (inkl. zugeordneter Location und Artists)
+- Events nach Location filtern
+- Events nach Datum/Zeitraum filtern
 
-## 5. Live-Updates / Feed
+## 5. Artists
 
-_TODO_
+- Liste aller Artists abrufen
+- Artist-Details abrufen (Bio, Genres, Auftritte)
+- Auftritte (Events) eines Artists abrufen
 
-## 6. Events
+## 6. Favorites
 
-_TODO_
+- Favorit hinzufügen (Location oder Artist)
+- Favorit entfernen
+- Eigene Favoriten abrufen (Locations und Artists getrennt oder kombiniert)
 
-## 7. Notifications
+## 7. Reports
 
-_TODO_
+- Community-Report zur Auslastung einer Location erstellen
+- Aktuelle/aggregierte Reports einer Location abrufen
+- Eigene abgegebene Reports abrufen (optional, z. B. zur Missbrauchsvermeidung)
 
-## 8. Realtime-Subscriptions
+## 8. Notifications
 
-_TODO_
+- Eigene Benachrichtigungen abrufen
+- Benachrichtigung als gelesen markieren
+- Benachrichtigungseinstellungen abrufen/aktualisieren
+- Push-Token registrieren/aktualisieren (Firebase Notifications)
 
-## 9. Fehlerbehandlung
+## 9. Realtime-Subscriptions
 
-_TODO_
+_TODO — insbesondere: Auslastungsänderungen pro Location (aus Reports), neue Notifications_
 
-## 10. Rate Limiting & Sicherheit
+## 10. Fehlerbehandlung
 
-_TODO_
+_TODO — einheitliches Fehlerformat, Umgang mit Auth-Fehlern, Netzwerkfehlern, leeren Ergebnissen_
+
+## 11. Rate Limiting & Sicherheit
+
+_TODO — insbesondere Schutz vor Report-Spam/Missbrauch (z. B. ein Report pro User/Location/Zeitfenster)_

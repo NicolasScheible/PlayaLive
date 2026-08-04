@@ -3,11 +3,23 @@
 Dieses Dokument definiert verbindliche Regeln für jede zukünftige Arbeit von Claude an PlayaLive.
 Es ergänzt `PROJECT.md` (Was wir bauen) und `TASKS.md` (Was als Nächstes ansteht).
 
+PlayaLive ist eine **Nightlife-/Event-App für Playa de Palma, Mallorca** — kein allgemeiner
+Reise-/Strandguide. Jede Entscheidung (Funktion, Screen, Komponente, Datenmodell) wird an diesem Kontext
+gemessen: Live-Auslastung von Clubs/Bars, Events, Künstler, Favoriten, Community Reports, Wetter.
+
 ## Grundhaltung
 
 - Erst verstehen, dann ändern. Bestehenden Code/Struktur lesen, bevor etwas Neues hinzugefügt wird.
 - Kein Code, solange die Projektgrundlage (docs/, PROJECT.md, Architektur) das nicht hergibt.
 - Im Zweifel: kleinere, nachvollziehbare Schritte statt einer großen Änderung.
+- **Bestehende Dokumentation ist die Wahrheit.** `PROJECT.md`, `docs/` und `TASKS.md` sind die
+  verbindliche Referenz für Scope, Datenmodell und Architektur — nicht Annahmen, nicht Trainingsdaten,
+  nicht "wie andere Apps das machen". Bei Widerspruch zwischen Doku und einer Anfrage: Doku gewinnt, bis
+  sie explizit geändert wird.
+- **Keine Annahmen ohne Rückfrage.** Fehlt eine Information (z. B. unklare Anforderung, fehlendes Feld im
+  Datenmodell, unklares Design-Detail), wird nachgefragt statt geraten. Eine begründete Vermutung ist nur
+  zulässig, wenn sie explizit als Annahme markiert und zur Bestätigung vorgelegt wird — nie stillschweigend
+  als Fakt behandelt.
 
 ## Code-Qualität
 
@@ -31,16 +43,23 @@ Es ergänzt `PROJECT.md` (Was wir bauen) und `TASKS.md` (Was als Nächstes anste
 - Keine neue Abhängigkeit (Library/Package) ohne expliziten Auftrag oder Rücksprache — auch nicht "kleine,
   nützliche" Pakete.
 - Keine parallelen Lösungen für dasselbe Problem (z. B. zwei State-Management-Ansätze nebeneinander).
+- **Saubere Architektur bleibt Priorität, auch unter Zeitdruck.** Kein "quick and dirty" für Live-Daten-
+  Features (Auslastung, Community Reports) nur weil sie zeitkritisch wirken — Echtzeit-Charakter
+  rechtfertigt keine Abkürzungen bei Struktur oder Typisierung.
+- Live-/Realtime-Datenflüsse (Auslastung, Community Reports, Notifications) werden über dieselbe
+  Datenzugriffsschicht wie alle anderen Daten geführt, nicht als Sonderfall am Architekturmuster vorbei.
 
 ## Namenskonventionen
 
-- Dateien und Ordner: `kebab-case` für Ordner, `PascalCase` für Komponenten-Dateien (`BeachCard.tsx`),
-  `camelCase` für Hooks/Utils-Dateien (`useBeachStatus.ts`).
-- Komponenten: `PascalCase` (`BeachMap`, `CheckInButton`).
-- Hooks: Präfix `use` (`useAuth`, `useBeachList`).
+- Dateien und Ordner: `kebab-case` für Ordner, `PascalCase` für Komponenten-Dateien (`LocationCard.tsx`),
+  `camelCase` für Hooks/Utils-Dateien (`useLocationStatus.ts`).
+- Komponenten: `PascalCase` (`LiveMap`, `FavoriteButton`).
+- Hooks: Präfix `use` (`useAuth`, `useEventList`).
 - Variablen/Funktionen: `camelCase`, sprechende Namen, keine Abkürzungen ohne Not.
 - Konstanten (echte Konstanten, kein Konfig-Objekt): `UPPER_SNAKE_CASE`.
-- Typen/Interfaces: `PascalCase`, kein `I`-Präfix (`Beach`, nicht `IBeach`).
+- Typen/Interfaces: `PascalCase`, kein `I`-Präfix (`Location`, nicht `ILocation`).
+- Fachbegriffe konsistent aus der Domäne übernehmen, wie in `docs/Database.md`/`docs/API.md` definiert
+  (z. B. `Location`, `Artist`, `Event`, `Report`, nicht eigene Synonyme erfinden).
 - Konsistente Sprache: Code, Variablen- und Funktionsnamen auf Englisch; fachliche/Produkt-Dokumentation
   (`docs/`, `PROJECT.md`) auf Deutsch, sofern nicht anders vereinbart.
 
@@ -48,10 +67,21 @@ Es ergänzt `PROJECT.md` (Was wir bauen) und `TASKS.md` (Was als Nächstes anste
 
 - Eine Komponente = eine klar abgegrenzte Verantwortung. Keine "God-Components".
 - Screens orchestrieren, wiederverwendbare UI-Bausteine liegen in einem gemeinsamen Komponenten-Ordner.
+- **Wiederverwendbarkeit vor Screen-spezifischer Einzellösung:** wiederkehrende UI-Bausteine (Location-
+  Card, Auslastungs-Badge, Artist-Card, Event-Card, Favoriten-Button) werden als generische, parametrisierte
+  Komponenten gebaut, nicht pro Screen dupliziert.
 - Props explizit typisieren, keine impliziten `any`-Props.
 - Keine Geschäftslogik/Datenzugriff direkt in rein visuellen Komponenten — über Hooks/Props einreichen.
-- Styling einheitlich nach der in `docs/Design.md` festgelegten Methode (wird in der Design-Phase
-  festgelegt, danach verbindlich).
+- Styling einheitlich nach der in `docs/Design.md` festgelegten Methode (Dark Mode als Basis, Neon-
+  Akzente, Premium-Nightlife-Look) — keine Screen-eigenen Ad-hoc-Styles, die vom Designsystem abweichen.
+
+## Premium iOS Design
+
+- Umsetzung folgt konsequent den Design-Richtlinien aus `PROJECT.md`/`docs/Design.md`: modernes
+  iOS-Design, Dark Mode als Basis, Neon-Akzente, große Cards, moderne/reduzierte Navigation.
+- Kein generisches Cross-Platform-Look-and-Feel „von der Stange" — die App soll sich hochwertig und
+  Nightlife-spezifisch anfühlen, nicht wie eine austauschbare Standard-App.
+- Bei UI-Entscheidungen ohne Vorgabe in `docs/Design.md`: Rückfrage statt eigenmächtiger Design-Annahme.
 
 ## Vorgehensweise bei Änderungen
 

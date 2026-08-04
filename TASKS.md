@@ -1,25 +1,25 @@
 # TASKS.md — Entwicklungs-Roadmap (Checkliste)
 
-Diese Liste bildet den Gesamtfortschritt von PlayaLive ab. Häkchen werden gesetzt, sobald ein Punkt
-abgeschlossen ist. Reihenfolge der Abschnitte entspricht der groben zeitlichen Reihenfolge, einzelne
-Punkte können sich je nach Bedarf überlappen.
+Diese Liste bildet den Gesamtfortschritt von PlayaLive (Live-Event- und Party-App für Playa de Palma) ab.
+Häkchen werden gesetzt, sobald ein Punkt abgeschlossen ist. Reihenfolge der Abschnitte entspricht der
+groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf überlappen.
 
-## Planung
+## Projektplanung
 
 - [x] PROJECT.md erstellt (Vision, Zielgruppe, MVP, Tech-Stack)
 - [x] CLAUDE.md erstellt (Arbeitsregeln)
 - [x] README.md erstellt
 - [x] TASKS.md erstellt
+- [x] Projektdefinition auf Nightlife-/Event-App für Playa de Palma korrigiert
 - [ ] Lastenheft ausgefüllt (`docs/Lastenheft.md`)
 - [ ] Roadmap mit Meilensteinen ausgefüllt (`docs/Roadmap.md`)
-- [ ] Annahmen in PROJECT.md mit Projektverantwortlichem abgeglichen
 
-## Design
+## UI Design
 
 - [ ] Design-Richtlinien definiert (`docs/Design.md`)
-- [ ] Farbpalette, Typografie, Iconografie festgelegt
+- [ ] Farbpalette (Dark Mode, Neon-Akzente), Typografie, Iconografie festgelegt
 - [ ] Grundlegende UI-Komponenten skizziert (Wireframes)
-- [ ] Kern-Screens skizziert (Karte, Strand-Detail, Profil, Login)
+- [ ] Kern-Screens skizziert (Home, Map, Events, Artists, Favorites, Profile)
 
 ## Architektur
 
@@ -39,66 +39,91 @@ Punkte können sich je nach Bedarf überlappen.
 ## Navigation
 
 - [ ] React Navigation eingerichtet
-- [ ] Grundstruktur (Tab-/Stack-Navigation) definiert
+- [ ] Grundstruktur (Tab-/Stack-Navigation: Home, Map, Events, Artists, Favorites, Profile) definiert
 - [ ] Auth-Flow vs. App-Flow (eingeloggt/nicht eingeloggt) abgebildet
 
-## Screens
+## Home Screen
 
-- [ ] Kartenübersicht (Strände in der Nähe)
-- [ ] Strand-Detailansicht
-- [ ] Check-in-Flow
-- [ ] Profilseite
-- [ ] Login/Registrierung
-- [ ] Einstellungen
+- [ ] Übersicht: aktuelle Highlights (Top-Events, Top-Locations, Trends)
+- [ ] Einstieg in Live Map, Events, Artists
+- [ ] Wetter-Anzeige eingebunden
 
-## Komponenten
+## Map Screen
 
-- [ ] Basis-UI-Kit (Buttons, Inputs, Cards, Badges)
-- [ ] Strand-Karten-Komponente (Kartenmarker/Popup)
-- [ ] Statusanzeige-Komponente (Andrang/Wetter/Warnungen)
-- [ ] Live-Update-/Feed-Komponente
+- [ ] Live Map mit Locations (Clubs/Bars)
+- [ ] Live-Auslastungs-Anzeige pro Location (Leer/Mittel/Voll)
+- [ ] Location-Detailansicht (Öffnungszeiten, Specials, Events)
 
-## Backend
+## Events
+
+- [ ] Tagesprogramm-Ansicht
+- [ ] Kommende Events
+- [ ] Event-Detailansicht (Künstler, Startzeit, Location)
+
+## Artists
+
+- [ ] Künstlerprofile (DJs)
+- [ ] Auftritte (aktuelle/kommende) pro Künstler
+- [ ] Künstler favorisierbar
+
+## Favorites
+
+- [ ] Locations speichern
+- [ ] Künstler speichern
+- [ ] Übersicht gespeicherter Favoriten
+- [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
+
+## Profile
+
+- [ ] Profilseite (Nutzerdaten)
+- [ ] Einstellungen (u. a. Benachrichtigungen)
+- [ ] Login/Logout
+
+## Supabase Backend
 
 - [ ] Supabase-Projekt aufgesetzt
 - [ ] Datenbankschema gemäß `docs/Database.md` umgesetzt
 - [ ] Row-Level-Security-Regeln definiert
 - [ ] API-/Datenzugriffsschicht im Client implementiert
-
-## Supabase
-
 - [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert
-- [ ] Realtime-Subscriptions für Live-Updates eingerichtet
-- [ ] Storage für Bilder (Check-in-Fotos) konfiguriert
-- [ ] Edge Functions (falls nötig) definiert
 
-## Mapbox
+## Mapbox Integration
 
 - [ ] Mapbox-Account/Token eingerichtet
 - [ ] Karten-Integration in Expo
 - [ ] Standortberechtigungen (Location Permissions) implementiert
-- [ ] Strand-Marker und Clustering auf der Karte
+- [ ] Location-Marker und Clustering auf der Karte
 
-## Auth
+## Community Reports
 
-- [ ] Registrierung
-- [ ] Login/Logout
-- [ ] Passwort-Reset
-- [ ] Geschützte Routen/Screens
+- [ ] Report-Flow: Nutzer meldet Auslastung einer Location
+- [ ] Validierung/Aggregation mehrerer Reports pro Location
+- [ ] Anzeige der aktuellen Auslastung basierend auf Reports
+
+## Live Updates
+
+- [ ] Supabase-Realtime-Subscriptions für Auslastung/Reports
+- [ ] Live-Aktualisierung der Map/Location-Ansicht ohne manuelles Neuladen
+- [ ] Live-Aktualisierung von Event-/Artist-Daten bei Änderungen
 
 ## Notifications
 
-- [ ] Expo Notifications eingerichtet
+- [ ] Firebase Notifications eingerichtet
 - [ ] Push-Token-Registrierung mit Supabase verknüpft
-- [ ] Benachrichtigungstypen definiert (Warnung, Freund in der Nähe, Event)
+- [ ] Benachrichtigungstypen definiert (Favoriten-Update, Event startet bald, Special)
 - [ ] Nutzer-Einstellungen für Benachrichtigungen
+
+## Wetter
+
+- [ ] Wetter-API-Anbindung ausgewählt
+- [ ] Temperatur- und Wetterbedingungs-Anzeige (Home Screen, ggf. Map)
 
 ## Testing
 
 - [ ] Teststrategie definiert (Unit/Integration/E2E, Umfang)
 - [ ] Unit-Tests für Kernlogik
-- [ ] Manuelle Testdurchläufe für Kern-Flows (Check-in, Auth, Karte)
-- [ ] Fehler-/Edge-Case-Tests (kein Netz, keine Location-Berechtigung, etc.)
+- [ ] Manuelle Testdurchläufe für Kern-Flows (Map, Events, Favorites, Community Report, Auth)
+- [ ] Fehler-/Edge-Case-Tests (kein Netz, keine Location-Berechtigung, keine Reports vorhanden, etc.)
 
 ## Release
 
