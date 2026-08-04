@@ -134,9 +134,8 @@ Ziel von Version 1.0: ein hochwertiger, stabiler und vollständiger Launch der K
 
 *(Quelle: `PROJECT.md` → MVP; Klärung 3 „Priorisierung über MVP hinaus" → Version 1.0)*
 
-> Hinweis: Die genaue fachliche Struktur von „Bewertungen & Kommentare" (worauf sie sich beziehen —
-> Location, Event, o. a. — und welche Felder sie besitzen) ist bislang nicht im Detail geklärt und muss
-> vor der Implementierung dieser Features in einer eigenen Klärungsrunde festgelegt werden.
+„Bewertungen & Kommentare" = Sterne-Bewertung (1–5) mit Kommentar zu Location oder Artist; fachliche
+Struktur siehe Kapitel 16 „Bewertungen (Reviews)".
 
 ## 8. Priorisierung über den MVP hinaus
 
@@ -282,7 +281,7 @@ Unterstützte Login-Methoden:
 Nach erfolgreicher Anmeldung erhält jeder Nutzer automatisch Zugriff auf sämtliche Funktionen der App
 entsprechend seiner serverseitig zugewiesenen Rolle.
 
-Begründung: Nahezu alle Kernfunktionen (Favoriten, Push, Community Reports, Bewertungen, Kommentare,
+Begründung: Nahezu alle Kernfunktionen (Favoriten, Push, Community Reports, Bewertungen (inkl. Kommentar),
 geräteübergreifende Synchronisation) basieren auf Personalisierung und Nutzerinteraktion. Ein
 verpflichtender Login schafft von Beginn an hohe Datenqualität und eine sichere Grundlage für
 Missbrauchsschutz (Kapitel 15) und künftige Partner-/Premium-Funktionen.
@@ -291,9 +290,9 @@ Missbrauchsschutz (Kapitel 15) und künftige Partner-/Premium-Funktionen.
 
 | Rolle | Verfügbar ab | Berechtigungen (Kurzfassung) |
 |---|---|---|
-| **User** | v1.0 | Öffentliche Locations/Events/Artists/Wetter lesen; eigene Favoriten, Reports, Bewertungen, Kommentare verwalten; eigenes Profil lesen/bearbeiten |
+| **User** | v1.0 | Öffentliche Locations/Events/Artists/Wetter lesen; eigene Favoriten, Reports, Bewertungen (inkl. Kommentar) verwalten; eigenes Profil lesen/bearbeiten |
 | **Location Manager** | v2.0 | Zusätzlich: ausschließlich die eigene verifizierte Location, deren Events, Specials, Happy Hours und Bilder verwalten |
-| **Admin** | v1.0 | Sämtliche Locations, Künstler, Events verwalten; Community moderieren (Reports, Bewertungen, Kommentare); Partner verwalten |
+| **Admin** | v1.0 | Sämtliche Locations, Künstler, Events verwalten; Community moderieren (Reports, Bewertungen (inkl. Kommentar)); Partner verwalten |
 | **Super Admin** | v1.0 | Vollständiger Systemzugriff: zusätzlich Benutzer-/Rollenverwaltung, Systemeinstellungen, Sicherheitsverwaltung, Monetarisierung, Partnerfreigaben |
 
 Detaillierte Row-Level-Security-Policies je Rolle: siehe Kapitel 15.
@@ -426,7 +425,7 @@ niemals über Berechtigungen — alle Sicherheitsregeln werden serverseitig durc
 
 Rollenbasierte Berechtigungen (Kurzfassung, Details siehe Kapitel 12):
 - **User:** darf öffentliche Locations/Events/Artists/Wetter lesen; eigene Favoriten, Reports,
-  Bewertungen, Kommentare verwalten; nur das eigene Profil lesen/bearbeiten. Darf keine Stammdaten
+  Bewertungen (inkl. Kommentar) verwalten; nur das eigene Profil lesen/bearbeiten. Darf keine Stammdaten
   verändern, keine anderen Nutzer sehen, keine fremden Reports/Bewertungen bearbeiten.
 - **Location Manager (v2.x):** zusätzlich ausschließlich die eigene verifizierte Location, deren Events,
   Specials, Happy Hours, Bilder verwalten. Kein Zugriff auf andere Locations oder Systemdaten.
@@ -506,7 +505,7 @@ Mehrwert durch sofortige Aktualisierung erhalten:
   Notifications, Events (kurzfristige Änderungen), Specials & Happy Hours, Locations (ausschließlich
   Live-Daten wie Öffnungsstatus/Auslastung — nicht Stammdaten wie Name/Beschreibung/Bilder).
 - **Nicht permanent per Realtime synchronisiert:** Künstlerprofile, Benutzerprofile, Einstellungen,
-  Favoriten, Bewertungen, Kommentare, Medien, historische Daten — diese laufen über TanStack Query mit
+  Favoriten, Bewertungen (inkl. Kommentar), Medien, historische Daten — diese laufen über TanStack Query mit
   Caching/gezielten Aktualisierungen.
 
 Realtime-Abonnements werden ausschließlich über einen zentralen **Realtime Service** verwaltet
@@ -570,8 +569,8 @@ JSON-Felder für strukturierte Inhalte, Beziehungen ausschließlich über Foreig
 | `favorites` | Favoriten (polymorph) | user_id, target_type (location/artist/event), target_id |
 | `reports` | Community-Meldungen zur Auslastung | user_id, location_id, occupancy_level, wait_time, mood, music_genre, comment (optional), latitude, longitude, created_at |
 | `report_flags` | Meldungen zu verdächtigen Reports | report_id, flagged_by_user_id, reason |
-| `reviews` | Bewertungen (Detailstruktur offen, siehe Kapitel 7) | user_id, … |
-| `comments` | Kommentare (Detailstruktur offen, siehe Kapitel 7) | user_id, … |
+| `reviews` | Bewertung mit Kommentar zu Location oder Artist | user_id, target_type (location/artist), target_id, rating (1–5), comment_text, created_at, updated_at, deleted_at |
+| `review_flags` | Meldungen zu missbräuchlichen Reviews | review_id, flagged_by_user_id, reason, created_at |
 | `notifications` | Benachrichtigungen | user_id, type, related_type, related_id, title, message, is_read |
 | `partners` | Partner-Verwaltung (v2.x) | user_id, location_id, status, verified_at |
 
@@ -580,6 +579,8 @@ JSON-Felder für strukturierte Inhalte, Beziehungen ausschließlich über Foreig
 - `profiles` —< `favorites` >— `locations` / `artists` / `events` (polymorph über `target_type`)
 - `profiles` —< `reports` >— `locations`
 - `profiles` —< `report_flags` >— `reports`
+- `profiles` —< `reviews` >— `locations` / `artists` (polymorph über `target_type`)
+- `profiles` —< `review_flags` >— `reviews`
 - `profiles` —< `trust_score_events`
 - `profiles` —< `notifications`
 - `locations` —< `events`
@@ -597,9 +598,22 @@ Tabellen je Typ — ermöglicht eine einheitliche API/Service/Komponenten-Strukt
 Fremdschlüssel erlauben, prüft das Backend vor dem Speichern: Existiert die Zielressource? Ist
 `target_type` gültig? Existiert der Favorit bereits? Darf der Nutzer diesen Inhalt favorisieren?
 
-> Offen: die genaue Struktur von `reviews` und `comments` (Bezug auf Location/Event, Felder) ist noch
-> nicht im Detail geklärt (siehe Kapitel 7) und wird vor der Implementierung dieser Features in einer
-> eigenen Klärungsrunde festgelegt.
+### Bewertungen (Reviews)
+
+Verbindlich festgelegt (Design-Review Punkt 2): Sterne-Bewertung (1–5) und Kommentar bilden **eine**
+gemeinsame Entität `reviews` — kein separates Kommentar-System. Jeder registrierte Nutzer kann pro
+Location oder Artist eine eigene Bewertung mit Kommentar abgeben, später bearbeiten oder löschen.
+
+Kommentare dienen ausschließlich dazu, aktuelle Eindrücke zu teilen (Stimmung, Wartezeit, Musik,
+Publikum, allgemeiner Eindruck) — **keine Diskussionsplattform**: keine Antworten/Threads auf Kommentare,
+keine Likes/Reaktionen, keine Erwähnungen (@), keine Hashtags, keine Social-Feed-Funktion.
+
+Darstellung: chronologisch, sortierbar nach „Neueste" oder „Hilfreichste". Missbräuchliche Inhalte
+können gemeldet (`review_flags`) und von Administratoren moderiert werden (siehe Kapitel 12/15).
+
+> Offen: wie „Hilfreichste" operationalisiert wird — die Sortierung setzt ein Signal für Hilfreichkeit
+> voraus, obwohl Likes/Reaktionen explizit ausgeschlossen sind. Muss vor Implementierung der Sortierung
+> geklärt werden (siehe Kapitel 22).
 
 ## 17. Design
 
@@ -711,8 +725,8 @@ Diese Dokumente sind an dieser Stelle **nur als geplant vermerkt** und noch nich
 Diese Punkte sind bewusst noch nicht entschieden und müssen vor der jeweils betroffenen
 Implementierung in einer eigenen Klärungsrunde festgelegt werden:
 
-- Genaue fachliche Struktur von `reviews` und `comments` (Bezug auf Location/Event, Felder, RLS im
-  Detail).
+- Wie die „Hilfreichste"-Sortierung von Bewertungen (Kapitel 16 „Bewertungen (Reviews)") operationalisiert
+  wird, obwohl Likes/Reaktionen explizit ausgeschlossen sind.
 - Konkrete Design-Werte (Hex-Farbwerte, Typografie, Iconografie, Spacing, Komponenten-Bibliothek,
   Animationen, Accessibility-Details) — folgen im geplanten `docs/DesignSystem.md`.
 - Konkrete Indizes auf Datenbankebene — folgen bei der Migrationserstellung auf Basis des in Kapitel 16

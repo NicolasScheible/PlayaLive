@@ -9,7 +9,7 @@
 ## 1. Überblick
 
 PlayaLive verwaltet Nutzer, Locations (Clubs/Bars), Künstler, Events, Specials, Happy Hours, Favoriten,
-Community-Reports zur Auslastung, das Vertrauenssystem, Bewertungen/Kommentare, Benachrichtigungen und
+Community-Reports zur Auslastung, das Vertrauenssystem, Bewertungen (Reviews), Benachrichtigungen und
 (ab v2.x) Partner. Die folgenden Tabellen beschreiben die geplante Struktur auf fachlicher Ebene (Felder,
 Beziehungen), ohne technisches Schema/SQL.
 
@@ -24,7 +24,7 @@ keinen Gastzugriff (siehe `docs/PRD.md` Kapitel 12).
   `admin` / `super_admin`), trust_score, trust_level, reports_count, confirmed_reports,
   rejected_reports, erstellt am, aktualisiert am
 - Beziehungen: hat viele Favorites, hat viele Reports, hat viele Report Flags, hat viele
-  Trust-Score-Events, empfängt viele Notifications, hat viele Reviews, hat viele Comments
+  Trust-Score-Events, empfängt viele Notifications, hat viele Reviews, hat viele Review Flags
 
 ### 2.2 Trust Score Events
 
@@ -116,15 +116,27 @@ Meldungen von Nutzern zu verdächtigen/falschen Reports (Teil des Missbrauchssch
 
 ### 2.12 Reviews
 
-Bewertungen von Nutzern. **Genaue fachliche Struktur (Bezug auf Location oder Event, Felder) ist noch
-nicht geklärt** — siehe `docs/PRD.md` Kapitel 22 „Offene Punkte". Wird vor Implementierung dieses
-Features in einer eigenen Klärungsrunde festgelegt.
+Bewertung mit Kommentar zu einer Location oder einem Artist (Sterne-Bewertung und Kommentar bilden eine
+gemeinsame Entität, kein separates Kommentar-System — siehe `docs/PRD.md` Kapitel 16 „Bewertungen
+(Reviews)"). Kommentare dienen ausschließlich dem Teilen aktueller Eindrücke (Stimmung, Wartezeit, Musik,
+Publikum, allgemeiner Eindruck) — keine Diskussionsplattform (keine Antworten/Threads, keine Likes/
+Reaktionen, keine Erwähnungen, keine Hashtags).
 
-### 2.13 Comments
+- Felder (geplant): ID, User-Referenz, Ziel-Typ (`location` / `artist`), Ziel-Referenz, Bewertung (1–5),
+  Kommentartext, erstellt am, aktualisiert am, gelöscht am (Soft Delete)
+- Beziehungen: gehört zu einem Profile, verweist (serverseitig geprüft, wie bei Favorites) auf eine
+  Location oder einen Artist, kann mehrere Review Flags haben
+- Darstellung: chronologisch, sortierbar nach „Neueste" oder „Hilfreichste" — wie „Hilfreichste"
+  operationalisiert wird, ist trotz explizit ausgeschlossener Likes/Reaktionen noch offen (siehe
+  `docs/PRD.md` Kapitel 22 „Offene Punkte")
 
-Kommentare von Nutzern. **Genaue fachliche Struktur (Bezug auf Location oder Event, Felder) ist noch
-nicht geklärt** — siehe `docs/PRD.md` Kapitel 22 „Offene Punkte". Wird vor Implementierung dieses
-Features in einer eigenen Klärungsrunde festgelegt.
+### 2.13 Review Flags
+
+Meldungen von Nutzern zu missbräuchlichen Reviews (Teil des Moderationsprozesses, analog zu
+`report_flags`).
+
+- Felder (geplant): ID, Review-Referenz, meldender User, Grund, erstellt am
+- Beziehungen: gehört zu einem Review, gehört zu einem meldenden Profile
 
 ### 2.14 Notifications
 
@@ -149,7 +161,8 @@ Location. Nicht Teil des MVP.
 - Profile —< Report Flags >— Reports
 - Profile —< Trust Score Events
 - Profile —< Notifications
-- Profile —< Reviews, Comments (Zielbezug offen)
+- Profile —< Reviews >— Location / Artist (polymorph über `target_type`)
+- Profile —< Review Flags >— Reviews
 - Location —< Events
 - Location —< Specials
 - Location —< Happy Hours

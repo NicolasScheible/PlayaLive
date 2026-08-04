@@ -67,10 +67,13 @@ Favoriten werden über eine zentrale, polymorphe Tabelle abgebildet (siehe `docs
 - Eigene abgegebene Reports abrufen
 - Verdächtigen Report melden (`report_flags`)
 
-## 9. Reviews & Comments
+## 9. Reviews
 
-Genaue fachliche Struktur (Bezug auf Location/Event) ist noch nicht geklärt — siehe `docs/PRD.md`
-Kapitel 22 „Offene Punkte". API-Operationen werden festgelegt, sobald diese Klärung erfolgt ist.
+- Eigene Bewertung (1–5 Sterne + Kommentar) zu einer Location oder einem Artist erstellen
+- Eigene Bewertung bearbeiten oder löschen
+- Bewertungen zu einer Location/einem Artist abrufen, sortierbar nach „Neueste" oder „Hilfreichste"
+  (Operationalisierung von „Hilfreichste" noch offen — siehe `docs/PRD.md` Kapitel 22)
+- Missbräuchliche Bewertung melden (`review_flags`)
 
 ## 10. Notifications
 

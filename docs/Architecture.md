@@ -182,11 +182,11 @@ Namentlich benannte Services:
 - `NotificationService`
 - `WeatherService`
 
-🟡 **Abgeleiteter Vorschlag:** da Specials, Happy Hours, Reviews und Comments als eigene Tabellen
-existieren (`docs/Database.md` 2.7, 2.8, 2.12, 2.13) und laut Architekturprinzip 7 (Kapitel 2
+🟡 **Abgeleiteter Vorschlag:** da Specials, Happy Hours und Reviews als eigene Tabellen existieren
+(`docs/Database.md` 2.7, 2.8, 2.12) und laut Architekturprinzip 7 (Kapitel 2
 „Architekturprinzipien") jeder Datenzugriff über den Service Layer läuft, benötigen auch sie eigene
-Services (`SpecialService`, `HappyHourService`, `ReviewService`, `CommentService`) — diese wurden im PRD
-nicht namentlich gelistet, folgen aber zwingend aus dem entschiedenen Muster. Die
+Services (`SpecialService`, `HappyHourService`, `ReviewService`) — diese wurden im PRD nicht namentlich
+gelistet, folgen aber zwingend aus dem entschiedenen Muster. Die
 Vertrauensscore-Berechnung (`docs/PRD.md` → Vertrauenssystem) läuft serverseitig (Edge Function) und wird
 vom Frontend nicht direkt angesteuert — ein eigener `TrustScoreService` wäre allenfalls ein reiner
 Lese-Zugriff auf `trust_score_events`.
@@ -243,7 +243,7 @@ Sprachen, i18n-Bibliothek, Übersetzungsverwaltung) entschieden wäre — ebenfa
   Notifications, Events (kurzfristige Änderungen), Specials & Happy Hours, sowie ausschließlich die
   Live-Daten-Felder von Locations (nicht deren Stammdaten).
 - **Nicht permanent per Realtime synchronisiert:** Künstlerprofile, Benutzerprofile, Einstellungen,
-  Favoriten, Bewertungen, Kommentare, Medien, historische Daten (laufen über TanStack Query).
+  Favoriten, Bewertungen (inkl. Kommentar), Medien, historische Daten (laufen über TanStack Query).
 - Realtime-Abonnements laufen ausschließlich über einen zentralen **Realtime Service** — Screens/
   Komponenten kommunizieren niemals direkt mit Supabase Realtime.
 - Performance-Regeln: nur sichtbare Screens abonnieren; nicht sichtbare Screens beenden Subscriptions
@@ -276,7 +276,7 @@ E-Mail-Verifizierung.
 
 | Rolle | Verfügbar ab | Kernberechtigungen |
 |---|---|---|
-| `user` | v1.0 | Öffentliche Locations/Events/Artists/Wetter lesen; eigene Favoriten, Reports, Reviews, Comments verwalten; eigenes Profil lesen/bearbeiten |
+| `user` | v1.0 | Öffentliche Locations/Events/Artists/Wetter lesen; eigene Favoriten, Reports, Reviews verwalten; eigenes Profil lesen/bearbeiten |
 | `location_manager` | v2.0 | Zusätzlich: ausschließlich die eigene verifizierte Location, deren Events, Specials, Happy Hours, Bilder verwalten |
 | `admin` | v1.0 | Sämtliche Locations, Künstler, Events verwalten; Community moderieren; Partner verwalten |
 | `super_admin` | v1.0 | Vollständiger Systemzugriff inkl. Benutzer-/Rollenverwaltung, Systemeinstellungen, Sicherheitsverwaltung, Monetarisierung, Partnerfreigaben |
@@ -507,7 +507,7 @@ erDiagram
     PROFILES ||--o{ TRUST_SCORE_EVENTS : has
     PROFILES ||--o{ NOTIFICATIONS : receives
     PROFILES ||--o{ REVIEWS : writes
-    PROFILES ||--o{ COMMENTS : writes
+    PROFILES ||--o{ REVIEW_FLAGS : flags
     PROFILES ||--o{ PARTNERS : "manages (v2.x)"
     LOCATIONS ||--o{ EVENTS : hosts
     LOCATIONS ||--o{ SPECIALS : offers
@@ -517,11 +517,13 @@ erDiagram
     EVENTS ||--o{ EVENT_ARTISTS : includes
     ARTISTS ||--o{ EVENT_ARTISTS : "performs in"
     REPORTS ||--o{ REPORT_FLAGS : "may be flagged"
+    REVIEWS ||--o{ REVIEW_FLAGS : "may be flagged"
 ```
 
 > Hinweis: `FAVORITES` ist bewusst nicht in diesem Diagramm enthalten, da die Tabelle polymorph auf
 > `LOCATIONS`, `ARTISTS` oder `EVENTS` verweist (`target_type` + `target_id`, kein klassischer
-> Fremdschlüssel) — siehe `docs/Database.md` 2.9.
+> Fremdschlüssel) — siehe `docs/Database.md` 2.9. `REVIEWS` verweist ebenso polymorph auf `LOCATIONS`
+> oder `ARTISTS` (`target_type` + `target_id`).
 
 ## 24. Best Practices
 

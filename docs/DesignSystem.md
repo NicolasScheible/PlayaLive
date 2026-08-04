@@ -14,13 +14,14 @@
 > bleiben weiterhin als 🔴 offene Designentscheidung markiert — hier wurden keine Annahmen getroffen.
 >
 > **Wichtiger Hinweis (Scope):** Die Mockups enthielten mehrere Screens/Elemente, die vom bisher in
-> `docs/PRD.md` entschiedenen Funktionsumfang von Version 1.0 abwichen. Diese werden in einer
-> strukturierten Design-Review Punkt für Punkt mit dem Product Owner geklärt. Bereits entschieden:
-> die Navigation (5 Bottom-Tabs + Community-Report-Schnellzugriff + Hamburger-Menü, siehe Kapitel 16)
-> sowie die Bestätigung, dass Community-/Social-Feed, Gamification/Rewards, Ticketing/Payment und
-> VIP-/Tisch-/Getränke-/Transport-Services **Design- bzw. Zukunftskonzepte** sind und nicht Teil von
-> Version 1.0 werden (`docs/PRD.md` Kapitel 11 „Nicht Bestandteil von Version 1.0"). Noch offene
-> Review-Punkte (u. a. Reviews-/Bewertungsstruktur) werden gesondert nachgezogen, sobald entschieden.
+> `docs/PRD.md` entschiedenen Funktionsumfang von Version 1.0 abwichen. Diese wurden in einer
+> strukturierten Design-Review Punkt für Punkt mit dem Product Owner geklärt: die Navigation (5
+> Bottom-Tabs + Community-Report-Schnellzugriff + Hamburger-Menü, siehe Kapitel 16), die Bestätigung,
+> dass Community-/Social-Feed, Gamification/Rewards, Ticketing/Payment und VIP-/Tisch-/Getränke-/
+> Transport-Services **Design- bzw. Zukunftskonzepte** sind und nicht Teil von Version 1.0 werden
+> (`docs/PRD.md` Kapitel 11 „Nicht Bestandteil von Version 1.0"), sowie die Bewertungsstruktur
+> (Sterne-Bewertung + Kommentar als eine Entität `reviews`, siehe `docs/PRD.md` Kapitel 16 „Bewertungen
+> (Reviews)"). Damit ist die Design-Review abgeschlossen.
 >
 > **Legende:**
 > - ✅ **Entschieden** — eindeutig aus den UI-Designs erkennbar (ggf. per Pixel-Sampling verifiziert)
