@@ -718,7 +718,7 @@ docs/
     ├── 002-Authentication.md        ✅ erstellt
     ├── 003-Realtime.md              ✅ erstellt
     ├── 004-Database.md              ✅ erstellt
-    ├── 005-API-Architecture.md      🔴 geplant
+    ├── 005-API-Architecture.md      ✅ erstellt
     ├── 006-Maps.md                  🔴 geplant
     ├── 007-Notifications.md         🔴 geplant
     └── 008-Security.md              🔴 geplant
