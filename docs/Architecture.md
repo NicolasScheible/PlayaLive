@@ -318,8 +318,27 @@ Expo-eigene Lösung), Struktur/Format der Übersetzungsdateien.
 
 Diagramm des Datenflusses: siehe Kapitel 23.2 „Realtime-Datenfluss".
 
-🔴 **Offene Architekturentscheidung:** konkrete Reconnect-/Backoff-Strategie bei Verbindungsabbruch,
-genaues Debouncing-Zeitfenster für gebündelte Events.
+### Reconnect, Verbindungsstatus, Fallback, Debouncing
+
+✅ Entschieden (Architekturentscheidung 7, Product Owner):
+
+- **Reconnect:** Nutzung des in Supabase Realtime eingebauten automatischen Reconnects — kein eigener
+  Backoff-Algorithmus. Zusätzlich prüft die App beim Wechsel vom Hintergrund in den Vordergrund aktiv,
+  ob die Verbindung noch besteht, und startet bei Bedarf sofort einen neuen Verbindungsversuch, statt auf
+  den nächsten automatischen Backoff-Zyklus zu warten.
+- **Verbindungsstatus:** bei vorübergehend fehlender Realtime-Verbindung erhält der Nutzer einen
+  dezenten Hinweis (z. B. „Live-Verbindung wird wiederhergestellt...", automatisch ausgeblendet nach
+  Wiederherstellung); die übrige App bleibt währenddessen vollständig nutzbar.
+- **Fallback:** gelingt die Wiederverbindung nach mehreren automatischen Versuchen weiterhin nicht, wird
+  einmalig ein Refetch der betroffenen Daten ausgelöst. **Kein dauerhaftes Polling** in v1.0 (unnötiger
+  Netzwerkverkehr/Akkuverbrauch).
+- **Debouncing:** Zeitfenster von **300 ms**, in dem mehrere kurz aufeinanderfolgende Realtime-Events
+  gesammelt und gemeinsam verarbeitet werden — reduziert unnötige UI-Neuzeichnungen. Startwert, später
+  anhand realer Nutzungsdaten optimierbar.
+
+Grundprinzip: Realtime-Daten sollen jederzeit möglichst aktuell sein, ohne unnötige Netzwerkzugriffe
+oder häufige UI-Aktualisierungen — Verbindungsunterbrechungen werden automatisch behandelt, der Nutzer
+wird nur bei anhaltenden Problemen dezent informiert.
 
 ## 12. Authentifizierung
 
@@ -637,7 +656,6 @@ bestätigt ist.
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
-| 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
 | 8 | Passwort-Reset-Flow, E-Mail-Verifizierung (Session-Refresh-Verhalten bereits entschieden) | 12 |
 | 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
 | 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
