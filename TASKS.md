@@ -119,8 +119,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   trust_score_events noch offen)
 - [x] Row-Level-Security-Regeln definiert (alle Tabellen + Storage-Objekte, „Deny by Default" gemäß
   `docs/PRD.md` Kapitel 15)
-- [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer, bisher `AuthService`;
-  weitere Services folgen mit den jeweiligen Features)
+- [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer: `AuthService`,
+  `LocationService`, `ArtistService`, `EventService`, `FavoriteService`, `ReportService` +
+  `ReportRepository`; Services für specials/happy_hours/reviews/notifications folgen mit den
+  jeweiligen Features)
 - [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig implementiert
   (E-Mail/Passwort: Login, Registrierung, Passwort-Reset, Session-Handling), serverseitige
   Supabase-Projekt-Konfiguration (Rate Limits, Redirect-URLs, E-Mail-Templates) noch offen; Apple/

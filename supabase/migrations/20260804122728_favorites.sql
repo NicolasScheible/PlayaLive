@@ -32,17 +32,20 @@ language plpgsql
 stable
 as $$
 begin
+  -- Präfix FAVORITE_INVALID_TARGET analog zu REPORT_RATE_LIMITED/REPORT_GEOFENCE_TOO_FAR
+  -- (siehe 20260804122730_reports.sql): Postgres liefert für RAISE EXCEPTION sonst nur die generische
+  -- SQLSTATE P0001, ohne die eigentliche Ursache im Fehlercode auszudrücken.
   if new.target_type = 'location' then
     if not exists (select 1 from public.locations where id = new.target_id and deleted_at is null) then
-      raise exception 'Location % existiert nicht oder ist gelöscht.', new.target_id;
+      raise exception 'FAVORITE_INVALID_TARGET: Location % existiert nicht oder ist gelöscht.', new.target_id;
     end if;
   elsif new.target_type = 'artist' then
     if not exists (select 1 from public.artists where id = new.target_id and deleted_at is null) then
-      raise exception 'Artist % existiert nicht oder ist gelöscht.', new.target_id;
+      raise exception 'FAVORITE_INVALID_TARGET: Artist % existiert nicht oder ist gelöscht.', new.target_id;
     end if;
   elsif new.target_type = 'event' then
     if not exists (select 1 from public.events where id = new.target_id and deleted_at is null) then
-      raise exception 'Event % existiert nicht oder ist gelöscht.', new.target_id;
+      raise exception 'FAVORITE_INVALID_TARGET: Event % existiert nicht oder ist gelöscht.', new.target_id;
     end if;
   end if;
 

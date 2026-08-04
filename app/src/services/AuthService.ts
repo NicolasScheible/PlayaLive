@@ -2,7 +2,10 @@ import { isAuthApiError, isAuthRetryableFetchError } from '@supabase/supabase-js
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 import type { AppError } from '../lib/errors';
+import { mapDatabaseError } from '../lib/errors';
 import { supabase } from '../lib/supabase';
+import type { UpdateProfileInput } from '../types/dto';
+import type { Profile } from '../types/entities';
 
 // Service Layer für Authentifizierung (siehe docs/Architecture.md Kapitel 8/12 und
 // docs/ADR/002-Authentication.md). Einzige Stelle im Code, die mit `supabase.auth` kommuniziert.
@@ -60,6 +63,15 @@ function mapAuthError(error: unknown): AppError {
   };
 }
 
+function sessionMissingError(): AppError {
+  return {
+    code: 'AUTH_SESSION_MISSING',
+    messageKey: 'errors.auth.AUTH_SESSION_MISSING',
+    message: 'Du musst angemeldet sein, um diese Aktion auszuführen.',
+    technicalMessage: 'No active session',
+  };
+}
+
 export const AuthService = {
   getSession(): Promise<{ session: Session | null }> {
     return supabase.auth.getSession().then(({ data }) => ({ session: data.session }));
@@ -107,5 +119,53 @@ export const AuthService = {
 
   signOut(): Promise<void> {
     return supabase.auth.signOut().then(() => undefined);
+  },
+
+  // docs/API.md Kapitel 2 „Nutzerprofil aktualisieren (Anzeigename, Profilbild)" — dort unter
+  // Authentication gruppiert, daher hier statt in einem eigenen, nicht dokumentierten ProfileService
+  // (docs/Architecture.md Kapitel 8 nennt keinen solchen Service). Greift auf `profiles` zu, nicht auf
+  // `supabase.auth` — die „nur AuthService ruft supabase.auth auf"-Regel bleibt davon unberührt.
+  async getProfile(): Promise<Profile | null> {
+    const { session } = await this.getSession();
+
+    if (!session) {
+      throw sessionMissingError();
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      throw mapDatabaseError(error);
+    }
+
+    return data;
+  },
+
+  async updateProfile(input: UpdateProfileInput): Promise<Profile> {
+    const { session } = await this.getSession();
+
+    if (!session) {
+      throw sessionMissingError();
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        ...(input.displayName !== undefined && { display_name: input.displayName }),
+        ...(input.avatarUrl !== undefined && { avatar_url: input.avatarUrl }),
+      })
+      .eq('id', session.user.id)
+      .select('*')
+      .single();
+
+    if (error) {
+      throw mapDatabaseError(error);
+    }
+
+    return data;
   },
 };

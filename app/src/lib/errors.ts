@@ -10,3 +10,73 @@ export type AppError = {
   technicalMessage: string;
   context?: Record<string, unknown>;
 };
+
+// Generisches Fehler-Mapping für den Datenzugriff über Supabase/Postgrest (siehe
+// docs/Architecture.md Kapitel 15, Fehlercode-Katalog-Beispiele: NETWORK_OFFLINE, SERVER_ERROR,
+// UNKNOWN_ERROR, LOCATION_NOT_FOUND, EVENT_NOT_FOUND, REPORT_RATE_LIMITED, REPORT_GEOFENCE_TOO_FAR).
+// Auth-spezifisches Mapping bleibt in src/services/AuthService.ts (dort werden Supabase-Auth-Fehler
+// bereits domänenspezifisch übersetzt).
+const DATABASE_ERROR_MESSAGES = {
+  NOT_FOUND: 'Der angeforderte Eintrag wurde nicht gefunden.',
+  ALREADY_EXISTS: 'Dieser Eintrag existiert bereits.',
+  PERMISSION_DENIED: 'Du hast keine Berechtigung für diese Aktion.',
+  REPORT_RATE_LIMITED: 'Du hast diese Location gerade erst gemeldet. Bitte warte kurz.',
+  REPORT_GEOFENCE_TOO_FAR: 'Du befindest dich zu weit von dieser Location entfernt.',
+  FAVORITE_INVALID_TARGET: 'Dieser Eintrag kann nicht favorisiert werden.',
+  NETWORK_OFFLINE: 'Bitte überprüfe deine Internetverbindung.',
+  SERVER_ERROR: 'Der Server ist aktuell nicht erreichbar. Bitte versuche es später erneut.',
+  UNKNOWN_ERROR: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+} as const;
+
+export type MapDatabaseErrorOptions = {
+  // Domänenspezifischer Code/Text für „keine Zeile gefunden" (z. B. LOCATION_NOT_FOUND,
+  // EVENT_NOT_FOUND — siehe docs/Architecture.md Kapitel 15), da PGRST116 selbst generisch ist.
+  notFound?: { code: string; message: string };
+};
+
+function hasStringProperty<K extends string>(value: unknown, key: K): value is Record<K, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Record<string, unknown>)[key] === 'string'
+  );
+}
+
+export function mapDatabaseError(error: unknown, options: MapDatabaseErrorOptions = {}): AppError {
+  const rawMessage = hasStringProperty(error, 'message') ? error.message : '';
+
+  const code = (() => {
+    // Von den Trigger-Funktionen in supabase/migrations bewusst vorangestellte Codes (z. B.
+    // enforce_report_submission_rules() in 20260804122730_reports.sql) — Postgres liefert für
+    // `RAISE EXCEPTION` sonst nur die generische SQLSTATE P0001, die Rate-Limit- und
+    // Geofencing-Fehler nicht voneinander unterscheidbar macht.
+    if (rawMessage.startsWith('REPORT_RATE_LIMITED')) return 'REPORT_RATE_LIMITED';
+    if (rawMessage.startsWith('REPORT_GEOFENCE_TOO_FAR')) return 'REPORT_GEOFENCE_TOO_FAR';
+    if (rawMessage.startsWith('FAVORITE_INVALID_TARGET')) return 'FAVORITE_INVALID_TARGET';
+
+    const postgrestCode = hasStringProperty(error, 'code') ? error.code : undefined;
+
+    switch (postgrestCode) {
+      case '23505':
+        return 'ALREADY_EXISTS';
+      case '42501':
+        return 'PERMISSION_DENIED';
+      case 'PGRST116':
+        return options.notFound?.code ?? 'NOT_FOUND';
+      default:
+        return error instanceof TypeError ? 'NETWORK_OFFLINE' : 'UNKNOWN_ERROR';
+    }
+  })();
+
+  const message =
+    (code === options.notFound?.code ? options.notFound?.message : undefined) ??
+    (DATABASE_ERROR_MESSAGES as Record<string, string>)[code] ??
+    DATABASE_ERROR_MESSAGES.UNKNOWN_ERROR;
+
+  return {
+    code,
+    messageKey: `errors.database.${code}`,
+    message,
+    technicalMessage: rawMessage || String(error),
+  };
+}

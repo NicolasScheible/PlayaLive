@@ -61,7 +61,7 @@ begin
   ) into recent_report_exists;
 
   if recent_report_exists then
-    raise exception 'RATE_LIMITED: Bereits ein Report für diese Location in den letzten 10 Minuten.';
+    raise exception 'REPORT_RATE_LIMITED: Bereits ein Report für diese Location in den letzten 10 Minuten.';
   end if;
 
   select latitude, longitude into location_lat, location_lng
@@ -72,7 +72,7 @@ begin
   -- übersprungen statt legitime Reports pauschal abzulehnen.
   if location_lat is not null and location_lng is not null then
     if public.distance_meters(new.latitude, new.longitude, location_lat, location_lng) > 150 then
-      raise exception 'GEOFENCE_VIOLATION: Zu weit von der Location entfernt.';
+      raise exception 'REPORT_GEOFENCE_TOO_FAR: Zu weit von der Location entfernt.';
     end if;
   end if;
 

@@ -2,13 +2,26 @@ import { AuthApiError, AuthRetryableFetchError } from '@supabase/supabase-js';
 
 import { AuthService } from './AuthService';
 
+function createQueryBuilderMock(result: { data: unknown; error: unknown }) {
+  const builder: Record<string, unknown> = {};
+  ['select', 'update', 'eq'].forEach((method) => {
+    builder[method] = jest.fn(() => builder);
+  });
+  builder.single = jest.fn().mockResolvedValue(result);
+  builder.maybeSingle = jest.fn().mockResolvedValue(result);
+
+  return builder;
+}
+
 jest.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
       resetPasswordForEmail: jest.fn(),
+      getSession: jest.fn(),
     },
+    from: jest.fn(),
   },
 }));
 
@@ -65,5 +78,45 @@ describe('AuthService Fehler-Mapping', () => {
     supabase.auth.signInWithPassword.mockResolvedValue({ data: {}, error: null });
 
     await expect(AuthService.signInWithPassword('a@b.de', 'geheim123')).resolves.toBeUndefined();
+  });
+});
+
+describe('AuthService Profil-Zugriff', () => {
+  const session = { user: { id: 'user-1' } };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('getProfile wirft AUTH_SESSION_MISSING ohne aktive Session', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+
+    await expect(AuthService.getProfile()).rejects.toMatchObject({ code: 'AUTH_SESSION_MISSING' });
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  it('getProfile lädt das Profil des angemeldeten Nutzers', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session } });
+    const profile = { id: 'user-1', display_name: 'Alice' };
+    const builder = createQueryBuilderMock({ data: profile, error: null });
+    supabase.from.mockReturnValue(builder);
+
+    const result = await AuthService.getProfile();
+
+    expect(supabase.from).toHaveBeenCalledWith('profiles');
+    expect(builder.eq).toHaveBeenCalledWith('id', 'user-1');
+    expect(result).toEqual(profile);
+  });
+
+  it('updateProfile aktualisiert ausschließlich die übergebenen Felder', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session } });
+    const updated = { id: 'user-1', display_name: 'Neuer Name' };
+    const builder = createQueryBuilderMock({ data: updated, error: null });
+    supabase.from.mockReturnValue(builder);
+
+    const result = await AuthService.updateProfile({ displayName: 'Neuer Name' });
+
+    expect(builder.update).toHaveBeenCalledWith({ display_name: 'Neuer Name' });
+    expect(result).toEqual(updated);
   });
 });
