@@ -307,6 +307,213 @@ export type Database = {
         };
         Relationships: [];
       };
+      specials: {
+        Row: {
+          id: string;
+          location_id: string;
+          title: string;
+          description: string | null;
+          image_url: string | null;
+          category: string | null;
+          start_date: string;
+          end_date: string | null;
+          start_time: string | null;
+          end_time: string | null;
+          is_recurring: boolean;
+          is_sponsored: boolean;
+          priority: number;
+          is_active: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          location_id: string;
+          title: string;
+          description?: string | null;
+          image_url?: string | null;
+          category?: string | null;
+          start_date: string;
+          end_date?: string | null;
+          start_time?: string | null;
+          end_time?: string | null;
+          is_recurring?: boolean;
+          is_sponsored?: boolean;
+          priority?: number;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          location_id?: string;
+          title?: string;
+          description?: string | null;
+          image_url?: string | null;
+          category?: string | null;
+          start_date?: string;
+          end_date?: string | null;
+          start_time?: string | null;
+          end_time?: string | null;
+          is_recurring?: boolean;
+          is_sponsored?: boolean;
+          priority?: number;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      happy_hours: {
+        Row: {
+          id: string;
+          location_id: string;
+          title: string;
+          description: string | null;
+          weekday: Database['public']['Enums']['weekday'];
+          start_time: string;
+          end_time: string;
+          offer_text: string | null;
+          is_sponsored: boolean;
+          priority: number;
+          is_active: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          location_id: string;
+          title: string;
+          description?: string | null;
+          weekday: Database['public']['Enums']['weekday'];
+          start_time: string;
+          end_time: string;
+          offer_text?: string | null;
+          is_sponsored?: boolean;
+          priority?: number;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          location_id?: string;
+          title?: string;
+          description?: string | null;
+          weekday?: Database['public']['Enums']['weekday'];
+          start_time?: string;
+          end_time?: string;
+          offer_text?: string | null;
+          is_sponsored?: boolean;
+          priority?: number;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: string;
+          user_id: string;
+          target_type: Database['public']['Enums']['review_target_type'];
+          target_id: string;
+          rating: number;
+          comment_text: string | null;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          target_type: Database['public']['Enums']['review_target_type'];
+          target_id: string;
+          rating: number;
+          comment_text?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          deleted_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          target_type?: Database['public']['Enums']['review_target_type'];
+          target_id?: string;
+          rating?: number;
+          comment_text?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          deleted_at?: string | null;
+        };
+        Relationships: [];
+      };
+      review_flags: {
+        Row: {
+          id: string;
+          review_id: string;
+          flagged_by_user_id: string;
+          reason: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          review_id: string;
+          flagged_by_user_id: string;
+          reason: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          review_id?: string;
+          flagged_by_user_id?: string;
+          reason?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          related_type: Database['public']['Enums']['favorite_target_type'] | null;
+          related_id: string | null;
+          title: string;
+          message: string;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          related_type?: Database['public']['Enums']['favorite_target_type'] | null;
+          related_id?: string | null;
+          title: string;
+          message: string;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          related_type?: Database['public']['Enums']['favorite_target_type'] | null;
+          related_id?: string | null;
+          title?: string;
+          message?: string;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       location_live_status: {
@@ -328,6 +535,8 @@ export type Database = {
       location_category: 'club' | 'bar';
       favorite_target_type: 'location' | 'artist' | 'event';
       occupancy_level: 'low' | 'medium' | 'high';
+      review_target_type: 'location' | 'artist';
+      weekday: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
     };
     CompositeTypes: Record<string, never>;
   };

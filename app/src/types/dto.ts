@@ -1,4 +1,9 @@
-import type { FavoriteTargetType, LocationCategory, OccupancyLevel } from './entities';
+import type {
+  FavoriteTargetType,
+  LocationCategory,
+  OccupancyLevel,
+  ReviewTargetType,
+} from './entities';
 
 // DTOs (Data Transfer Objects) — Eingabeformen für den Service Layer, camelCase nach TS-Konvention für
 // Funktionsparameter (CLAUDE.md → Namenskonventionen: „Variablen/Funktionen: camelCase"). Enthalten nur
@@ -47,4 +52,39 @@ export type EventFilters = {
   locationId?: string;
   from?: string;
   to?: string;
+};
+
+export type SpecialFilters = {
+  locationId?: string;
+};
+
+export type HappyHourFilters = {
+  locationId?: string;
+};
+
+export type CreateReviewInput = {
+  targetType: ReviewTargetType;
+  targetId: string;
+  rating: number;
+  commentText?: string;
+};
+
+export type UpdateReviewInput = {
+  rating?: number;
+  commentText?: string;
+};
+
+export type CreateReviewFlagInput = {
+  reviewId: string;
+  reason: string;
+};
+
+// docs/API.md Kapitel 9: „Neueste" oder „Hilfreichste" — „Hilfreichste" ist laut docs/PRD.md
+// Kapitel 22 „Offene Punkte" noch ungeklärt, daher hier bewusst nur „newest" unterstützt.
+export type ReviewSortOrder = 'newest';
+
+export type GetReviewsFilters = {
+  targetType: ReviewTargetType;
+  targetId: string;
+  sortBy?: ReviewSortOrder;
 };

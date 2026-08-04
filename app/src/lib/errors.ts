@@ -23,6 +23,7 @@ const DATABASE_ERROR_MESSAGES = {
   REPORT_RATE_LIMITED: 'Du hast diese Location gerade erst gemeldet. Bitte warte kurz.',
   REPORT_GEOFENCE_TOO_FAR: 'Du befindest dich zu weit von dieser Location entfernt.',
   FAVORITE_INVALID_TARGET: 'Dieser Eintrag kann nicht favorisiert werden.',
+  REVIEW_INVALID_TARGET: 'Dieser Eintrag kann nicht bewertet werden.',
   NETWORK_OFFLINE: 'Bitte überprüfe deine Internetverbindung.',
   SERVER_ERROR: 'Der Server ist aktuell nicht erreichbar. Bitte versuche es später erneut.',
   UNKNOWN_ERROR: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
@@ -53,6 +54,7 @@ export function mapDatabaseError(error: unknown, options: MapDatabaseErrorOption
     if (rawMessage.startsWith('REPORT_RATE_LIMITED')) return 'REPORT_RATE_LIMITED';
     if (rawMessage.startsWith('REPORT_GEOFENCE_TOO_FAR')) return 'REPORT_GEOFENCE_TOO_FAR';
     if (rawMessage.startsWith('FAVORITE_INVALID_TARGET')) return 'FAVORITE_INVALID_TARGET';
+    if (rawMessage.startsWith('REVIEW_INVALID_TARGET')) return 'REVIEW_INVALID_TARGET';
 
     const postgrestCode = hasStringProperty(error, 'code') ? error.code : undefined;
 

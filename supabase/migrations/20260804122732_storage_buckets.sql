@@ -10,8 +10,6 @@
 --     Pfadsegment — nirgends dokumentiert, aber technisch notwendig, damit die
 --     „eigene Location"/„eigene Events"/„eigenes Profil"-Schreibrechte (siehe PRD-Tabelle) überhaupt
 --     prüfbar sind.
---   - `specials`-Bucket: Location-Manager-Schreibrecht für „eigene Location" ist noch nicht umgesetzt,
---     da die Tabelle `specials` nicht Teil dieses Schritts ist — vorerst nur Admin/Super Admin.
 --   - `system`-Bucket: als vollständig öffentlich (`public = true`) umgesetzt, da PRD „öffentlich" als
 --     eine der beiden möglichen Optionen nennt („öffentlich/authentifiziert je nach Inhalt" — eine
 --     inhaltsabhängige Feinsteuerung ist auf Bucket-Ebene nicht abbildbar).
@@ -109,7 +107,8 @@ create policy "storage_profiles_write_owner_or_admin"
   );
 
 -- specials: Leserechte „alle authentifizierten Nutzer", Schreibrechte vorerst ausschließlich
--- Admin/Super Admin (siehe Annahme oben — Tabelle `specials` nicht Teil dieses Schritts).
+-- Admin/Super Admin — die Tabelle `specials` existiert erst ab 20260804122734_specials.sql (diese
+-- Migration läuft davor), Location-Manager-Erweiterung folgt dort per Policy-Update.
 create policy "storage_specials_select_authenticated"
   on storage.objects for select
   to authenticated

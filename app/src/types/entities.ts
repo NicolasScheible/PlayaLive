@@ -8,6 +8,8 @@ export type TrustLevel = Database['public']['Enums']['trust_level'];
 export type LocationCategory = Database['public']['Enums']['location_category'];
 export type FavoriteTargetType = Database['public']['Enums']['favorite_target_type'];
 export type OccupancyLevel = Database['public']['Enums']['occupancy_level'];
+export type ReviewTargetType = Database['public']['Enums']['review_target_type'];
+export type Weekday = Database['public']['Enums']['weekday'];
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Location = Database['public']['Tables']['locations']['Row'];
@@ -17,6 +19,11 @@ export type EventArtist = Database['public']['Tables']['event_artists']['Row'];
 export type Favorite = Database['public']['Tables']['favorites']['Row'];
 export type Report = Database['public']['Tables']['reports']['Row'];
 export type ReportFlag = Database['public']['Tables']['report_flags']['Row'];
+export type Special = Database['public']['Tables']['specials']['Row'];
+export type HappyHour = Database['public']['Tables']['happy_hours']['Row'];
+export type Review = Database['public']['Tables']['reviews']['Row'];
+export type ReviewFlag = Database['public']['Tables']['review_flags']['Row'];
+export type Notification = Database['public']['Tables']['notifications']['Row'];
 export type LocationLiveStatus = Database['public']['Views']['location_live_status']['Row'];
 
 // Zusammengesetzte Lesetypen für Detailansichten (docs/API.md Kapitel 3/4: „Location-Details ...

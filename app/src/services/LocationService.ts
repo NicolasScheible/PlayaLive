@@ -6,9 +6,11 @@ import type { Location, LocationWithLiveStatus } from '../types/entities';
 // Service Layer für Locations (siehe docs/Architecture.md Kapitel 8, docs/API.md Kapitel 3). Ohne
 // Repository-Schicht (docs/Architecture.md Kapitel 9 — kein nennenswerter Business-Logik-Bedarf).
 //
-// 🔴 Location-Details enthalten in docs/API.md Kapitel 3 auch „Specials, Happy Hours" — die
-// zugehörigen Tabellen (`specials`, `happy_hours`) sind nicht Teil der bisherigen Datenbankschritte,
-// daher liefert `getLocationById` diese Felder aktuell nicht mit.
+// 🔴 Location-Details enthalten in docs/API.md Kapitel 3 auch „Specials, Happy Hours". Die Tabellen
+// existieren (supabase/migrations/20260804122734_specials.sql, .../20260804122736_happy_hours.sql,
+// SpecialService.ts, HappyHourService.ts), `getLocationById` liefert sie aber bewusst nicht mit — das
+// Zusammenführen mehrerer Services zu einer Detailansicht ist Teil der Screen-/Hook-Ebene und war nicht
+// Teil dieses reinen Datenbasis-Schritts.
 export const LocationService = {
   async getLocations(filters: LocationFilters = {}): Promise<Location[]> {
     let query = supabase.from('locations').select('*').is('deleted_at', null);
