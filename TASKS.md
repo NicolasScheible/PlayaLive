@@ -16,18 +16,26 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## UI Design
 
-- [ ] Design-Richtlinien definiert (`docs/Design.md`)
-- [ ] Farbpalette (Dark Mode, Neon-Akzente), Typografie, Iconografie festgelegt
-- [ ] Grundlegende UI-Komponenten skizziert (Wireframes)
-- [ ] Kern-Screens skizziert (Home, Map, Events, Artists, Favorites, Profile)
+- [x] Design-Richtlinien definiert (`docs/Design.md`, `docs/DesignSystem.md`)
+- [x] Farbpalette (Dark Mode, Neon-Akzente) mit konkreten Hex-Werten festgelegt (`docs/DesignSystem.md`
+  Kapitel 3)
+- [ ] Typografie (Schriftfamilie, exakte Größen), Iconografie (Icon-Bibliothek) im Detail festgelegt —
+  Hierarchie/Stil bereits bekannt, exakte Werte offen (`docs/DesignSystem.md` Kapitel 4, 10, 25)
+- [x] Grundlegende UI-Komponenten anhand der finalen UI-Designs dokumentiert (`docs/DesignSystem.md`
+  Kapitel 11–15)
+- [x] Kern-Screens in den finalen UI-Designs enthalten (`docs/ui-designs/Design_PlayaLive.pdf`: Home,
+  Map, Events, Artists, Favorites, Profile u. a.)
 
 ## Architektur
 
 - [x] Datenmodell entworfen (`docs/Database.md`)
 - [x] API-/Datenzugriffs-Konzept entworfen (`docs/API.md`)
-- [ ] Ordner-/Projektstruktur für das Expo-Projekt festgelegt
+- [x] Ordner-/Projektstruktur für das Expo-Projekt festgelegt (`docs/Architecture.md` Kapitel 4–5)
 - [x] State-Management-Ansatz entschieden (TanStack Query + Zustand + React State)
-- [ ] Entscheidung zu Umgebungen/Konfiguration (.env, Secrets) getroffen
+- [x] Entscheidung zu Umgebungen/Konfiguration (.env, Secrets) getroffen (`docs/Architecture.md`
+  Kapitel 17: Dev/Staging/Prod, EAS Secrets)
+- [x] Technische Architektur vollständig dokumentiert (`docs/Architecture.md`, 12 Architekturentscheidungen)
+- [x] Design System mit konkreten Werten aus den finalen UI-Designs erstellt (`docs/DesignSystem.md`)
 
 ## Expo Setup
 
@@ -39,13 +47,20 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [ ] React Navigation eingerichtet
-- [ ] Grundstruktur (Tab-/Stack-Navigation: Home, Map, Events, Artists, Favorites, Profile) definiert
+- [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
+  definiert — siehe `docs/PRD.md` Kapitel 11
+- [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
+  Happy Hours, Weather, Services, Settings, Help, Privacy, About) — siehe `docs/PRD.md` Kapitel 11,
+  `docs/Architecture.md` Kapitel 7
+- [ ] Community-Report-Schnellzugriff-Button (zentrales Bottom-Nav-Element) implementiert
 - [ ] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
   ohne Login — siehe `docs/PRD.md` Kapitel 12)
 
 ## Home Screen
 
-- [ ] Übersicht: aktuelle Highlights (Top-Events, Top-Locations, Trends)
+- [ ] Live-Auslastung-Übersicht und „Spielt gerade"-Anzeige
+- [ ] Übersicht: aktuelle Highlights (Top-Events, Top-Locations, Trends), Party Radar
+- [ ] Happy-Hours-Übersicht eingebunden
 - [ ] Einstieg in Live Map, Events, Artists
 - [ ] Wetter-Anzeige eingebunden
 
@@ -82,7 +97,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Supabase Backend
 
-- [ ] Supabase-Projekt aufgesetzt
+- [ ] Supabase-Projekte aufgesetzt (Development, Staging, Production — siehe `docs/Architecture.md`
+  Kapitel 17)
 - [ ] Datenbankschema gemäß `docs/Database.md` umgesetzt
 - [ ] Row-Level-Security-Regeln definiert
 - [ ] API-/Datenzugriffsschicht im Client implementiert
@@ -118,10 +134,12 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [x] Wetter-API-Anbindung ausgewählt (OpenWeather API, über eigenen `WeatherService`)
 - [ ] Temperatur- und Wetterbedingungs-Anzeige (Home Screen, ggf. Map)
+- [ ] Eigener Wetter-Screen im Menü (siehe `docs/PRD.md` Kapitel 10/11)
 
 ## Testing
 
-- [ ] Teststrategie definiert (Unit/Integration/E2E, Umfang)
+- [x] Teststrategie definiert (Jest/jest-expo, React Native Testing Library, Maestro E2E — siehe
+  `docs/Architecture.md` Kapitel 19)
 - [ ] Unit-Tests für Kernlogik
 - [ ] Manuelle Testdurchläufe für Kern-Flows (Map, Events, Favorites, Community Report, Auth)
 - [ ] Fehler-/Edge-Case-Tests (kein Netz, keine Location-Berechtigung, keine Reports vorhanden, etc.)

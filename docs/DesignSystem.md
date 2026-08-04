@@ -1,11 +1,11 @@
 # DesignSystem — PlayaLive
 
-> Status: Aktualisiert auf Basis der vom Product Owner bereitgestellten **finalen UI-Designs** (PDF,
-> 18 Screens: Splash, Onboarding, Login, Home Dashboard, Live-Karte, Location Detail, Eventliste, Event
-> Detail, Kalender, Künstlerübersicht, Künstlerprofil, Favoriten, Community, Happy Hours, Services,
-> Wetter, Profil, Einstellungen). Diese Mockups sind gemäß `docs/ui-designs/README.md` die **verbindliche
-> Quelle** für alle Designwerte und haben bei Widersprüchen zu Textdokumenten Vorrang, sofern keine
-> bewusste Produktentscheidung dagegen dokumentiert ist.
+> Status: Aktualisiert auf Basis der vom Product Owner bereitgestellten **finalen UI-Designs**
+> (`docs/ui-designs/Design_PlayaLive.pdf`, 18 Screens: Splash, Onboarding, Login, Home Dashboard,
+> Live-Karte, Location Detail, Eventliste, Event Detail, Kalender, Künstlerübersicht, Künstlerprofil,
+> Favoriten, Community, Happy Hours, Services, Wetter, Profil, Einstellungen). Diese Mockups sind gemäß
+> `docs/ui-designs/README.md` die **verbindliche Quelle** für alle Designwerte und haben bei Widersprüchen
+> zu Textdokumenten Vorrang, sofern keine bewusste Produktentscheidung dagegen dokumentiert ist.
 >
 > Konkrete Farbwerte in diesem Dokument wurden durch **Pixel-Sampling** der gerenderten Mockup-Seiten
 > ermittelt (nicht nach Augenmaß geschätzt) und sind als Näherungswerte aus mehreren, unabhängig

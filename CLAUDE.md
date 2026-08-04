@@ -35,10 +35,11 @@ gemessen: Live-Auslastung von Clubs/Bars, Events, Künstler, Favoriten, Communit
 
 ## Architekturregeln
 
-- Bestehende Architektur (siehe `docs/Database.md`, `docs/API.md`) ist verbindlich. Abweichungen nur nach
-  expliziter Absprache und Aktualisierung der Doku.
-- Klare Trennung: UI-Komponenten / Screens / Navigation / Datenzugriff (Supabase-Client, API) /
-  State-Management. Keine Vermischung von Datenzugriff direkt in UI-Komponenten ohne Abstraktionsschicht.
+- Bestehende Architektur (siehe `docs/PRD.md`, `docs/Architecture.md`, `docs/Database.md`, `docs/API.md`)
+  ist verbindlich. Abweichungen nur nach expliziter Absprache und Aktualisierung der Doku.
+- Klare Trennung: UI-Komponenten / Screens / Navigation / Datenzugriff (Service Layer über
+  Supabase-Client) / State-Management. Keine Vermischung von Datenzugriff direkt in UI-Komponenten ohne
+  Abstraktionsschicht.
 - Business-Logik gehört nicht in Screens, sondern in dedizierte Module/Hooks.
 - Keine neue Abhängigkeit (Library/Package) ohne expliziten Auftrag oder Rücksprache — auch nicht "kleine,
   nützliche" Pakete.
@@ -72,16 +73,18 @@ gemessen: Live-Auslastung von Clubs/Bars, Events, Künstler, Favoriten, Communit
   Komponenten gebaut, nicht pro Screen dupliziert.
 - Props explizit typisieren, keine impliziten `any`-Props.
 - Keine Geschäftslogik/Datenzugriff direkt in rein visuellen Komponenten — über Hooks/Props einreichen.
-- Styling einheitlich nach der in `docs/Design.md` festgelegten Methode (Dark Mode als Basis, Neon-
+- Styling einheitlich nach der in `docs/DesignSystem.md` festgelegten Methode (Dark Mode als Basis, Neon-
   Akzente, Premium-Nightlife-Look) — keine Screen-eigenen Ad-hoc-Styles, die vom Designsystem abweichen.
 
 ## Premium iOS Design
 
-- Umsetzung folgt konsequent den Design-Richtlinien aus `PROJECT.md`/`docs/Design.md`: modernes
-  iOS-Design, Dark Mode als Basis, Neon-Akzente, große Cards, moderne/reduzierte Navigation.
+- Umsetzung folgt konsequent den Design-Richtlinien aus `PROJECT.md`/`docs/Design.md`/
+  `docs/DesignSystem.md`: modernes iOS-Design, Dark Mode als Basis, Neon-Akzente, große Cards,
+  moderne/reduzierte Navigation.
 - Kein generisches Cross-Platform-Look-and-Feel „von der Stange" — die App soll sich hochwertig und
   Nightlife-spezifisch anfühlen, nicht wie eine austauschbare Standard-App.
-- Bei UI-Entscheidungen ohne Vorgabe in `docs/Design.md`: Rückfrage statt eigenmächtiger Design-Annahme.
+- Bei UI-Entscheidungen ohne Vorgabe in `docs/DesignSystem.md`: Rückfrage statt eigenmächtiger
+  Design-Annahme.
 
 ## Vorgehensweise bei Änderungen
 

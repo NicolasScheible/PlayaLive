@@ -7,8 +7,11 @@
 > `CLAUDE.md`: „Keine Annahmen ohne Rückfrage"). Wo eine Entscheidung noch aussteht oder nur auf
 > Prinzip-Ebene getroffen wurde (z. B. konkrete Design-Werte), ist das an der jeweiligen Stelle vermerkt.
 >
-> Nächster Schritt nach diesem PRD: gemeinsame, schrittweise Ausarbeitung der geplanten
-> Architektur-Dokumente (siehe Kapitel 21), bevor mit der Implementierung begonnen wird.
+> Die in Kapitel 21 beschriebenen Architektur-Dokumente `docs/Architecture.md` und `docs/DesignSystem.md`
+> sind inzwischen erstellt und enthalten die technischen bzw. gestalterischen Detailentscheidungen, die
+> über den in diesem PRD dokumentierten Rahmen hinausgehen. Nächster Schritt: die geplanten
+> ADR-Dokumente (siehe Kapitel 21) auf Basis der bereits getroffenen Entscheidungen ausarbeiten, bevor
+> mit der Implementierung begonnen wird.
 
 ## 1. Produktvision
 
@@ -174,8 +177,9 @@ abgeschlossen ist.
 
 1. **Login (verpflichtend):** Neue Nutzer registrieren sich beim ersten Start via Apple Sign-In, Google
    Sign-In oder E-Mail/Passwort (siehe Kapitel 12). Ohne Login ist keine Nutzung der App möglich.
-2. **Einstieg (Home Screen):** Nutzer sieht aktuelle Highlights (Top-Events, Top-Locations, Trends,
-   Party Radar) sowie die Wetter-Anzeige.
+2. **Einstieg (Home Screen):** Nutzer sieht Live-Auslastung auf einen Blick, was gerade läuft
+   („Spielt gerade"), aktuelle Highlights (Top-Events, Top-Locations, Trends, Party Radar), Happy Hours
+   sowie die Wetter-Anzeige.
 3. **Orientierung (Map Screen):** Nutzer wechselt zur Live Map, sieht Clubs/Bars in der Nähe mit
    aktueller Auslastung und öffnet die Detailansicht einer Location (Öffnungszeiten, Specials, Happy
    Hours, Events).
@@ -200,7 +204,7 @@ Hamburger-Menü erreichbar sind (siehe Kapitel 11).
 
 | Screen | Zugriff | Inhalt |
 |---|---|---|
-| Home | Bottom-Tab | Highlights (Top-Events, Top-Locations, Trends), Party Radar, Einstieg in Map/Events/Artists, Wetter-Anzeige |
+| Home | Bottom-Tab | Live-Auslastung-Übersicht, „Spielt gerade", Highlights (Top-Events, Top-Locations, Trends), Party Radar, Happy Hours, Einstieg in Map/Events/Artists, Wetter-Anzeige |
 | Map | Bottom-Tab | Live Map mit Locations, Live-Auslastungs-Anzeige pro Location, Location-Detailansicht (Öffnungszeiten, Specials, Happy Hours, Events) |
 | Events | Bottom-Tab | Tagesprogramm-Ansicht, kommende Events, Event-Detailansicht (Künstler, Startzeit, Location) |
 | Profile | Bottom-Tab | Profilseite (Nutzerdaten, Vertrauenslevel), Einstellungen (u. a. Benachrichtigungen), Login/Logout |
@@ -635,9 +639,11 @@ können gemeldet (`review_flags`) und von Administratoren moderiert werden (sieh
 - Weitere Akzentfarben nur unterstützend (Hinweise, Wetter, Services, Icons) — die Markenfarbe bleibt
   immer dominant.
 
-> Konkrete Hex-Werte, Typografie, Iconografie, Spacing/Layout-Raster und Komponenten-Bibliothek werden
-> erst im geplanten Dokument `docs/DesignSystem.md` verbindlich festgelegt (siehe Kapitel 21) — das
-> orientiert sich an den bereits vorhandenen UI-Design-Entwürfen.
+> Konkrete Hex-Werte, Typografie-Hierarchie, Icon-Stil, Spacing-Muster und Komponenten-Bibliothek sind
+> inzwischen in `docs/DesignSystem.md` dokumentiert (siehe Kapitel 21), abgeleitet aus den vom Product
+> Owner bereitgestellten UI-Design-Entwürfen (`docs/ui-designs/`). Einzelne exakte Maße (px/pt-Werte,
+> Schriftfamilie) bleiben dort weiterhin als offene Designentscheidung markiert, da sie aus den
+> vorliegenden Standbildern nicht zweifelsfrei messbar sind.
 
 ## 18. Erfolgskennzahlen (KPIs)
 
@@ -692,21 +698,20 @@ Der detaillierte, aufgabenbezogene Fortschritt wird separat in `TASKS.md` als Ch
 | Technik | Ausfall externer Dienste (Mapbox, OpenWeather, Firebase) | Einzelne Funktionen temporär nicht verfügbar | Zentrale Service-Architektur, nutzerfreundliche Fehlermeldungen, Retry-Mechanismen, austauschbarer Service Layer |
 | Technik | Hohe Last in der Hauptsaison | Langsame Ladezeiten, verzögerte Live-Updates | TanStack-Query-Caching, gezielte Realtime-Nutzung, optimierte DB-Abfragen, Performance-Monitoring |
 | Business | Partner-Locations beteiligen sich zunächst nur eingeschränkt | Weniger aktuelle Inhalte, langsamere Monetarisierung | Redaktionelle Pflege, einfaches Partnerprogramm, nachweisbarer Mehrwert, schrittweiser Ausbau |
-| Rechtlich | Verarbeitung von Standort- und personenbezogenen Daten (Geofencing, Trust Score) | Datenschutzrechtliche Anforderungen | DSGVO-konforme Verarbeitung, transparente Datenschutzerklärung, Einwilligung für Standortzugriff, Speicherung nur notwendiger Daten |
+| Rechtlich | Verarbeitung von Standort- und personenbezogenen Daten (Geofencing, Trust Score) | Datenschutzrechtliche Anforderungen | DSGVO-konforme Verarbeitung, transparente Datenschutzerklärung, Einwilligung für Standortzugriff, Speicherung nur notwendiger Daten (konkrete technische Umsetzung: siehe `docs/Architecture.md` Kapitel 17 „Sicherheit") |
 
 Grundprinzipien: Risiken werden regelmäßig überprüft; Gegenmaßnahmen werden frühzeitig geplant; Qualität
 und Datenschutz besitzen höchste Priorität; Risiken werden dokumentiert und bei Bedarf ergänzt.
 
-## 21. Geplante Architektur-Dokumentation
+## 21. Architektur-Dokumentation
 
-Nach Abschluss dieses PRD werden folgende Dokumente Schritt für Schritt gemeinsam mit dem Product Owner
-ausgearbeitet, bevor mit der Implementierung begonnen wird — ausschließlich auf Basis der in diesem PRD
-bereits dokumentierten Entscheidungen, ohne neue Annahmen:
+`docs/Architecture.md` (technische Architektur, inkl. 12 im Detail geklärter Architekturentscheidungen)
+und `docs/DesignSystem.md` (Design System auf Basis der finalen UI-Designs) sind erstellt und verbindlich.
+
+Noch als geplant vermerkt und nicht erstellt sind die begleitenden ADR-Dokumente:
 
 ```
 docs/
-├── Architecture.md
-├── DesignSystem.md
 └── ADR/
     ├── 001-State-Management.md
     ├── 002-Authentication.md
@@ -718,8 +723,6 @@ docs/
     └── 008-Security.md
 ```
 
-Diese Dokumente sind an dieser Stelle **nur als geplant vermerkt** und noch nicht erstellt.
-
 ## 22. Offene Punkte
 
 Diese Punkte sind bewusst noch nicht entschieden und müssen vor der jeweils betroffenen
@@ -727,9 +730,10 @@ Implementierung in einer eigenen Klärungsrunde festgelegt werden:
 
 - Wie die „Hilfreichste"-Sortierung von Bewertungen (Kapitel 16 „Bewertungen (Reviews)") operationalisiert
   wird, obwohl Likes/Reaktionen explizit ausgeschlossen sind.
-- Konkrete Design-Werte (Hex-Farbwerte, Typografie, Iconografie, Spacing, Komponenten-Bibliothek,
-  Animationen, Accessibility-Details) — folgen im geplanten `docs/DesignSystem.md`.
 - Konkrete Indizes auf Datenbankebene — folgen bei der Migrationserstellung auf Basis des in Kapitel 16
   beschriebenen Datenmodells.
-- Entscheidung zu Umgebungen/Konfiguration (.env, Secrets).
-- Ordner-/Projektstruktur für das Expo-Projekt.
+
+Kleinere, bereits eingegrenzte technische bzw. gestalterische Detailfragen (u. a. exakte px/pt-Maße,
+Schriftfamilie, i18n-Bibliothek, Log-Level-Konzept, Aufbewahrungsfristen) sind in `docs/Architecture.md`
+Kapitel 25 bzw. `docs/DesignSystem.md` Kapitel 25 gesammelt und werden dort weitergeführt, statt hier
+dupliziert zu werden.

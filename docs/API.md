@@ -101,7 +101,8 @@ Screens/Komponenten. Details siehe `docs/PRD.md` → Kapitel 15 „Realtime-Kan�
 Zentrale Fehlerbehandlung im Service Layer, einheitliches Fehlerformat, nutzerfreundliche statt
 technische Fehlermeldungen, automatische Retries nur bei temporären Netzwerkfehlern, klar definierte
 Screen-Zustände (Loading/Success/Empty/Error). Details siehe `docs/PRD.md` → Kapitel 15
-„Fehlerbehandlung".
+„Fehlerbehandlung". Das konkrete `AppError`-Format und der domänenstrukturierte Fehlercode-Katalog sind
+in `docs/Architecture.md` Kapitel 15 dokumentiert.
 
 ## 14. Rate Limiting & Sicherheit
 
@@ -109,4 +110,5 @@ Schutz insbesondere für Community Reports: Login-Pflicht, Rate Limiting (max. e
 Location je Zeitfenster), Geofencing, Vertrauensscore-Gewichtung, Meldefunktion, automatische
 Missbrauchserkennung. Alle Prüfungen erfolgen serverseitig. Details siehe `docs/PRD.md` → Kapitel 15
 „Missbrauchsschutz bei Community Reports". Autorisierung aller Endpunkte zusätzlich über Row-Level-
-Security (siehe `docs/Database.md` → 4.).
+Security (siehe `docs/Database.md` → 4.). Secrets-Verwaltung und weitere sicherheitsrelevante
+Architekturentscheidungen (Umgebungen, EAS Secrets) siehe `docs/Architecture.md` Kapitel 17.

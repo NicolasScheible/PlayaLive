@@ -39,7 +39,16 @@ Ein Ordner pro Screen/Bereich, benannt nach der Screenübersicht aus `docs/PRD.m
 
 Neue Screens, die im Laufe des Projekts hinzukommen, werden hier als zusätzlicher Unterordner ergänzt.
 
+## Status
+
+`Design_PlayaLive.pdf` (18 Screens: Splash, Onboarding, Login, Home Dashboard, Live-Karte, Location
+Detail, Eventliste, Event Detail, Kalender, Künstlerübersicht, Künstlerprofil, Favoriten, Community,
+Happy Hours, Services, Wetter, Profil, Einstellungen) ist die aktuelle, verbindliche Quelle für
+`docs/DesignSystem.md` — bereitgestellt vom Product Owner und hier als kombinierte Datei abgelegt, da sie
+alle Screens in einem PDF enthält. Eine Aufteilung in einzelne Bild-Exporte je Screen-Unterordner (siehe
+Struktur oben) steht noch aus und kann bei Bedarf nachgezogen werden.
+
 ## Nächster Schritt
 
-Sobald die Designs in diesen Ordnern liegen, werden sie gemeinsam analysiert und `docs/DesignSystem.md`
-wird auf Basis der tatsächlichen Werte aktualisiert.
+Neue oder aktualisierte Designs werden in den passenden Unterordnern ergänzt und anschließend gemeinsam
+analysiert; `docs/DesignSystem.md` wird danach auf Basis der tatsächlichen Werte aktualisiert.

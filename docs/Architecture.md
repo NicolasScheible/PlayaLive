@@ -458,6 +458,7 @@ Informationen, keine personenbezogenen Daten.
   mehrere Bildgrößen (Thumbnail/Medium/Original) — siehe `docs/PRD.md` Kapitel 15 „Storage-Buckets".
 - Hohe Last in der Hauptsaison ist als Risiko dokumentiert (`docs/PRD.md` Kapitel 20); Gegenmaßnahmen:
   Caching, gezielte Realtime-Nutzung, optimierte DB-Abfragen, Performance-Monitoring.
+
 ### Performance-Ziele & Kartenclustering
 
 ✅ Entschieden (Architekturentscheidung 10, Product Owner):
@@ -503,6 +504,7 @@ Entwicklung um den React-Native-Performance-Profiler und Expo-Performance-Tools.
   Mehrfachbestätigung, Meldefunktion, automatische Missbrauchserkennung — alle Prüfungen serverseitig.
 - Storage: kein Upload ohne Authentifizierung; Schreibrechte je Bucket rollenbasiert (siehe
   `docs/PRD.md` Kapitel 15 „Storage-Buckets").
+
 ### Secrets, Umgebungen, Security-Reviews, Standort-Consent, DSGVO-Rechte
 
 ✅ Entschieden (Architekturentscheidung 11, Product Owner):

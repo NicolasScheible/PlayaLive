@@ -24,9 +24,10 @@ Der vollständige, begründete Tech-Stack steht in [`PROJECT.md`](./PROJECT.md).
 
 ## Entwicklungsphasen
 
-1. **Planung & Grundlage** *(aktuelle Phase)* — Projektdokumentation, Lastenheft, Roadmap
-2. **Design** — UI/UX-Konzept, Design-Richtlinien (`docs/Design.md`)
-3. **Architektur** — Datenbankmodell (`docs/Database.md`), API-Design (`docs/API.md`)
+1. **Planung & Grundlage** — Produktanforderungen (`docs/PRD.md`), Lastenheft, Roadmap
+2. **Design** — UI/UX-Konzept, Design System (`docs/DesignSystem.md`, `docs/ui-designs/`)
+3. **Architektur** *(aktuelle Phase)* — technische Architektur (`docs/Architecture.md`), Datenbankmodell
+   (`docs/Database.md`), API-Design (`docs/API.md`)
 4. **Expo-Setup** — Projektinitialisierung, Grundstruktur
 5. **Navigation & Screens** — Grundnavigation, Kern-Screens
 6. **Komponenten** — wiederverwendbare UI-Bausteine
@@ -53,10 +54,14 @@ Der detaillierte Fortschritt wird in [`TASKS.md`](./TASKS.md) als Checkliste gef
 ## Weitere Dokumentation
 
 - [`PROJECT.md`](./PROJECT.md) — Projektbeschreibung, Vision, MVP, Tech-Stack
+- [`docs/PRD.md`](./docs/PRD.md) — Product Requirements Document, zentrale Produktreferenz
 - [`CLAUDE.md`](./CLAUDE.md) — Arbeits- und Coderegeln für die Entwicklung
 - [`TASKS.md`](./TASKS.md) — Entwicklungs-Roadmap als Checkliste
 - [`docs/Lastenheft.md`](./docs/Lastenheft.md) — Funktionale/nicht-funktionale Anforderungen
 - [`docs/Roadmap.md`](./docs/Roadmap.md) — Zeitliche/inhaltliche Meilensteine
+- [`docs/Architecture.md`](./docs/Architecture.md) — Technische Architektur
 - [`docs/Database.md`](./docs/Database.md) — Datenbankmodell
 - [`docs/API.md`](./docs/API.md) — API-Design
-- [`docs/Design.md`](./docs/Design.md) — Design-Richtlinien
+- [`docs/Design.md`](./docs/Design.md) — Design-Prinzipien (Kurzübersicht)
+- [`docs/DesignSystem.md`](./docs/DesignSystem.md) — Design System mit konkreten Werten
+- [`docs/ui-designs/`](./docs/ui-designs/) — Finale UI-Design-Mockups

@@ -197,4 +197,6 @@ eigenen Policies. Details siehe `docs/PRD.md` → Kapitel 15 „Storage-Buckets"
 
 Sämtliche Schemaänderungen ausschließlich über versionierte Supabase-CLI-Migrationen, verwaltet im
 Git-Repository unter `supabase/migrations/`, niemals direkt über das Supabase-Dashboard. Details siehe
-`docs/PRD.md` → Kapitel 15 „Migrationen".
+`docs/PRD.md` → Kapitel 15 „Migrationen". Der Zugriff auf diese Tabellen aus dem App-Code erfolgt
+ausschließlich über den Service Layer (bei geschäftslogiklastigen Bereichen zusätzlich über das
+Repository Pattern) — siehe `docs/Architecture.md` Kapitel 8–9.
