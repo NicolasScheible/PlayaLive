@@ -74,12 +74,27 @@ Direkt aus `docs/PRD.md` Kapitel 15 (✅):
 | Sprache | TypeScript durchgängig (Frontend und Edge Functions) |
 | DB-Migrationen | Supabase CLI, versioniert unter `supabase/migrations/` |
 
-🟡 **Bereits angedeutet, Details offen:** `TASKS.md` → Expo Setup nennt ESLint und Prettier bereits als
-vorgesehenes Lint-/Format-Tooling — das konkrete Regelwerk ist aber nicht festgelegt.
+### Versions- und Tooling-Strategie
 
-🔴 **Offene Architekturentscheidung:** konkrete Paketversionen, Expo-SDK-Version, Node-Version,
-ESLint-/Prettier-Regelwerk, Testing-Framework (siehe Kapitel 19 „Testing"), Logging-/Monitoring-Anbieter
-(siehe Kapitel 18 „Logging").
+✅ Entschieden (Architekturentscheidung 1, Product Owner):
+
+- **Expo SDK:** Projektstart mit der neuesten stabilen Version. Während der aktiven Entwicklung keine
+  automatischen SDK-Updates — Upgrades ausschließlich bewusst und geplant, nach Prüfung der Release
+  Notes und Kompatibilität aller Abhängigkeiten.
+- **TypeScript:** `"strict": true` verbindlich. `any` grundsätzlich nicht erlaubt; Ausnahmen müssen
+  begründet und im Code dokumentiert werden (deckungsgleich mit `CLAUDE.md` → Code-Qualität).
+- **ESLint:** Basis `eslint-config-expo`, gezielt erweitert um: kein unbegründetes `any`, keine
+  ungenutzten Variablen, kein auskommentierter Code, keine toten Codepfade, konsistente Importe und
+  Import-Reihenfolge, konsistente Benennung nach den Projektstandards (`docs/Architecture.md` Kapitel
+  21).
+- **Prettier:** projektweit verpflichtend, automatische Formatierung aller Dateien für einheitlichen
+  Code-Stil.
+- **Grundprinzip:** Codequalität hat Vorrang vor Geschwindigkeit; neue Lint-Regeln werden nur eingeführt,
+  wenn sie einen echten Qualitätsgewinn bringen und den Entwicklungsfluss nicht unnötig erschweren.
+
+🔴 **Offene Architekturentscheidung:** konkrete Paketversionen einzelner Abhängigkeiten, Node-Version
+(ergibt sich aus der gewählten Expo-SDK-Version zum Zeitpunkt des Projekt-Setups), Testing-Framework
+(siehe Kapitel 19 „Testing"), Logging-/Monitoring-Anbieter (siehe Kapitel 18 „Logging").
 
 ## 4. Projektstruktur
 
@@ -553,7 +568,7 @@ bestätigt ist.
 
 | # | Thema | Kapitel |
 |---|---|---|
-| 1 | Konkrete Paketversionen, Expo-SDK, Node-Version, ESLint-/Prettier-Regelwerk (Tools selbst bereits in `TASKS.md` vorgesehen) | 3 |
+| 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
 | 2 | Logging-/Monitoring-Anbieter | 3, 18 |
 | 3 | Verortung des App-Codes im Repository (Root vs. Unterordner) | 4 |
 | 4 | Genaue Navigations-Stack-Verschachtelung, technische Umsetzung des Hamburger-Menü/Drawer-Patterns, Deep-Linking, Session-Ablauf-Verhalten | 7 |
