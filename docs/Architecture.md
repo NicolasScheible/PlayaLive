@@ -1,10 +1,12 @@
 # Architecture — PlayaLive
 
 > Status: Technische Architektur, aufbauend auf `docs/PRD.md`, `docs/Database.md`, `docs/API.md`,
-> `docs/Design.md` und `CLAUDE.md`; nach einer vollständigen Qualitätsprüfung überarbeitet (Widersprüche,
-> doppelte Diagramme und mehrdeutige Kapitel-Querverweise bereinigt). Dieses Dokument trifft **keine
-> neuen Produktentscheidungen** — es strukturiert und operationalisiert ausschließlich bereits getroffene
-> Entscheidungen für die technische Umsetzung. Es enthält noch keinen React-Native-Code.
+> `docs/Design.md`/`docs/DesignSystem.md` und `CLAUDE.md`; nach einer vollständigen Qualitätsprüfung
+> sowie einer strukturierten Review aller 12 zuvor offenen Architekturentscheidungen mit dem Product
+> Owner überarbeitet. Nahezu alle Architekturentscheidungen für Version 1.0 sind getroffen — verbleibend
+> sind ausschließlich kleinere, nachgelagerte Detailfragen (siehe Kapitel 25). Dieses Dokument trifft
+> **keine neuen Produktentscheidungen** — es strukturiert und operationalisiert ausschließlich bereits
+> getroffene Entscheidungen für die technische Umsetzung. Es enthält noch keinen React-Native-Code.
 >
 > **Legende** (jeder Abschnitt/jede Zeile ist entsprechend markiert):
 >
@@ -555,20 +557,28 @@ Details der PII-Scrubbing-Konfiguration in Sentry.
 
 ## 19. Testing
 
-🔴 **Offene Architekturentscheidung**, aber mit teilweiser Vorprägung durch `TASKS.md` → Testing: dort
-sind bereits die groben Testarten benannt — „Unit-Tests für Kernlogik", „Manuelle Testdurchläufe für
-Kern-Flows" (Map, Events, Favorites, Community Report, Auth) und „Fehler-/Edge-Case-Tests" —, sowie der
-Umfang „Unit/Integration/E2E" als Klammer für die noch zu definierende Teststrategie. Welches konkrete
-Framework, welche Testpyramide und welches Abdeckungsziel dahinterstehen, ist jedoch nicht festgelegt.
+✅ Entschieden (Architekturentscheidung 12, Product Owner):
 
-Aus den bereits entschiedenen Architekturprinzipien (strikte Trennung UI/Business-Logik/Datenzugriff,
-Kapitel 2 „Architekturprinzipien" und Kapitel 10 „State Management") folgt zusätzlich **implizit**, dass
-Business-Logik in Hooks/Services unabhängig von der UI testbar sein muss — das ist eine Eigenschaft der
-Architektur, keine Festlegung eines Testing-Frameworks.
+- **Unit-/Integrationstests:** Jest mit dem offiziellen `jest-expo`-Preset. Geschäftskritische
+  Business-Logik **muss** durch Unit-Tests abgesichert werden: Report-Aggregation,
+  Trust-Score-Berechnung, Auslastungsberechnung, Community-Regeln, Authentifizierungslogik,
+  Berechtigungen, Service-Layer-Logik.
+- **Component-Tests:** React Native Testing Library — getestet wird ausschließlich Verhalten aus
+  Nutzersicht, bewusst keine Implementierungsdetails.
+- **E2E-Tests:** Maestro, begrenzt auf die wichtigsten Kernabläufe (Registrierung, Login,
+  Passwort-Reset, Community-Report erstellen, Favoriten verwalten, Bewertung erstellen, Navigation
+  zwischen Hauptbereichen); weitere E2E-Tests bei Bedarf ergänzt.
+- **Manuelle Tests** vor jedem Release: Navigation, Kartenfunktionen, Realtime-Updates,
+  Push-Benachrichtigungen, Community Reports, Bewertungen, Login, Offline-/Online-Wechsel, Performance.
+- **Regressionstests:** jeder behobene produktive Fehler, der sich sinnvoll automatisieren lässt, erhält
+  anschließend einen automatisierten Test.
+- **Coverage:** bewusst **kein globales Coverage-Ziel** (z. B. „80 %") — entscheidend ist, dass alle
+  geschäftskritischen Funktionen zuverlässig abgesichert sind, nicht ein Prozentwert.
+- **CI:** alle automatisierten Tests laufen vor jedem Merge und vor jedem Release; ein Build ist nur bei
+  bestandenen Pflicht-Tests erfolgreich.
 
-Zu klären vor Beginn der Implementierung: Unit-Test-Framework, Component-/Integration-Test-Ansatz für
-React Native, E2E-Test-Strategie, Testumfang für Supabase-Datenzugriff (Mocking vs. Test-Datenbank),
-konkretes Testabdeckungsziel.
+Grundsatz: automatisierte Tests sollen die Entwicklung unterstützen, nicht behindern — neue Tests werden
+ergänzt, wenn sie Stabilität oder Wartbarkeit nachhaltig verbessern, nicht der Zahl wegen.
 
 ## 20. Coding Standards
 
@@ -721,15 +731,23 @@ erDiagram
 ## 25. Zusammenfassung
 
 PlayaLive verwendet eine strikt geschichtete Architektur: **Screens → Custom Hooks → State
-(TanStack Query / Zustand / React State) → Service Layer → Supabase / externe APIs**, ergänzt um einen
-zentralen Realtime Service für zeitkritische Live-Daten (Community Reports, Notifications, Events,
-Specials & Happy Hours). Zugriffsrechte werden ausschließlich serverseitig über Supabase Row-Level-
-Security anhand des Rollenmodells (`user` / `location_manager` / `admin` / `super_admin`) durchgesetzt.
-Login ist verpflichtend, es gibt keinen Gastzugriff. Die Ordner- und Feature-Struktur (Kapitel 5–6) folgt
-konsequent aus den bereits im PRD festgelegten Prinzipien, ist aber als Vorschlag zu verstehen, bis sie
-bestätigt ist.
+(TanStack Query / Zustand / React State) → Service Layer (teils mit Repository-Schicht, Kapitel 9) →
+Supabase / externe APIs**, ergänzt um einen zentralen Realtime Service für zeitkritische Live-Daten
+(Community Reports, Notifications, Events, Specials & Happy Hours). Zugriffsrechte werden ausschließlich
+serverseitig über Supabase Row-Level-Security anhand des Rollenmodells (`user` / `location_manager` /
+`admin` / `super_admin`) durchgesetzt. Login ist verpflichtend, es gibt keinen Gastzugriff. App-Code liegt
+in `app/`, Datenbank/Migrationen in `supabase/`, Dokumentation in `docs/` (Kapitel 4). Die Feature-Struktur
+innerhalb der App (Kapitel 5–6) folgt konsequent aus den bereits im PRD festgelegten Prinzipien, ist aber
+weiterhin als Vorschlag zu verstehen, bis sie bestätigt ist.
 
-### Gesammelte offene Architekturentscheidungen (🔴)
+Alle 12 in einer strukturierten Review mit dem Product Owner durchgegangenen offenen
+Architekturentscheidungen (Tooling/Versionsstrategie, Logging/Monitoring, Repository-Struktur,
+Navigation-Details, Repository Pattern, State-Management-Details, Realtime-Verhalten,
+Passwort-Reset/E-Mail-Verifizierung, Fehlerbehandlung im Detail, Performance-Ziele/Clustering,
+Secrets/Umgebungen/DSGVO, Teststrategie) sind getroffen. Verbleibend sind ausschließlich kleinere,
+nachgelagerte Detailfragen, die vor der jeweils betroffenen Implementierung zu klären sind:
+
+### Verbleibende kleinere Detailfragen (🔴)
 
 | # | Thema | Kapitel |
 |---|---|---|
@@ -738,7 +756,6 @@ bestätigt ist.
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 6 | Konkrete i18n-Bibliothek, Struktur/Format der Übersetzungsdateien (Store-Aufteilung, Query-Keys, Cache-Invalidierung und unterstützte Sprachen bereits entschieden) | 10 |
 | 11 | Konkrete Aufbewahrungs-/Löschfristen je Datentyp nach Konto-Löschung, Format des Datenexports (Secrets/Umgebungen/Security-Reviews/Standort-Consent/Löschung-Grundsatz bereits entschieden) | 17 |
-| 12 | Teststrategie im Detail (Framework, Testpyramide, Coverage-Ziel — grobe Testarten bereits in `TASKS.md` vorgesehen) | 19 |
 
 Diese Punkte sollten — analog zum bisherigen Vorgehen beim PRD — vor der jeweils betroffenen
 Implementierung einzeln mit dem Product Owner geklärt werden, z. B. im Rahmen der geplanten
