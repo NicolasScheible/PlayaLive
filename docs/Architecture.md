@@ -100,17 +100,30 @@ Direkt aus `docs/PRD.md` Kapitel 15 (✅):
 
 ## 4. Projektstruktur
 
-✅ Entschieden (aus `docs/PRD.md` Kapitel 15 „Migrationen"): Supabase-Migrationen liegen versioniert im
-Repository unter `supabase/migrations/`.
+✅ Entschieden (Architekturentscheidung 3, Product Owner): leichte Monorepo-Struktur, kein zusätzliches
+Monorepo-Tooling (kein Nx/Turborepo) — bewusst einfach gehalten, dient ausschließlich der sauberen
+Trennung der Projektbestandteile:
 
-✅ Bereits vorhanden (Repository-Wurzel): `docs/` (Produkt-/Architekturdokumentation), `PROJECT.md`,
-`CLAUDE.md`, `TASKS.md`, `README.md`.
+```
+/
+├── app/                 # Expo React Native App (siehe Kapitel 5)
+├── docs/                # Projektdokumentation
+├── supabase/            # Datenbank, Migrationen, Edge Functions
+├── .github/             # GitHub Actions & Workflows
+├── README.md
+└── ...
+```
 
-🔴 **Offene Architekturentscheidung:** wo der Expo-App-Code innerhalb des Repositories liegt — direkt im
-Repository-Root (App-Code und `package.json` auf oberster Ebene neben `docs/`) oder in einem eigenen
-Unterordner (z. B. `app/` oder `mobile/`). In `docs/PRD.md` Kapitel 22 bereits als offen vermerkt
-(„Ordner-/Projektstruktur für das Expo-Projekt"). Die folgenden Kapitel (5–9) beschreiben deshalb die
-Struktur **innerhalb** des App-Codes, unabhängig davon, wo dieser im Repository verortet wird.
+Der gesamte React-Native-/Expo-Code liegt ausschließlich innerhalb von `app/` (inkl. `app.json`,
+`package.json`, `tsconfig.json`, `eslint.config.js`, `metro.config.js`, `babel.config.js` — siehe Kapitel
+3 für die dort verbindliche Tooling-Konfiguration). Build-Artefakte (`node_modules`, `.expo`) bleiben
+dadurch vollständig von Dokumentation und Backend getrennt. Das war in `docs/PRD.md` Kapitel 22 als
+offener Punkt vermerkt („Ordner-/Projektstruktur für das Expo-Projekt") und ist damit aufgelöst.
+
+Begründung: `supabase/` steht bereits als eigenständiger Root-Ordner fest (Migrationen, Kapitel 8), und
+`docs/PRD.md` sieht für v2.0 ein Partner-/Location-Manager-Portal vor — eine mögliche weitere
+Anwendung. Weitere Anwendungen (Web-Dashboard, Admin-Portal) können später als zusätzliche
+Top-Level-Ordner ergänzt werden, ohne die bestehende Struktur umzubauen.
 
 ## 5. Ordnerstruktur (innerhalb des App-Codes)
 
@@ -119,10 +132,14 @@ Prinzipien ab (Service Layer mit benannten Services, Feature-Trennung, Trennung
 UI/Business-Logik/Datenzugriff/State, Naming Conventions aus `CLAUDE.md`), wurde aber in keinem
 bestehenden Dokument wörtlich als Ordnerbaum festgelegt:
 
+Da der Ordner `app/` bereits auf Repository-Ebene für den gesamten Expo-Code vergeben ist (Kapitel 4),
+heißt der Einstiegspunkt innerhalb von `app/src/` bewusst nicht erneut „app/", um eine verwirrende
+Verschachtelung `app/src/app/` zu vermeiden:
+
 ```
-src/
-├── app/                    # Navigation-Root, Einstiegspunkt, Auth-Gate (Login-Pflicht)
-├── navigation/             # React-Navigation-Konfiguration (Tabs, Stacks)
+app/src/
+├── App.tsx                 # Einstiegspunkt, Auth-Gate (Login-Pflicht) vor der Hauptnavigation
+├── navigation/             # React-Navigation-Konfiguration (Tabs, Stack, Drawer/Menü)
 ├── features/                # Feature-basierte Module, siehe Kapitel 6
 │   ├── auth/
 │   ├── locations/
@@ -583,7 +600,6 @@ bestätigt ist.
 |---|---|---|
 | 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
-| 3 | Verortung des App-Codes im Repository (Root vs. Unterordner) | 4 |
 | 4 | Genaue Navigations-Stack-Verschachtelung, technische Umsetzung des Hamburger-Menü/Drawer-Patterns, Deep-Linking, Session-Ablauf-Verhalten | 7 |
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
 | 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
