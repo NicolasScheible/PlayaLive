@@ -720,7 +720,7 @@ docs/
     ├── 004-Database.md              ✅ erstellt
     ├── 005-API-Architecture.md      ✅ erstellt
     ├── 006-Maps.md                  ✅ erstellt
-    ├── 007-Notifications.md         🔴 geplant
+    ├── 007-Notifications.md         ✅ erstellt
     └── 008-Security.md              🔴 geplant
 ```
 
