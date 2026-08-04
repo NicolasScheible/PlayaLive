@@ -715,7 +715,7 @@ bereits getroffener Entscheidungen erstellt:
 docs/
 └── ADR/
     ├── 001-State-Management.md      ✅ erstellt
-    ├── 002-Authentication.md        🔴 geplant
+    ├── 002-Authentication.md        ✅ erstellt
     ├── 003-Realtime.md              🔴 geplant
     ├── 004-Database.md              🔴 geplant
     ├── 005-API-Architecture.md      🔴 geplant
