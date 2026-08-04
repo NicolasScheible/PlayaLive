@@ -239,27 +239,29 @@ Vertrauensscore-Berechnung (`docs/PRD.md` → Vertrauenssystem) läuft serversei
 vom Frontend nicht direkt angesteuert — ein eigener `TrustScoreService` wäre allenfalls ein reiner
 Lese-Zugriff auf `trust_score_events`.
 
-Jeder Service ist verantwortlich für: Datenzugriff (direkt oder über eine Repository-Schicht — siehe
-Kapitel 9 „Repository Pattern", dort noch offen), Mapping auf Domänentypen, Fehlerbehandlung im
-einheitlichen Format (Kapitel 15 „Fehlerbehandlung"), Bereitstellung für TanStack-Query-Hooks bzw.
+Jeder Service ist verantwortlich für: Datenzugriff (direkt oder über eine Repository-Schicht, siehe
+Kapitel 9 „Repository Pattern" für die Zuordnung je Service), Mapping auf Domänentypen, Fehlerbehandlung
+im einheitlichen Format (Kapitel 15 „Fehlerbehandlung"), Bereitstellung für TanStack-Query-Hooks bzw.
 Zustand-Actions.
 
 ## 9. Repository Pattern
 
-🔴 **Offene Architekturentscheidung.** In keinem bestehenden Dokument wurde festgelegt, ob unterhalb des
-Service Layer zusätzlich eine dedizierte Repository-Schicht (reine Datenzugriffs-/Query-Funktionen ohne
-Business-Logik) existiert, oder ob Services den Supabase-Client direkt kapseln. Zwei Optionen, beide
-vereinbar mit den entschiedenen Prinzipien aus Kapitel 2 „Architekturprinzipien":
+✅ Entschieden (Architekturentscheidung 5, Product Owner): **pragmatisches Repository Pattern** — eine
+Repository-Schicht wird nur dort eingesetzt, wo sie einen klaren fachlichen/technischen Mehrwert bietet,
+nicht pauschal für jeden Service.
 
-- **Option A — Service kapselt Zugriff direkt:** `LocationService` enthält sowohl die
-  Supabase-Query-Logik als auch etwaige Business-Regeln. Weniger Schichten, schneller für den
-  MVP-Umfang.
-- **Option B — Repository unterhalb des Service:** ein `LocationRepository` kapselt ausschließlich rohe
-  Supabase-Queries (CRUD); der `LocationService` orchestriert Business-Logik darüber (z. B.
-  Report-Aggregation, Trust-Score-Gewichtung). Bessere Testbarkeit einzelner Schichten, mehr
-  Boilerplate.
+- **Mit Repository** (Repository kapselt ausschließlich Datenzugriff, Service ausschließlich
+  Business-Logik — unabhängig testbar): `ReportService`, `ReviewService`, Trust-Score-Berechnung,
+  Community-Aggregation sowie künftige, fachlich anspruchsvolle Business-Logik.
+- **Ohne Repository** (direkter Supabase-Zugriff im Service): `FavoriteService`, `NotificationService`,
+  `LocationService`, `ArtistService`, `EventService`, `SpecialService`, `HappyHourService` — solange dort
+  keine nennenswerte Business-Logik entsteht.
+- **Erweiterbarkeit:** Erweitert sich ein zunächst einfacher Service später deutlich, kann jederzeit
+  nachträglich eine Repository-Schicht eingeführt werden.
 
-Diese Entscheidung sollte vor Beginn der Implementierung des Service Layer getroffen werden.
+Grundsatz (deckungsgleich mit `CLAUDE.md` → Einfachheit vor Abstraktion): keine unnötigen Abstraktionen
+— Komplexität wird erst eingeführt, wenn sie einen nachweisbaren Mehrwert für Wartbarkeit, Testbarkeit
+oder Wiederverwendbarkeit bietet.
 
 ## 10. State Management (TanStack Query + Zustand)
 
@@ -617,7 +619,6 @@ bestätigt ist.
 | 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
 | 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
-| 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
 | 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
 | 8 | Passwort-Reset-Flow, E-Mail-Verifizierung (Session-Refresh-Verhalten bereits entschieden) | 12 |
