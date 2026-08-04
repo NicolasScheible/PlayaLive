@@ -40,10 +40,20 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Expo Setup
 
-- [ ] Expo-Projekt initialisiert (TypeScript-Template)
-- [ ] Grundkonfiguration (app.json/app.config, ESLint, Prettier)
-- [ ] Ordnerstruktur gemäß Architekturentscheidung angelegt
-- [ ] Lokaler Dev-Build lauffähig (iOS/Android/Simulator)
+- [x] Expo-Projekt initialisiert (TypeScript-Template, `app/`)
+- [x] Grundkonfiguration (app.json, TypeScript strict, ESLint, Prettier, Husky + lint-staged)
+- [x] Ordnerstruktur gemäß Architekturentscheidung angelegt (`app/src/`, siehe `docs/Architecture.md`
+  Kapitel 5)
+- [x] Testing-Grundgerüst eingerichtet (Jest/jest-expo, React Native Testing Library, Maestro-Ordner
+  — siehe `docs/Architecture.md` Kapitel 19); Smoke-Test grün
+- [x] React Navigation, TanStack Query, Zustand, Supabase-Client, Mapbox-Init installiert und
+  minimal verdrahtet (noch ohne Business-Logik)
+- [x] Firebase Notifications als Abhängigkeit vorbereitet (Config-Plugins registriert; native
+  Konfigurationsdateien folgen vor dem ersten nativen Build, siehe `app/README.md`)
+- [x] `supabase/`-Ordner initialisiert (Supabase-CLI, `migrations/`, `functions/`)
+- [x] CI-Workflow (Lint/Format/Typecheck/Test) unter `.github/workflows/ci.yml` eingerichtet
+- [ ] Lokaler Dev-Build lauffähig (iOS/Android/Simulator) — noch nicht auf echtem Gerät/Simulator
+  verifiziert
 
 ## Navigation
 

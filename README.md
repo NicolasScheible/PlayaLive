@@ -26,9 +26,9 @@ Der vollständige, begründete Tech-Stack steht in [`PROJECT.md`](./PROJECT.md).
 
 1. **Planung & Grundlage** — Produktanforderungen (`docs/PRD.md`), Lastenheft, Roadmap
 2. **Design** — UI/UX-Konzept, Design System (`docs/DesignSystem.md`, `docs/ui-designs/`)
-3. **Architektur** *(aktuelle Phase)* — technische Architektur (`docs/Architecture.md`), Datenbankmodell
-   (`docs/Database.md`), API-Design (`docs/API.md`)
-4. **Expo-Setup** — Projektinitialisierung, Grundstruktur
+3. **Architektur** — technische Architektur (`docs/Architecture.md`), Datenbankmodell
+   (`docs/Database.md`), API-Design (`docs/API.md`), ADRs (`docs/ADR/`)
+4. **Expo-Setup** *(aktuelle Phase)* — Projektinitialisierung, Grundstruktur (`app/`)
 5. **Navigation & Screens** — Grundnavigation, Kern-Screens
 6. **Komponenten** — wiederverwendbare UI-Bausteine
 7. **Backend-Integration** — Supabase-Anbindung
@@ -42,13 +42,14 @@ Der detaillierte Fortschritt wird in [`TASKS.md`](./TASKS.md) als Checkliste gef
 
 ## Setup-Anleitung
 
-> Platzhalter — wird ausgefüllt, sobald das Expo-Projekt aufgesetzt ist (siehe `TASKS.md`).
+Das Expo-Projekt liegt in [`app/`](./app/). Voraussetzungen, Installation, Umgebungsvariablen und
+verfügbare Scripts: siehe [`app/README.md`](./app/README.md).
 
 ```bash
-# TODO: Voraussetzungen (Node-Version, Expo CLI, etc.)
-# TODO: Installation
-# TODO: Umgebungsvariablen (.env) — Supabase-, Mapbox- und Firebase-Keys
-# TODO: Lokalen Entwicklungsserver starten
+cd app
+npm install
+cp .env.example .env.local
+npm start
 ```
 
 ## Weitere Dokumentation
@@ -66,3 +67,4 @@ Der detaillierte Fortschritt wird in [`TASKS.md`](./TASKS.md) als Checkliste gef
 - [`docs/Design.md`](./docs/Design.md) — Design-Prinzipien (Kurzübersicht)
 - [`docs/DesignSystem.md`](./docs/DesignSystem.md) — Design System mit konkreten Werten
 - [`docs/ui-designs/`](./docs/ui-designs/) — Finale UI-Design-Mockups
+- [`app/README.md`](./app/README.md) — Setup und Scripts des Expo-Projekts
