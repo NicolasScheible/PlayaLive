@@ -191,16 +191,30 @@ Diese Struktur gilt erst nach ausdrücklicher Bestätigung als verbindlich.
   einen Login-/Registrierungs-Flow (Apple Sign-In / Google Sign-In / E-Mail & Passwort — siehe
   `docs/PRD.md` Kapitel 12). Es gibt keinen „App-Flow ohne Login".
 
-Das Hamburger-Menü ist technisch ein zusätzliches Navigations-Pattern (Drawer) neben Tabs und Stacks —
-das war in der vorherigen Fassung dieses Dokuments nicht vorgesehen und wirkt sich auf die
-Navigationsstruktur in Kapitel 5 (Ordnerstruktur, `navigation/`) aus.
+✅ Entschieden (Architekturentscheidung 4, Product Owner):
 
-🔴 **Offene Architekturentscheidung:** genaue Stack-Verschachtelung pro Tab (z. B. ob Location-Details
-als Modal oder als Stack-Screen geöffnet werden — die UI-Designs zeigen hierfür einen eigenen
-Stack-Screen, siehe `docs/DesignSystem.md` Kapitel 17, das aber noch nicht als Architekturentscheidung
-nachgezogen wurde), technische Umsetzung des Drawer-/Menü-Patterns in React Navigation, Deep-Linking-
-Konzept, Verhalten beim Session-Ablauf während der Nutzung (automatischer Rücksprung zum Login vs.
-In-App-Hinweis).
+- **Detail-Screens:** Location-, Event- und Künstlerprofil-Details werden als eigene **Stack-Screens**
+  geöffnet (nicht als Modal/Bottom-Sheet) — bestätigt durch die UI-Designs (`docs/DesignSystem.md`
+  Kapitel 17).
+- **Hamburger-Menü:** Umsetzung über den offiziellen **React-Navigation-Drawer** (kein Eigenbau),
+  optisch vollständig an das Design System angepasst (Dark Mode, Neon-Akzente, Animationen,
+  Komponenten).
+- **Deep-Linking:** bereits in v1.0 für alle drei Kerninhalte (Locations, Events, Künstler) unterstützt
+  — für Push-Benachrichtigungen, die „Teilen"-Funktion, zukünftige Web-Links und QR-Codes (spätere
+  Erweiterung).
+- **Session-Ablauf:** automatischer Token-Refresh im Hintergrund; solange ein gültiger Refresh-Token
+  vorhanden ist, bleibt der Nutzer angemeldet und bemerkt den Ablauf des Access-Tokens nicht. Nur bei
+  endgültig nicht mehr verlängerbarer Session (Refresh-Token ungültig/abgelaufen) erfolgt die
+  Weiterleitung zum Login. Nicht gespeicherte Eingaben sollen — soweit technisch möglich — erhalten
+  bleiben oder der Nutzer vor Datenverlust gewarnt werden.
+
+Grundprinzip: Navigation soll jederzeit einfach, konsistent und unterbrechungsfrei funktionieren —
+häufig genutzte Aktionen (insbesondere der Community-Report-Schnellzugriff) dürfen nicht durch unnötige
+Logins oder komplexe Navigationsabläufe unterbrochen werden.
+
+🔴 **Offene Architekturentscheidung:** konkrete Umsetzung der „nicht gespeicherte Eingaben erhalten oder
+warnen"-Anforderung je Formular (z. B. Community-Report-Entwurf, Kommentar-Entwurf), technische
+Deep-Link-URL-Struktur/Schema.
 
 ## 8. Service Layer
 
@@ -600,7 +614,7 @@ bestätigt ist.
 |---|---|---|
 | 1 | Konkrete Paketversionen einzelner Abhängigkeiten, exakte Node-Version (SDK-Strategie, TypeScript-Strictness und ESLint-/Prettier-Regelwerk bereits entschieden) | 3 |
 | 2 | Log-Level-Konzept, Aufbewahrungsfristen, technische Details der PII-Scrubbing-Konfiguration (Anbieter Sentry/Supabase-Logs bereits entschieden) | 3, 18 |
-| 4 | Genaue Navigations-Stack-Verschachtelung, technische Umsetzung des Hamburger-Menü/Drawer-Patterns, Deep-Linking, Session-Ablauf-Verhalten | 7 |
+| 4 | Umsetzung "Eingaben erhalten/warnen" je Formular, Deep-Link-URL-Struktur (Stack/Drawer/Deep-Linking/Session-Verhalten selbst bereits entschieden) | 7 |
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
 | 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
