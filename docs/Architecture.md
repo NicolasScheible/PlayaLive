@@ -1,8 +1,9 @@
 # Architecture — PlayaLive
 
-> Status: Erste Fassung der technischen Architektur, aufbauend auf `docs/PRD.md`, `docs/Database.md`,
-> `docs/API.md`, `docs/Design.md` und `CLAUDE.md`. Dieses Dokument trifft **keine neuen
-> Produktentscheidungen** — es strukturiert und operationalisiert ausschließlich bereits getroffene
+> Status: Technische Architektur, aufbauend auf `docs/PRD.md`, `docs/Database.md`, `docs/API.md`,
+> `docs/Design.md` und `CLAUDE.md`; nach einer vollständigen Qualitätsprüfung überarbeitet (Widersprüche,
+> doppelte Diagramme und mehrdeutige Kapitel-Querverweise bereinigt). Dieses Dokument trifft **keine
+> neuen Produktentscheidungen** — es strukturiert und operationalisiert ausschließlich bereits getroffene
 > Entscheidungen für die technische Umsetzung. Es enthält noch keinen React-Native-Code.
 >
 > **Legende** (jeder Abschnitt/jede Zeile ist entsprechend markiert):
@@ -15,7 +16,7 @@
 > - 🔴 **Offene Architekturentscheidung** — technisches Detail, zu dem keine Grundlage in den bestehenden
 >   Dokumenten existiert. Muss vor der betroffenen Implementierung explizit geklärt werden.
 >
-> Eine gesammelte Liste aller 🔴-Punkte steht in Kapitel 25.
+> Eine gesammelte Liste aller 🔴-Punkte steht in Kapitel 25 „Zusammenfassung".
 
 ## 1. Projektphilosophie
 
@@ -54,7 +55,7 @@ Direkt aus `CLAUDE.md` → Architekturregeln (✅):
 7. Das Frontend kommuniziert **niemals direkt mit Supabase** — ausschließlich über den Service Layer
    (siehe `docs/PRD.md` Kapitel 15).
 8. Das Frontend entscheidet **niemals über Berechtigungen** — alle Sicherheitsregeln werden serverseitig
-   (Supabase RLS) erzwungen (siehe Kapitel 17).
+   (Supabase RLS) erzwungen (siehe Kapitel 17 „Sicherheit" in diesem Dokument).
 
 ## 3. Technologie-Stack
 
@@ -73,9 +74,12 @@ Direkt aus `docs/PRD.md` Kapitel 15 (✅):
 | Sprache | TypeScript durchgängig (Frontend und Edge Functions) |
 | DB-Migrationen | Supabase CLI, versioniert unter `supabase/migrations/` |
 
-🔴 **Offene Architekturentscheidung:** konkrete Paketversionen, Expo-SDK-Version, Node-Version, Linting-/
-Formatting-Toolchain (ESLint-/Prettier-Konfiguration), Testing-Framework (siehe Kapitel 19), Logging-/
-Monitoring-Anbieter (siehe Kapitel 18).
+🟡 **Bereits angedeutet, Details offen:** `TASKS.md` → Expo Setup nennt ESLint und Prettier bereits als
+vorgesehenes Lint-/Format-Tooling — das konkrete Regelwerk ist aber nicht festgelegt.
+
+🔴 **Offene Architekturentscheidung:** konkrete Paketversionen, Expo-SDK-Version, Node-Version,
+ESLint-/Prettier-Regelwerk, Testing-Framework (siehe Kapitel 19 „Testing"), Logging-/Monitoring-Anbieter
+(siehe Kapitel 18 „Logging").
 
 ## 4. Projektstruktur
 
@@ -171,24 +175,25 @@ Namentlich benannte Services:
 - `WeatherService`
 
 🟡 **Abgeleiteter Vorschlag:** da Specials, Happy Hours, Reviews und Comments als eigene Tabellen
-existieren (`docs/Database.md` 2.7, 2.8, 2.12, 2.13) und laut Architekturprinzip 7 (Kapitel 2) jeder
-Datenzugriff über den Service Layer läuft, benötigen auch sie eigene Services (`SpecialService`,
-`HappyHourService`, `ReviewService`, `CommentService`) — diese wurden im PRD nicht namentlich gelistet,
-folgen aber zwingend aus dem entschiedenen Muster. Die Vertrauensscore-Berechnung
-(`docs/PRD.md` → Vertrauenssystem) läuft serverseitig (Edge Function) und wird vom Frontend nicht direkt
-angesteuert — ein eigener `TrustScoreService` wäre allenfalls ein reiner Lese-Zugriff auf
-`trust_score_events`.
+existieren (`docs/Database.md` 2.7, 2.8, 2.12, 2.13) und laut Architekturprinzip 7 (Kapitel 2
+„Architekturprinzipien") jeder Datenzugriff über den Service Layer läuft, benötigen auch sie eigene
+Services (`SpecialService`, `HappyHourService`, `ReviewService`, `CommentService`) — diese wurden im PRD
+nicht namentlich gelistet, folgen aber zwingend aus dem entschiedenen Muster. Die
+Vertrauensscore-Berechnung (`docs/PRD.md` → Vertrauenssystem) läuft serverseitig (Edge Function) und wird
+vom Frontend nicht direkt angesteuert — ein eigener `TrustScoreService` wäre allenfalls ein reiner
+Lese-Zugriff auf `trust_score_events`.
 
-Jeder Service ist verantwortlich für: Aufruf des Supabase-Clients/der Edge Function, Mapping auf
-Domänentypen, Fehlerbehandlung im einheitlichen Format (Kapitel 15), Bereitstellung für TanStack-Query-
-Hooks bzw. Zustand-Actions.
+Jeder Service ist verantwortlich für: Datenzugriff (direkt oder über eine Repository-Schicht — siehe
+Kapitel 9 „Repository Pattern", dort noch offen), Mapping auf Domänentypen, Fehlerbehandlung im
+einheitlichen Format (Kapitel 15 „Fehlerbehandlung"), Bereitstellung für TanStack-Query-Hooks bzw.
+Zustand-Actions.
 
 ## 9. Repository Pattern
 
 🔴 **Offene Architekturentscheidung.** In keinem bestehenden Dokument wurde festgelegt, ob unterhalb des
 Service Layer zusätzlich eine dedizierte Repository-Schicht (reine Datenzugriffs-/Query-Funktionen ohne
 Business-Logik) existiert, oder ob Services den Supabase-Client direkt kapseln. Zwei Optionen, beide
-vereinbar mit den entschiedenen Prinzipien aus Kapitel 2:
+vereinbar mit den entschiedenen Prinzipien aus Kapitel 2 „Architekturprinzipien":
 
 - **Option A — Service kapselt Zugriff direkt:** `LocationService` enthält sowohl die
   Supabase-Query-Logik als auch etwaige Business-Regeln. Weniger Schichten, schneller für den
@@ -209,7 +214,7 @@ Diese Entscheidung sollte vor Beginn der Implementierung des Service Layer getro
 | **TanStack Query** (Server State) | Ausschließlich vom Backend geladene Daten: Datenabruf, Caching, Background Refresh, Optimistic Updates, Fehlerbehandlung, Sync mit Supabase | Locations, Events, Künstler, Wetter, Favoriten, Specials, Details |
 | **Zustand** (globaler Client State) | Ausschließlich globaler Client-/UI-State, keine dauerhaften Backend-Daten | Login-Status, aktive Filter, Suchbegriffe, Kartenstatus, Theme, Sprache, Einstellungen, Bottom-Navigation-Zustand |
 | **React State** (lokal) | Lokaler Komponentenstatus, ausschließlich React Hooks | Modals, Inputs, Animationen, Ladezustände, Formulare |
-| **Supabase Realtime** | Aktualisiert automatisch den TanStack-Query-Cache | siehe Kapitel 11 |
+| **Supabase Realtime** | Aktualisiert automatisch den TanStack-Query-Cache | siehe Kapitel 11 „Realtime-Architektur" |
 
 Architekturregel: kein direkter Datenbankzugriff aus Screens/Komponenten; wiederverwendbare Custom
 Hooks kapseln die Kommunikation zwischen UI und Services; Komponenten enthalten ausschließlich
@@ -217,7 +222,9 @@ Präsentationslogik.
 
 🔴 **Offene Architekturentscheidung:** Struktur/Aufteilung der Zustand-Stores (ein globaler Store vs.
 mehrere themenbezogene Stores), Query-Key-Konventionen für TanStack Query, Cache-Invalidierungsstrategie
-im Detail je Entität.
+im Detail je Entität. Zusätzlich führt `docs/PRD.md` Kapitel 15 „Sprache" explizit als Teil des
+Zustand-Client-State auf, ohne dass irgendwo eine Mehrsprachigkeits-/i18n-Strategie (unterstützte
+Sprachen, i18n-Bibliothek, Übersetzungsverwaltung) entschieden wäre — ebenfalls offen.
 
 ## 11. Realtime-Architektur
 
@@ -234,13 +241,7 @@ im Detail je Entität.
 - Performance-Regeln: nur sichtbare Screens abonnieren; nicht sichtbare Screens beenden Subscriptions
   automatisch; Events werden intelligent gebündelt (Debouncing).
 
-```mermaid
-flowchart LR
-    SR[Supabase Realtime] --> RTS[Realtime Service]
-    RTS --> QC[TanStack Query Cache]
-    QC --> CH[Custom Hooks]
-    CH --> UI[Screens / Components]
-```
+Diagramm des Datenflusses: siehe Kapitel 23.2 „Realtime-Datenfluss".
 
 🔴 **Offene Architekturentscheidung:** konkrete Reconnect-/Backoff-Strategie bei Verbindungsabbruch,
 genaues Debouncing-Zeitfenster für gebündelte Events.
@@ -252,23 +253,10 @@ genaues Debouncing-Zeitfenster für gebündelte Events.
 - Login ist ab v1.0 **verpflichtend** — kein Gastmodus.
 - Unterstützte Methoden: Apple Sign-In (iOS), Google Sign-In, E-Mail & Passwort.
 - Nach erfolgreicher Anmeldung erhält der Nutzer automatisch Zugriff entsprechend seiner serverseitig
-  zugewiesenen Rolle (Kapitel 13).
-- Umsetzung über Supabase Auth, gekapselt im `AuthService` (Kapitel 8).
+  zugewiesenen Rolle (siehe Kapitel 13 „Rollenmodell").
+- Umsetzung über Supabase Auth, gekapselt im `AuthService` (siehe Kapitel 8 „Service Layer").
 
-```mermaid
-flowchart TD
-    Start([App-Start]) --> Session{Aktive Session?}
-    Session -- ja --> Main[Hauptnavigation]
-    Session -- nein --> Login[Login-/Registrierungs-Screen]
-    Login --> Method{Methode}
-    Method --> Apple[Apple Sign-In]
-    Method --> Google[Google Sign-In]
-    Method --> Email[E-Mail & Passwort]
-    Apple --> Profile[Profile-Datensatz laden/anlegen inkl. Rolle]
-    Google --> Profile
-    Email --> Profile
-    Profile --> Main
-```
+Diagramm des Login-Flows: siehe Kapitel 23.3 „Auth-Flow".
 
 🔴 **Offene Architekturentscheidung:** Verhalten bei abgelaufener Session während aktiver Nutzung
 (stiller Refresh vs. erzwungener Re-Login), Passwort-Reset-Flow im Detail, Umgang mit
@@ -286,27 +274,21 @@ E-Mail-Verifizierung.
 | `super_admin` | v1.0 | Vollständiger Systemzugriff inkl. Benutzer-/Rollenverwaltung, Systemeinstellungen, Sicherheitsverwaltung, Monetarisierung, Partnerfreigaben |
 
 Die Rolle wird im Feld `role` der Tabelle `profiles` gespeichert und ist alleinige, serverseitig über
-RLS durchgesetzte Berechtigungsgrundlage (siehe Kapitel 17). Das Frontend nutzt die Rolle ausschließlich,
-um UI bedingt anzuzeigen — nie, um Berechtigungen selbst durchzusetzen.
+RLS durchgesetzte Berechtigungsgrundlage (siehe Kapitel 17 „Sicherheit"). Das Frontend nutzt die Rolle
+ausschließlich, um UI bedingt anzuzeigen — nie, um Berechtigungen selbst durchzusetzen.
 
 ## 14. Datenfluss
 
 ✅ Entschieden, zusammengeführt aus `docs/PRD.md` Kapitel 15:
 
-```mermaid
-flowchart TD
-    UI[Screens / Components] --> Hooks[Custom Hooks]
-    Hooks --> ZQ[Zustand: Client State]
-    Hooks --> TQ[TanStack Query: Server State]
-    TQ --> SVC[Service Layer]
-    SVC --> SB[(Supabase: Postgres / Auth / Storage / Edge Functions)]
-    SVC --> EXT[Externe APIs: Mapbox, OpenWeather, Firebase]
-    SR[Supabase Realtime] --> RTS[Realtime Service]
-    RTS --> TQ
-```
+Daten fließen ausschließlich in eine Richtung durch die Schichten: **Screens/Components → Custom Hooks →
+Zustand (Client State) / TanStack Query (Server State) → Service Layer → Supabase bzw. externe APIs**,
+ergänzt um Supabase Realtime, das über den Realtime Service direkt in den TanStack-Query-Cache schreibt
+(siehe Kapitel 11 „Realtime-Architektur"). Ein Screen greift nie direkt auf den Service Layer oder auf
+Supabase zu, sondern immer über einen Custom Hook.
 
-Grundregel: Daten fließen ausschließlich in eine Richtung durch die Schichten. Ein Screen greift nie
-direkt auf `SVC` oder `SB` zu, sondern immer über einen Custom Hook.
+Diagramme: siehe Kapitel 23.1 „Schichtenarchitektur" (Basis-Datenfluss) und Kapitel 23.2
+„Realtime-Datenfluss" (Realtime-Pfad im Detail).
 
 ## 15. Fehlerbehandlung
 
@@ -318,7 +300,8 @@ direkt auf `SVC` oder `SB` zu, sondern immer über einen Custom Hook.
 - Automatische Retries nur bei temporären Netzwerkfehlern; dauerhafte Fehler (fehlende Berechtigung,
   ungültige Daten) werden nicht automatisch wiederholt.
 - Jeder Screen kennt vier Zustände: **Loading, Success, Empty, Error**.
-- Fehler werden zentral protokolliert, ohne personenbezogene Daten zu loggen (siehe Kapitel 18).
+- Fehler werden zentral protokolliert, ohne personenbezogene Daten zu loggen (siehe Kapitel 18
+  „Logging").
 
 🔴 **Offene Architekturentscheidung:** exaktes Fehlerobjekt-Format (Felder, Fehlercode-Katalog),
 konkrete Retry-Parameter (Anzahl Versuche, Backoff-Strategie).
@@ -328,18 +311,21 @@ konkrete Retry-Parameter (Anzahl Versuche, Backoff-Strategie).
 ✅ Entschieden (`PROJECT.md` → Design-Richtlinien, `docs/PRD.md` Kapitel 15/17/20):
 
 - Karte und Live-Daten müssen auch bei schlechter mobiler Verbindung nutzbar bleiben.
-- Realtime wird gezielt statt pauschal eingesetzt (Kapitel 11); nicht sichtbare Screens beenden
-  Subscriptions automatisch.
+- Realtime-Performance-Regeln (gezielter Einsatz statt pauschal, automatisches Beenden nicht sichtbarer
+  Subscriptions, Debouncing): siehe Kapitel 11 „Realtime-Architektur".
 - TanStack-Query-Caching reduziert redundante Anfragen; gezielte Cache-Invalidierung statt permanentem
   Neuladen.
 - Bild-Performance über Storage-Buckets: automatische Komprimierung, moderne Formate (WebP/AVIF),
   mehrere Bildgrößen (Thumbnail/Medium/Original) — siehe `docs/PRD.md` Kapitel 15 „Storage-Buckets".
 - Hohe Last in der Hauptsaison ist als Risiko dokumentiert (`docs/PRD.md` Kapitel 20); Gegenmaßnahmen:
   Caching, gezielte Realtime-Nutzung, optimierte DB-Abfragen, Performance-Monitoring.
+- Kartenmarker-Clustering ist als Vorhaben bereits in `TASKS.md` → Mapbox Integration vermerkt
+  („Location-Marker und Clustering auf der Karte") — die konkrete Clustering-Strategie ist offen (siehe
+  unten).
 
 🔴 **Offene Architekturentscheidung:** konkrete Performance-Budgets (z. B. Zeit bis interaktiv,
-Ziel-Framerate der Kartenanimation), Monitoring-Tooling (siehe Kapitel 18), Strategie für Kartenclustering
-bei vielen Locations.
+Ziel-Framerate der Kartenanimation), Monitoring-Tooling (siehe Kapitel 18 „Logging"), konkrete
+Clustering-Strategie/-Algorithmus für die Kartenmarker.
 
 ## 17. Sicherheit
 
@@ -357,13 +343,19 @@ bei vielen Locations.
 - **Missbrauchsschutz bei Community Reports:** Login-Pflicht, Rate Limiting (max. ein Report pro Nutzer/
   Location je Zeitfenster), Geofencing (100–150 m Radius), Vertrauensscore-Gewichtung,
   Mehrfachbestätigung, Meldefunktion, automatische Missbrauchserkennung — alle Prüfungen serverseitig.
-- Storage: kein Upload ohne Authentifizierung; Schreibrechte je Bucket rollenbasiert (Kapitel 15 im
-  PRD).
+- Storage: kein Upload ohne Authentifizierung; Schreibrechte je Bucket rollenbasiert (siehe
+  `docs/PRD.md` Kapitel 15 „Storage-Buckets").
+- **Datenschutz (DSGVO):** `docs/PRD.md` Kapitel 20 „Risiken" nennt die Verarbeitung von Standort- und
+  personenbezogenen Daten (Geofencing, Trust Score) explizit als Risiko und fordert DSGVO-konforme
+  Verarbeitung, transparente Datenschutzerklärung, Einwilligung für Standortzugriff und Speicherung nur
+  notwendiger Daten. Die konkrete technische Umsetzung ist noch offen (siehe unten).
 
 🔴 **Offene Architekturentscheidung:** konkrete Verwaltung von Umgebungsvariablen/Secrets (.env-Strategie,
 Trennung Dev/Staging/Prod, Handling von Supabase-/Mapbox-/Firebase-/OpenWeather-Keys — in `docs/PRD.md`
 Kapitel 22 bereits als offen vermerkt), Zertifikats-/Transport-Sicherheit über die Supabase-Standards
-hinaus, Verantwortlichkeit für periodische Sicherheitsüberprüfungen.
+hinaus, Verantwortlichkeit für periodische Sicherheitsüberprüfungen, konkreter Consent-Flow für den
+Standortzugriff (Geofencing) sowie technische Umsetzung von DSGVO-Betroffenenrechten (Datenauskunft,
+Löschung).
 
 ## 18. Logging
 
@@ -375,16 +367,20 @@ vergleichbar), Log-Level-Konzept, Aufbewahrungsfristen, Umgang mit Logging in Su
 
 ## 19. Testing
 
-🔴 **Offene Architekturentscheidung.** In keinem bestehenden Dokument ist eine Teststrategie
-festgelegt (`TASKS.md` führt „Teststrategie definiert" weiterhin als offenen Punkt). Aus den bereits
-entschiedenen Architekturprinzipien (strikte Trennung UI/Business-Logik/Datenzugriff, Kapitel 2 und 10)
-folgt lediglich **implizit**, dass Business-Logik in Hooks/Services unabhängig von der UI testbar sein
-muss — das ist eine Eigenschaft der Architektur, keine Festlegung eines Testing-Frameworks, einer
-Testpyramide oder einer Coverage-Vorgabe.
+🔴 **Offene Architekturentscheidung**, aber mit teilweiser Vorprägung durch `TASKS.md` → Testing: dort
+sind bereits die groben Testarten benannt — „Unit-Tests für Kernlogik", „Manuelle Testdurchläufe für
+Kern-Flows" (Map, Events, Favorites, Community Report, Auth) und „Fehler-/Edge-Case-Tests" —, sowie der
+Umfang „Unit/Integration/E2E" als Klammer für die noch zu definierende Teststrategie. Welches konkrete
+Framework, welche Testpyramide und welches Abdeckungsziel dahinterstehen, ist jedoch nicht festgelegt.
+
+Aus den bereits entschiedenen Architekturprinzipien (strikte Trennung UI/Business-Logik/Datenzugriff,
+Kapitel 2 „Architekturprinzipien" und Kapitel 10 „State Management") folgt zusätzlich **implizit**, dass
+Business-Logik in Hooks/Services unabhängig von der UI testbar sein muss — das ist eine Eigenschaft der
+Architektur, keine Festlegung eines Testing-Frameworks.
 
 Zu klären vor Beginn der Implementierung: Unit-Test-Framework, Component-/Integration-Test-Ansatz für
 React Native, E2E-Test-Strategie, Testumfang für Supabase-Datenzugriff (Mocking vs. Test-Datenbank),
-Testabdeckungsziel.
+konkretes Testabdeckungsziel.
 
 ## 20. Coding Standards
 
@@ -423,7 +419,7 @@ Testabdeckungsziel.
 
 - Eine Komponente = eine klar abgegrenzte Verantwortung. Keine „God-Components".
 - Screens orchestrieren, wiederverwendbare UI-Bausteine liegen im gemeinsamen `components/`-Ordner
-  (siehe Kapitel 5).
+  (siehe Kapitel 5 „Ordnerstruktur").
 - **Wiederverwendbarkeit vor Screen-spezifischer Einzellösung:** wiederkehrende UI-Bausteine
   (Location-Card, Auslastungs-Badge, Artist-Card, Event-Card, Favoriten-Button) werden als generische,
   parametrisierte Komponenten gebaut, nicht pro Screen dupliziert.
@@ -432,10 +428,13 @@ Testabdeckungsziel.
 - Styling einheitlich nach der in `docs/Design.md` festgelegten Methode (Dark Mode als Basis,
   Neon-Akzente) — keine Screen-eigenen Ad-hoc-Styles, die vom Designsystem abweichen. Konkrete
   Styling-Tokens folgen mit `docs/DesignSystem.md` (siehe `docs/PRD.md` Kapitel 21).
+- Barrierefreiheit (Kontraste, Lesbarkeit, Screenreader-Unterstützung) ist bereits als Prinzip in
+  `docs/Design.md` Kapitel 9 verankert und gilt für jede einzelne Komponente — konkrete
+  Umsetzungsdetails (z. B. Accessibility-Labels je Komponententyp) folgen mit `docs/DesignSystem.md`.
 
 ## 23. Architekturdiagramme (Mermaid)
 
-### 23.1 Schichtenarchitektur (siehe auch Kapitel 14)
+### 23.1 Schichtenarchitektur (siehe auch Kapitel 10 „State Management" und Kapitel 14 „Datenfluss")
 
 ```mermaid
 flowchart TD
@@ -447,7 +446,7 @@ flowchart TD
     SVC --> EXT[Externe APIs: Mapbox, OpenWeather, Firebase]
 ```
 
-### 23.2 Realtime-Datenfluss (siehe auch Kapitel 11)
+### 23.2 Realtime-Datenfluss (siehe auch Kapitel 11 „Realtime-Architektur")
 
 ```mermaid
 flowchart LR
@@ -457,7 +456,7 @@ flowchart LR
     CH --> UI[Screens / Components]
 ```
 
-### 23.3 Auth-Flow (siehe auch Kapitel 12)
+### 23.3 Auth-Flow (siehe auch Kapitel 12 „Authentifizierung")
 
 ```mermaid
 flowchart TD
@@ -544,18 +543,18 @@ bestätigt ist.
 
 | # | Thema | Kapitel |
 |---|---|---|
-| 1 | Konkrete Paketversionen, Expo-SDK, Node-Version, Lint-/Format-Toolchain | 3 |
+| 1 | Konkrete Paketversionen, Expo-SDK, Node-Version, ESLint-/Prettier-Regelwerk (Tools selbst bereits in `TASKS.md` vorgesehen) | 3 |
 | 2 | Logging-/Monitoring-Anbieter | 3, 18 |
 | 3 | Verortung des App-Codes im Repository (Root vs. Unterordner) | 4 |
 | 4 | Genaue Navigations-Stack-Verschachtelung, Deep-Linking, Session-Ablauf-Verhalten | 7 |
 | 5 | Repository-Pattern: eigene Schicht unterhalb der Services oder nicht | 9 |
-| 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail | 10 |
+| 6 | Struktur/Aufteilung der Zustand-Stores, Query-Key-Konventionen, Cache-Invalidierung im Detail, Mehrsprachigkeits-/i18n-Strategie | 10 |
 | 7 | Realtime-Reconnect-/Backoff-Strategie, Debouncing-Zeitfenster | 11 |
 | 8 | Session-Refresh-Verhalten, Passwort-Reset-Flow, E-Mail-Verifizierung | 12 |
 | 9 | Fehlerobjekt-Format, Fehlercode-Katalog, Retry-Parameter | 15 |
-| 10 | Performance-Budgets, Monitoring-Tooling, Kartenclustering-Strategie | 16 |
-| 11 | .env-/Secrets-Strategie, Umgebungstrennung, Verantwortlichkeit für Security-Reviews | 17 |
-| 12 | Teststrategie vollständig (Framework, Testpyramide, Coverage-Ziel) | 19 |
+| 10 | Performance-Budgets, Monitoring-Tooling, konkrete Kartenclustering-Strategie (Clustering an sich bereits in `TASKS.md` vorgesehen) | 16 |
+| 11 | .env-/Secrets-Strategie, Umgebungstrennung, Security-Review-Verantwortlichkeit, Consent-Flow für Standortzugriff, DSGVO-Betroffenenrechte | 17 |
+| 12 | Teststrategie im Detail (Framework, Testpyramide, Coverage-Ziel — grobe Testarten bereits in `TASKS.md` vorgesehen) | 19 |
 
 Diese Punkte sollten — analog zum bisherigen Vorgehen beim PRD — vor der jeweils betroffenen
 Implementierung einzeln mit dem Product Owner geklärt werden, z. B. im Rahmen der geplanten
