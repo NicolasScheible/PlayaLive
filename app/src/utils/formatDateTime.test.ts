@@ -1,4 +1,10 @@
-import { formatDate, formatRelativeTime, formatTime, formatTimeOfDay } from './formatDateTime';
+import {
+  formatDate,
+  formatDateFromTimestamp,
+  formatRelativeTime,
+  formatTime,
+  formatTimeOfDay,
+} from './formatDateTime';
 
 describe('formatDateTime', () => {
   describe('formatTime', () => {
@@ -19,6 +25,16 @@ describe('formatDateTime', () => {
   describe('formatDate', () => {
     it('formatiert ein Postgres-date im deutschen Format', () => {
       expect(formatDate('2026-08-04')).toBe('04.08.2026');
+    });
+  });
+
+  describe('formatDateFromTimestamp', () => {
+    it('formatiert eine ISO-Zeit im deutschen Datumsformat mit führenden Nullen', () => {
+      const date = new Date();
+      date.setFullYear(2026, 7, 4);
+      date.setHours(21, 30, 0, 0);
+
+      expect(formatDateFromTimestamp(date.toISOString())).toBe('04.08.2026');
     });
   });
 

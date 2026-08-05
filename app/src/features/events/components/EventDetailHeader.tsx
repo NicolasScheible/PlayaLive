@@ -1,17 +1,17 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../../components/IconButton';
-import { OccupancyBadge } from '../../../components/OccupancyBadge';
 import { theme } from '../../../theme/theme';
-import type { LocationCategory, OccupancyLevel } from '../../../types/entities';
-import { formatDistance } from '../../../utils/formatDistance';
+import type { LocationCategory } from '../../../types/entities';
+import { formatDateFromTimestamp, formatTime } from '../../../utils/formatDateTime';
 
-// Header gemäß Auftrag Punkt 2: „Hero-Bild, Gradient Overlay, Back Button, Favorite Button, Share
-// Button, aktueller Auslastungsstatus, Distanz, Kategorie". „Gradient Overlay" als deckender Scrim
-// statt eines echten Verlaufs umgesetzt — dieselbe, bereits in `CardImage.tsx` offengelegte
-// Vereinfachung („ohne `expo-linear-gradient` ... keine neue Abhängigkeit ohne Auftrag"), hier
-// konsistent weitergeführt statt neu entschieden. Zurück-/Teilen-/Favoriten-Buttons über das generische
-// `IconButton` (docs/DesignSystem.md Kapitel 11: rundes Icon-Button-Muster für Detail-Screen-Header).
+// Header gemäß Auftrag Punkt 2: „Eventbild, Gradient Overlay, Back Button, Share Button, Favoriten
+// Button, Eventtitel, Datum, Uhrzeit, Kategorie". „Gradient Overlay" als deckender Scrim statt eines
+// echten Verlaufs — dieselbe, bereits in `CardImage.tsx`/`LocationDetailHeader.tsx` offengelegte
+// Vereinfachung, hier konsistent weitergeführt. `events` hat kein eigenes `category`-Feld
+// (docs/Database.md 2.5) — „Kategorie" zeigt daher die Kategorie der zugehörigen Location (Club/Bar),
+// keine erfundene neue Spalte. Zurück-/Teilen-/Favoriten-Buttons über das generische `IconButton`
+// (docs/DesignSystem.md Kapitel 11).
 const HERO_HEIGHT = 320;
 
 const CATEGORY_LABELS: Record<LocationCategory, string> = {
@@ -19,38 +19,34 @@ const CATEGORY_LABELS: Record<LocationCategory, string> = {
   bar: 'Bar',
 };
 
-type LocationDetailHeaderProps = {
+type EventDetailHeaderProps = {
   imageUrl: string | null;
-  locationName: string;
-  category: LocationCategory;
-  occupancyLevel: OccupancyLevel | null;
-  isOccupancyConfident: boolean;
-  distanceMeters: number | null;
+  title: string;
+  startTime: string;
+  locationCategory: LocationCategory;
   isFavorited: boolean;
   onToggleFavorite: () => void;
   onPressBack: () => void;
   onPressShare: () => void;
 };
 
-export function LocationDetailHeader({
+export function EventDetailHeader({
   imageUrl,
-  locationName,
-  category,
-  occupancyLevel,
-  isOccupancyConfident,
-  distanceMeters,
+  title,
+  startTime,
+  locationCategory,
   isFavorited,
   onToggleFavorite,
   onPressBack,
   onPressShare,
-}: LocationDetailHeaderProps) {
+}: EventDetailHeaderProps) {
   return (
-    <View style={styles.container} accessibilityLabel={locationName}>
+    <View style={styles.container} accessibilityLabel={title}>
       {imageUrl ? (
         <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
       ) : (
         <View style={styles.placeholder}>
-          <Text style={styles.placeholderLabel}>{locationName.charAt(0).toUpperCase()}</Text>
+          <Text style={styles.placeholderLabel}>{title.charAt(0).toUpperCase()}</Text>
         </View>
       )}
 
@@ -68,13 +64,13 @@ export function LocationDetailHeader({
       </View>
 
       <View style={styles.bottomOverlay}>
-        <OccupancyBadge level={occupancyLevel} isConfident={isOccupancyConfident} />
-        <View style={styles.metaRow}>
-          <Text style={styles.metaText}>{CATEGORY_LABELS[category]}</Text>
-          {distanceMeters !== null ? (
-            <Text style={styles.metaText}> · {formatDistance(distanceMeters)}</Text>
-          ) : null}
-        </View>
+        <Text style={styles.title} numberOfLines={2}>
+          {title}
+        </Text>
+        <Text style={styles.metaText}>
+          {formatDateFromTimestamp(startTime)} · {formatTime(startTime)} ·{' '}
+          {CATEGORY_LABELS[locationCategory]}
+        </Text>
       </View>
     </View>
   );
@@ -121,8 +117,10 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     gap: theme.spacing.xs,
   },
-  metaRow: {
-    flexDirection: 'row',
+  title: {
+    color: theme.colors.text.primary,
+    fontSize: theme.typography.title.fontSize,
+    fontWeight: theme.typography.title.fontWeight,
   },
   metaText: {
     color: theme.colors.text.primary,

@@ -17,6 +17,7 @@ import type {
   LocationLiveStatus,
   Special,
 } from '../../../types/entities';
+import { formatDistance } from '../../../utils/formatDistance';
 import { WEEKDAY_LABELS } from '../../../utils/weekdayLabels';
 
 // Bottom-Sheet-Inhalt gemäß Auftrag Punkt 5: „Bild, Name, Kategorie, aktuelle Auslastung, Happy Hours,
@@ -30,14 +31,6 @@ const CATEGORY_LABELS: Record<LocationCategory, string> = {
 };
 
 const IMAGE_HEIGHT = 160;
-
-function formatDistance(meters: number): string {
-  if (meters < 1000) {
-    return `${Math.round(meters)} m`;
-  }
-
-  return `${(meters / 1000).toFixed(1)} km`;
-}
 
 type LocationBottomSheetContentProps = {
   location: Location;

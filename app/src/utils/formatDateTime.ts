@@ -27,6 +27,16 @@ export function formatDate(pgDate: string): string {
   return `${day}.${month}.${year}`;
 }
 
+// Für timestamptz-Felder, bei denen (anders als `formatTime`) das Datum benötigt wird (z. B.
+// `events.start_time` im Event-Detail-Header) — Anzeige im deutschen Format „DD.MM.YYYY", analog zu
+// `formatDate`, aber aus einem vollständigen ISO-Datum/Zeit-String statt eines reinen Datums-Strings
+// (ein einfaches `.split('-')` wie in `formatDate` würde am „T" im Zeitanteil scheitern).
+export function formatDateFromTimestamp(isoDateTime: string): string {
+  const date = new Date(isoDateTime);
+
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
+}
+
 // Relative Zeitangabe („vor 15 Min") gemäß docs/DesignSystem.md Kapitel 4 („Caption/Meta-Kleinstschrift
 // ... z. B. „vor 15 Min""). `now` als Parameter statt fest `new Date()` für deterministische Tests.
 export function formatRelativeTime(isoDateTime: string, now: Date = new Date()): string {

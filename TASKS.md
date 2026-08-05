@@ -58,8 +58,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  `HomeScreen`, `MapScreen` und den `LocationDetail`-Platzhalter, noch als einfacher Stack ohne die
-  übrigen Bottom-Tabs)
+  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen` und den `ArtistDetail`-
+  Platzhalter, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -95,7 +95,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] Location-Detailansicht (Öffnungszeiten, Specials, Events) — vollständiger `LocationDetailScreen`:
   Hero-Header (Bild, Scrim, Zurück/Teilen/Favorit, Auslastung, Distanz, Kategorie), Grundinformationen
   inkl. Geöffnet/Geschlossen-Status, Live-Auslastung (Realtime, kein kompletter Reload), aktive Happy
-  Hours/Specials, heutige Events (Vorschau, Klick navigiert zum `EventDetail`-Platzhalter), Bewertungen
+  Hours/Specials, heutige Events (Vorschau, Klick navigiert zum vollständigen `EventDetailScreen`),
+  Bewertungen
   (Durchschnitt/Anzahl/Liste, ohne Reviewer-Namen — RLS erlaubt normalen Nutzern nur das Lesen des
   eigenen Profils), Route öffnen/Teilen/Favorit. Website/Telefonnummer bewusst nicht enthalten (Felder
   existieren nicht im Datenmodell, Product-Owner-Entscheidung)
@@ -104,20 +105,29 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [ ] Tagesprogramm-Ansicht
 - [ ] Kommende Events
-- [ ] Event-Detailansicht (Künstler, Startzeit, Location) — bislang nur Platzhalter-Screen
-  (`EventDetailScreen`) als Navigationsziel von der Live-Karte/Location Detail aus, kein eigener Auftrag
+- [x] Event-Detailansicht (Künstler, Startzeit, Location) — vollständiger `EventDetailScreen`:
+  Hero-Header (Bild, Scrim, Zurück/Teilen/Favorit, Titel, Datum, Uhrzeit, Kategorie der Location),
+  Eventinformationen (Beschreibung, Beginn, Ende, Veranstaltungsort, Distanz — keine
+  Altersbeschränkung/Eintritt, da nicht im Datenmodell), Location (wiederverwendete `LocationCard` inkl.
+  Live-Auslastung, Klick navigiert zum `LocationDetailScreen`), Künstlerliste (Klick navigiert zum
+  `ArtistDetail`-Platzhalter), aktive Happy Hours/Specials der Location, Route öffnen/Teilen/Favorit.
+  Keine Ticket-/Payment-Funktion, keine Reservierungen (explizit ausgeschlossen)
 
 ## Artists
 
-- [ ] Künstlerprofile (DJs)
+- [ ] Künstlerprofile (DJs) — bislang nur Platzhalter-Screen (`ArtistDetailScreen`) als Navigationsziel
+  von der Künstlerliste auf Event Detail aus, kein eigener Auftrag
 - [ ] Auftritte (aktuelle/kommende) pro Künstler
-- [ ] Künstler favorisierbar
+- [ ] Künstler favorisierbar — `FavoriteService`/`favorite_target_type` unterstützt „artist" bereits,
+  aber ohne echten Artist-Detail-Screen kein UI-Zugriffspunkt
 
 ## Favorites
 
 - [x] Locations speichern — Favoriten-Herz im `LocationDetailScreen`-Header (`useLocationFavorite`,
   `FavoriteService.toggleFavorite`); auch bereits als Filter auf der Live-Karte nutzbar
-- [ ] Künstler speichern
+- [x] Events speichern — Favoriten-Herz im `EventDetailScreen`-Header (`useEventFavorite`,
+  `FavoriteService.toggleFavorite`)
+- [ ] Künstler speichern — Artist Detail selbst ist noch kein eigener Auftrag
 - [ ] Übersicht gespeicherter Favoriten — eigener Favoriten-Screen, nicht Teil dieses Auftrags
 - [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
 
