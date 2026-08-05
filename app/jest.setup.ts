@@ -1,5 +1,17 @@
 import 'react-native-gesture-handler/jestSetup';
 
+// Offiziell von React Navigation empfohlener Mock (https://reactnavigation.org/docs/drawer-navigator/
+// → „Testing"): `@react-navigation/drawer` lädt beim Import transitiv das native
+// Reanimated/Worklets-Modul, das im Jest-Environment nicht registriert ist — ohne diesen Mock würde
+// jeder Test, der den neuen `MainDrawerNavigator` importiert, beim Modul-Import abstürzen.
+// `react-native-worklets` muss VOR `react-native-reanimated` gemockt werden, da Reanimateds eigener
+// Mock (`react-native-reanimated/mock`) den nativen Worklets-Initialisierer sonst selbst noch lädt
+// (Reanimated 4 hat die Worklets-Engine in ein eigenes Paket ausgelagert).
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
 // Test-Platzhalterwerte, damit src/lib/supabase.ts (System-Boundary-Validierung) in Tests nicht wirft.
 // Kein echtes Supabase-Projekt — Tests dürfen keine echten Netzwerkaufrufe an Supabase auslösen.
 process.env.EXPO_PUBLIC_SUPABASE_URL ??= 'https://test.supabase.co';

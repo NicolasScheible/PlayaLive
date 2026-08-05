@@ -1,3 +1,5 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 // Navigationstypen für den AuthNavigator (siehe docs/Architecture.md Kapitel 7). Weitere Stacks
 // (Main, Tabs, Drawer) erhalten eigene Param-Lists, sobald die jeweiligen Features entstehen.
 export type AuthStackParamList = {
@@ -6,22 +8,31 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
-// Haupt-App-Stack (siehe docs/Architecture.md Kapitel 7). `LocationDetail`/`EventDetail`/`ArtistDetail`
-// sind laut docs/DesignSystem.md Kapitel 17 eigene Stack-Screens (kein Modal/Bottom-Sheet). Die
-// endgültige 5-Tab-Bottom-Navigation mit zentralem Community-Report-Schnellzugriff und Hamburger-Menü
-// (docs/Architecture.md Kapitel 7, docs/PRD.md Kapitel 11) entsteht erst mit den übrigen Tab-/
-// Menü-Screens — `Map`, `Favorites`, `Profile`, `CommunityReport` und `Settings` sind hier als weitere
-// Stack-Screens verdrahtet, nicht als Tab/Menüpunkt; `Favorites`/`Profile`/`CommunityReport`/`Settings`
-// haben (anders als die Detail-Screens) noch keinen Einstiegspunkt aus der übrigen Navigation (der wäre
-// Teil des noch nicht umgesetzten zentralen Schnellzugriff-Buttons bzw. Hamburger-Menüs), sind aber
-// bereits als eigenständige Routen erreichbar. `ChangePassword` und `Permissions` sind Unterseiten von
-// `Settings` (Konto → Passwort ändern, Datenschutz → Berechtigungen).
-export type MainStackParamList = {
-  Main: undefined;
+// Finaler Drawer/Hamburger-Menü (docs/Architecture.md Kapitel 7: „Umsetzung über den offiziellen
+// React-Navigation-Drawer", docs/PRD.md Kapitel 11), verschachtelt im `MainStackParamList`-Eintrag
+// `Main`. Enthält ausschließlich die im Auftrag genannten fünf Einträge — Community Report ist
+// bewusst NICHT Teil des Drawers, bleibt aber als eigenständige `MainStackParamList`-Route erreichbar
+// (siehe `MainDrawerNavigator.tsx`).
+export type MainDrawerParamList = {
+  Home: undefined;
   Map: undefined;
   Favorites: undefined;
   Profile: undefined;
   Settings: undefined;
+};
+
+// Haupt-App-Stack (siehe docs/Architecture.md Kapitel 7). `LocationDetail`/`EventDetail`/`ArtistDetail`
+// sind laut docs/DesignSystem.md Kapitel 17 eigene Stack-Screens (kein Modal/Bottom-Sheet). `Main`
+// rendert seit der finalen Drawer-Navigation den `MainDrawerNavigator` (Home/Live Map/Favoriten/
+// Profil/Einstellungen) statt direkt `HomeScreen` — `Map`/`Favorites`/`Profile`/`Settings` sind daher
+// keine Stack-Routen mehr, sondern Screens des verschachtelten Drawers (`MainDrawerParamList`).
+// `CommunityReport` bleibt bewusst außerhalb des Drawers, weiterhin nur programmatisch erreichbar
+// (kein Einstiegspunkt Teil dieses Schritts). `ChangePassword` und `Permissions` sind Unterseiten von
+// `Settings` (Konto → Passwort ändern, Datenschutz → Berechtigungen) und bleiben auf dieser
+// Stack-Ebene — aus dem Drawer heraus über die automatische Routenauflösung von React Navigation an
+// übergeordnete Navigatoren erreichbar (kein manuelles `getParent()` nötig).
+export type MainStackParamList = {
+  Main: NavigatorScreenParams<MainDrawerParamList> | undefined;
   ChangePassword: undefined;
   Permissions: undefined;
   CommunityReport: { locationId: string };

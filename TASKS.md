@@ -58,15 +58,26 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen`,
-  `FavoritesScreen`, `ProfileScreen`, `CommunityReportScreen`, `SettingsScreen`,
-  `ChangePasswordScreen` und `PermissionsScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
+  den `MainDrawerNavigator`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen`,
+  `CommunityReportScreen`, `ChangePasswordScreen` und `PermissionsScreen` als Stack-Screens)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
-  definiert — siehe `docs/PRD.md` Kapitel 11
-- [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
-  Happy Hours, Weather, Services, Settings, Help, Privacy, About) — siehe `docs/PRD.md` Kapitel 11,
-  `docs/Architecture.md` Kapitel 7
-- [ ] Community-Report-Schnellzugriff-Button (zentrales Bottom-Nav-Element) implementiert
+  definiert — siehe `docs/PRD.md` Kapitel 11 (nicht gebaut, siehe finale Drawer-Navigation unten)
+- [x] Hamburger-Menü (React-Navigation-Drawer) eingerichtet — `MainDrawerNavigator`
+  (`app/src/navigation/MainDrawerNavigator.tsx`) mit den fünf im Drawer-Auftrag festgelegten
+  Einträgen **Home, Live Map, Favoriten, Profil, Einstellungen** (`HomeScreen`, `MapScreen`,
+  `FavoritesScreen`, `ProfileScreen`, `SettingsScreen` — alle bereits bestehende Screens,
+  unverändert wiederverwendet). Da keine Bottom-Tab-Leiste existiert, konsolidiert der Drawer bewusst
+  Bottom-Tab- und Hamburger-Menü-Inhalte aus `docs/PRD.md` Kapitel 11 in ein Menü — Artists/Happy
+  Hours/Weather/Services/Help/Privacy/About sind nicht enthalten, da diese Screens noch nicht
+  existieren. Drawer-Header (`DrawerContent.tsx`) zeigt Avatar/Benutzername/E-Mail aus dem
+  bestehenden Auth-/Profile-State (`useProfile()`/`authStore`, kein zusätzlicher Request). Aktiver
+  Menüpunkt wird ausschließlich über die Bibliothek selbst (`drawerActiveTintColor`/
+  `drawerActiveBackgroundColor`, nur `theme.ts`-Werte) hervorgehoben. Menü-Zugriff über einen neuen,
+  optionalen `onPressMenu`-Button in der bestehenden `Header`-Komponente (Hamburger-Glyph „☰" gemäß
+  `docs/DesignSystem.md` Kapitel 16), von `HomeScreen` aus verdrahtet.
+- [ ] Community-Report-Schnellzugriff-Button (zentrales Bottom-Nav-Element) implementiert — Community
+  Report bleibt bewusst außerhalb des Drawers, weiterhin nur programmatisch über die Stack-Route
+  erreichbar (Auftrag der Drawer-Navigation: „Community Report NICHT im Drawer anzeigen")
 - [x] Login-Flow vor der Hauptnavigation abgebildet (Login ist verpflichtend, kein Gastmodus/App-Flow
   ohne Login — siehe `docs/PRD.md` Kapitel 12): Login-, Registrierungs- und Passwort-vergessen-Screen
   über `AuthNavigator`, Routing über `authStore`/`RootNavigator`
@@ -139,8 +150,9 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   (`FavoritesTabs`), je Tab bestehende `LocationCard`/`EventCard`/`ArtistCard` in vertikaler
   Einspalten-Liste (docs/DesignSystem.md Kapitel 6) mit Favoriten-Herz zum direkten Entfernen
   (optimistisches Update über TanStack Query), Klick navigiert zum jeweiligen Detail-Screen. Als eigene
-  Stack-Route (`Favorites`) registriert; ein Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü)
-  ist noch nicht Teil dieses Auftrags. Locations ohne Live-Auslastung (kein Batch-Endpunkt vorhanden,
+  Drawer-Route (`Favorites`) registriert; der Einstiegspunkt aus der übrigen Navigation ist seit der
+  finalen Drawer-Navigation der `MainDrawerNavigator` (siehe Abschnitt „Navigation"). Locations ohne
+  Live-Auslastung (kein Batch-Endpunkt vorhanden,
   hätte einen Report-Request je favorisierter Location erfordert)
 - [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
 
@@ -152,9 +164,9 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   daher nur einmal angezeigt/editierbar), E-Mail (nicht editierbar), Mitglied seit, Trust Score, Anzahl
   Reports/Reviews/Favoriten, eigene Bewertungen (Klick navigiert zu Location-/Artist-Detail), eigene
   Community Reports. `ReviewService`/`ReviewRepository` um `getOwnReviews()`/`findByUser()` ergänzt
-  (analog zu `ReportService.getOwnReports()`, docs/API.md Kapitel 9 aktualisiert). Als eigene Stack-Route
-  (`Profile`) registriert; ein Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü) ist noch nicht
-  Teil dieses Auftrags.
+  (analog zu `ReportService.getOwnReports()`, docs/API.md Kapitel 9 aktualisiert). Als eigene
+  Drawer-Route (`Profile`) registriert; der Einstiegspunkt aus der übrigen Navigation ist seit der
+  finalen Drawer-Navigation der `MainDrawerNavigator` (siehe Abschnitt „Navigation").
 - [x] Einstellungen — vollständiger `SettingsScreen` (löst den bisherigen Platzhalter ab): Bereiche
   Konto (Profil bearbeiten → `ProfileScreen`, Passwort ändern → neuer `ChangePasswordScreen` über
   `AuthService.changePassword()`/`supabase.auth.updateUser()`, E-Mail-Verifizierung aus dem bestehenden
@@ -170,8 +182,9 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   App bewerten) sind nach Rückfrage beim Product Owner als ehrliche „Demnächst verfügbar"-Hinweise
   umgesetzt (kein Fake-Link, keine stillschweigend erfundene Backend-/DSGVO-Architektur — siehe
   `docs/Architecture.md` Kapitel 17/25, dort selbst als vor der Implementierung zu klärender Punkt
-  markiert). Als eigene Stack-Routen (`Settings`, `ChangePassword`, `Permissions`) registriert; ein
-  Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü) ist noch nicht Teil dieses Auftrags.
+  markiert). `Settings` ist als eigene Drawer-Route registriert (`ChangePassword`/`Permissions` bleiben
+  Stack-Routen, von dort aus erreichbar); der Einstiegspunkt aus der übrigen Navigation ist seit der
+  finalen Drawer-Navigation der `MainDrawerNavigator` (siehe Abschnitt „Navigation").
 - [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — „Abmelden" jetzt im
   `ProfileScreen` statt des bisherigen Main-Platzhalters; Apple/Google Sign-In noch offen)
 

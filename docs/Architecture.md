@@ -193,6 +193,21 @@ Diese Struktur gilt erst nach ausdrücklicher Bestätigung als verbindlich.
   einen Login-/Registrierungs-Flow (Apple Sign-In / Google Sign-In / E-Mail & Passwort — siehe
   `docs/PRD.md` Kapitel 12). Es gibt keinen „App-Flow ohne Login".
 
+✅ **Umgesetzt** (finale Drawer-/Menü-Navigation): Die Bottom-Tab-Leiste mit zentralem
+Community-Report-Schnellzugriff wurde nicht gebaut (kein separater Auftrag dafür bisher). Stattdessen
+implementiert `MainDrawerNavigator` (`app/src/navigation/MainDrawerNavigator.tsx`) einen einzigen
+React-Navigation-Drawer mit den fünf Einträgen **Home, Live Map, Favoriten, Profil, Einstellungen** —
+eine bewusste Konsolidierung von Bottom-Tab- und Hamburger-Menü-Inhalten in ein Menü, da keine
+Bottom-Tab-Leiste existiert. Community Report bleibt **nicht** im Drawer (weiterhin nur programmatisch
+über die Stack-Route `CommunityReport` erreichbar, wie schon zuvor — der zentrale
+Schnellzugriff-Button ist weiterhin nicht Teil eines abgeschlossenen Auftrags). Artists/Happy
+Hours/Weather/Services/Help/Privacy/About sind ebenfalls nicht im Drawer, da diese Screens (bis auf
+Artists, das per Deep-Link/Navigation aus Events/Favoriten erreichbar ist) noch nicht existieren. Der
+Drawer-Header zeigt Avatar/Benutzername/E-Mail aus dem bestehenden Auth-/Profile-State
+(`DrawerContent.tsx`); der aktive Menüpunkt wird über die Bibliothek selbst
+(`drawerActiveTintColor`/`drawerActiveBackgroundColor`, ausschließlich `theme.ts`-Werte) hervorgehoben.
+Logout bleibt ausschließlich im `ProfileScreen`, nicht zusätzlich im Drawer.
+
 ✅ Entschieden (Architekturentscheidung 4, Product Owner):
 
 - **Detail-Screens:** Location-, Event- und Künstlerprofil-Details werden als eigene **Stack-Screens**

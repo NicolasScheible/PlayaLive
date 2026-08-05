@@ -1,9 +1,11 @@
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { Header } from '../../../components/Header';
-import type { MainStackParamList } from '../../../navigation/types';
+import type { MainDrawerParamList, MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { CurrentActsSection } from '../components/CurrentActsSection';
 import { GreetingHeader } from '../components/GreetingHeader';
@@ -16,7 +18,14 @@ import { TodayHighlightsSection } from '../components/TodayHighlightsSection';
 import { WeatherWidget } from '../components/WeatherWidget';
 import { useHomeDashboard } from '../hooks/useHomeDashboard';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Main'>;
+// `Home` ist seit der finalen Drawer-Navigation ein Screen des verschachtelten `MainDrawerNavigator`
+// (siehe navigation/types.ts), nicht mehr direkt ein Stack-Screen — die Navigation-Prop ist daher eine
+// Kombination aus Drawer- (für `.openDrawer()`/Drawer-Geschwister wie „Map") und Stack-Navigation
+// (für Routen wie „LocationDetail", die weiterhin auf der übergeordneten Stack-Ebene liegen).
+type HomeScreenNavigationProp = CompositeNavigationProp<
+  DrawerNavigationProp<MainDrawerParamList, 'Home'>,
+  NativeStackNavigationProp<MainStackParamList>
+>;
 
 // Home Dashboard gemäß docs/PRD.md Kapitel 10 — orchestriert ausschließlich über `useHomeDashboard()`
 // (CLAUDE.md → Vorgehensweise: keine Business-Logik/Datenzugriff im Screen, ausschließlich Hooks).
@@ -37,7 +46,7 @@ export function HomeScreen() {
         />
       }
     >
-      <Header />
+      <Header onPressMenu={() => navigation.openDrawer()} />
       <GreetingHeader
         greeting={dashboard.greeting.greeting}
         displayName={dashboard.greeting.displayName}

@@ -1,8 +1,10 @@
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, StyleSheet } from 'react-native';
 
-import type { MainStackParamList } from '../../../navigation/types';
+import type { MainDrawerParamList, MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { FavoriteArtistsList } from '../components/FavoriteArtistsList';
 import { FavoriteEventsList } from '../components/FavoriteEventsList';
@@ -10,15 +12,20 @@ import { FavoriteLocationsList } from '../components/FavoriteLocationsList';
 import { FavoritesTabs } from '../components/FavoritesTabs';
 import { useFavoritesScreen } from '../hooks/useFavoritesScreen';
 
-type FavoritesScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Favorites'>;
+// „Favorites" ist seit der finalen Drawer-Navigation ein Screen des verschachtelten
+// `MainDrawerNavigator` (siehe navigation/types.ts) — Navigation zu den Detail-Screens bleibt auf der
+// übergeordneten Stack-Ebene, daher die zusammengesetzte Navigation-Prop (analog zu HomeScreen.tsx).
+type FavoritesScreenNavigationProp = CompositeNavigationProp<
+  DrawerNavigationProp<MainDrawerParamList, 'Favorites'>,
+  NativeStackNavigationProp<MainStackParamList>
+>;
 
 // Favoriten-Screen (löst den bisherigen Platzhalter-Ordner ab) — orchestriert ausschließlich über
 // `useFavoritesScreen()` (CLAUDE.md → Vorgehensweise: keine Business-Logik/Datenzugriff im Screen,
-// ausschließlich Hooks). Titel/Zurück-Button kommen vom nativen Stack-Header
-// (`options={{ title: 'Favoriten' }}` in `MainNavigator.tsx`), analog zum ursprünglichen
-// `ArtistDetail`-Platzhalter — kein eigener Header-Baustein nötig. Nur der aktive Tab wird gerendert,
-// die anderen beiden laden ohnehin nicht (`useFavoritesScreen`s `enabled`-Flags) — kein unnötiger
-// Render toter Listen.
+// ausschließlich Hooks). Titel/Menü-Icon kommen vom automatischen Drawer-Header
+// (`options={{ title: 'Favoriten' }}` in `MainDrawerNavigator.tsx`) — kein eigener Header-Baustein
+// nötig. Nur der aktive Tab wird gerendert, die anderen beiden laden ohnehin nicht
+// (`useFavoritesScreen`s `enabled`-Flags) — kein unnötiger Render toter Listen.
 export function FavoritesScreen() {
   const navigation = useNavigation<FavoritesScreenNavigationProp>();
   const screen = useFavoritesScreen();

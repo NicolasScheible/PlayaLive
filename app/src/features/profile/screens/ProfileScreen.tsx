@@ -1,3 +1,5 @@
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -6,7 +8,7 @@ import { Button } from '../../../components/Button';
 import { EmptyState } from '../../../components/EmptyState';
 import { ErrorState } from '../../../components/ErrorState';
 import { LoadingState } from '../../../components/LoadingState';
-import type { MainStackParamList } from '../../../navigation/types';
+import type { MainDrawerParamList, MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { OwnReportsSection } from '../components/OwnReportsSection';
@@ -16,15 +18,22 @@ import { ProfileHeader } from '../components/ProfileHeader';
 import { ProfileStatsSection } from '../components/ProfileStatsSection';
 import { useProfileScreen } from '../hooks/useProfileScreen';
 
+// „Profile" ist seit der finalen Drawer-Navigation ein Screen des verschachtelten
+// `MainDrawerNavigator` (siehe navigation/types.ts) — Navigation zu den Detail-Screens bleibt auf der
+// übergeordneten Stack-Ebene, daher die zusammengesetzte Navigation-Prop (analog zu HomeScreen.tsx).
+//
 // Vollständiger Profil-Screen (löst den bisherigen Profil-Platzhalter ab), orchestriert über
 // `useProfileScreen()` (CLAUDE.md → Vorgehensweise: keine Business-Logik/kein Datenzugriff im Screen,
 // ausschließlich Hooks). Logout nutzt Auftrag Punkt 6 zufolge explizit den bestehenden `useAuth`-Hook
 // (`features/auth/hooks/useAuth.ts`) direkt im Screen — bewusst NICHT über `useProfileScreen`
 // gebündelt, um keine neue Business-Logik-Schicht um einen bereits fertigen Hook zu legen. Dieser
 // gezielte, vom Auftrag selbst verlangte Zugriff auf ein anderes Feature-Modul ist eine bewusste
-// Ausnahme von der sonst geltenden Feature-Isolation (`features/README.md`) — bereits in
-// `MainNavigator.tsx` als der vorgesehene, künftige Ort für „Abmelden" angekündigt.
-type ProfileScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Profile'>;
+// Ausnahme von der sonst geltenden Feature-Isolation (`features/README.md`) — Abmelden bleibt
+// ausschließlich hier, nicht zusätzlich im Drawer (Auftrag Punkt 6 der Drawer-Navigation).
+type ProfileScreenNavigationProp = CompositeNavigationProp<
+  DrawerNavigationProp<MainDrawerParamList, 'Profile'>,
+  NativeStackNavigationProp<MainStackParamList>
+>;
 
 export function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();

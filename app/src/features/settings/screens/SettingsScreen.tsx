@@ -1,18 +1,25 @@
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, Linking, ScrollView, StyleSheet } from 'react-native';
 
-import type { MainStackParamList } from '../../../navigation/types';
+import type { MainDrawerParamList, MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsSection } from '../components/SettingsSection';
 import { useNotificationSettings } from '../hooks/useNotificationSettings';
 import { useSettingsScreen } from '../hooks/useSettingsScreen';
 
+// „Settings" ist seit der finalen Drawer-Navigation ein Screen des verschachtelten
+// `MainDrawerNavigator` (siehe navigation/types.ts) — Navigation zu „ChangePassword"/„Permissions"
+// bleibt auf der übergeordneten Stack-Ebene, „Profile" ist ein Drawer-Geschwister, daher die
+// zusammengesetzte Navigation-Prop (analog zu HomeScreen.tsx).
+//
 // Vollständiger Settings-Screen (löst den bisherigen Platzhalter ab), orchestriert ausschließlich über
 // `useSettingsScreen()`/`useNotificationSettings()` (CLAUDE.md → Vorgehensweise: keine Business-Logik/
-// kein Datenzugriff im Screen, ausschließlich Hooks). Titel/Zurück-Button kommen vom nativen
-// Stack-Header (analog zu `Favorites`/`Profile`/`CommunityReport`).
+// kein Datenzugriff im Screen, ausschließlich Hooks). Titel/Menü-Icon kommen vom automatischen
+// Drawer-Header (analog zu `Favorites`/`Profile`).
 //
 // Mehrere im Auftrag geforderte Einträge (Konto löschen/deaktivieren, Datenexport,
 // Datenschutzerklärung, Impressum, Nutzungsbedingungen, Hilfe, Feedback senden, App bewerten) haben
@@ -22,7 +29,10 @@ import { useSettingsScreen } from '../hooks/useSettingsScreen';
 // eine echte Ziel-URL/Kontaktadresse im Repo — nach Rückfrage werden sie als ehrliche „Demnächst
 // verfügbar"-Hinweise über das native `Alert` (keine neue Abhängigkeit, kein neuer Dialog-Mechanismus)
 // dargestellt, nicht als funktionslose/erfundene Links oder stillschweigend weggelassen.
-type SettingsScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Settings'>;
+type SettingsScreenNavigationProp = CompositeNavigationProp<
+  DrawerNavigationProp<MainDrawerParamList, 'Settings'>,
+  NativeStackNavigationProp<MainStackParamList>
+>;
 
 function showComingSoon(label: string) {
   Alert.alert(label, 'Diese Funktion ist noch nicht verfügbar.');

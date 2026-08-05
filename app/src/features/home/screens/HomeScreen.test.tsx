@@ -1,6 +1,7 @@
+import { createDrawerNavigator, useDrawerStatus } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
-import { fireEvent, render, screen } from '@testing-library/react-native';
-import { RefreshControl } from 'react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { RefreshControl, Text } from 'react-native';
 
 import { HomeScreen } from './HomeScreen';
 
@@ -56,5 +57,28 @@ describe('HomeScreen', () => {
     fireEvent(screen.UNSAFE_getByType(RefreshControl), 'refresh');
 
     expect(mockOnRefresh).toHaveBeenCalled();
+  });
+
+  it('öffnet den Drawer beim Tippen auf den Menü-Button im Header', async () => {
+    const Drawer = createDrawerNavigator();
+
+    function DrawerStatusProbe() {
+      const status = useDrawerStatus();
+      return <Text>drawer-{status}</Text>;
+    }
+
+    render(
+      <NavigationContainer>
+        <Drawer.Navigator drawerContent={() => <DrawerStatusProbe />}>
+          <Drawer.Screen name="Home">{() => <HomeScreen />}</Drawer.Screen>
+        </Drawer.Navigator>
+      </NavigationContainer>,
+    );
+
+    expect(screen.getByText('drawer-closed')).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText('Menü öffnen'));
+
+    await waitFor(() => expect(screen.getByText('drawer-open')).toBeTruthy());
   });
 });

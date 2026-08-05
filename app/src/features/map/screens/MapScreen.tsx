@@ -1,3 +1,5 @@
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Mapbox from '@rnmapbox/maps';
@@ -9,7 +11,7 @@ import { Button } from '../../../components/Button';
 import { EmptyState } from '../../../components/EmptyState';
 import { ErrorState } from '../../../components/ErrorState';
 import { LoadingState } from '../../../components/LoadingState';
-import type { MainStackParamList } from '../../../navigation/types';
+import type { MainDrawerParamList, MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { FilterBar } from '../components/FilterBar';
 import { LocationBottomSheetContent } from '../components/LocationBottomSheetContent';
@@ -26,7 +28,13 @@ const DEFAULT_ZOOM_LEVEL = 14;
 const MIN_ZOOM_LEVEL = 10;
 const MAX_ZOOM_LEVEL = 18;
 
-type MapScreenNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Map'>;
+// „Map" ist seit der finalen Drawer-Navigation ein Screen des verschachtelten `MainDrawerNavigator`
+// (siehe navigation/types.ts) — Navigation zu „LocationDetail" bleibt auf der übergeordneten
+// Stack-Ebene, daher die zusammengesetzte Navigation-Prop (analog zu HomeScreen.tsx).
+type MapScreenNavigationProp = CompositeNavigationProp<
+  DrawerNavigationProp<MainDrawerParamList, 'Map'>,
+  NativeStackNavigationProp<MainStackParamList>
+>;
 
 export function MapScreen() {
   const navigation = useNavigation<MapScreenNavigationProp>();
