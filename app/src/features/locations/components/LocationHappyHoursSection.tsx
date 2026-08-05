@@ -5,25 +5,27 @@ import { HorizontalCardList } from '../../../components/HorizontalCardList';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { SkeletonRow } from '../../../components/SkeletonRow';
 import type { AppError } from '../../../lib/errors';
+import type { HappyHour } from '../../../types/entities';
 import { WEEKDAY_LABELS } from '../../../utils/weekdayLabels';
-import type { HappyHourWithLocationName } from '../hooks/useHappyHours';
 
-// Happy Hours gemäß docs/PRD.md Kapitel 10 (Home: „Happy Hours"), Karussell gemäß
-// docs/DesignSystem.md Kapitel 6.
-
-type HappyHoursSectionProps = {
-  happyHours: HappyHourWithLocationName[];
+// Happy Hours gemäß Auftrag Punkt 5: „Eigene Bereiche für aktive Specials/aktive Happy Hours ... nur
+// bereits aktive Einträge anzeigen" — Datenzugriff bereits im Hook (`useLocationHappyHours`) auf
+// aktive Einträge eingeschränkt. Struktur identisch zu `HappyHoursSection.tsx` (Home Dashboard).
+type LocationHappyHoursSectionProps = {
+  locationName: string;
+  happyHours: HappyHour[];
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
 };
 
-export function HappyHoursSection({
+export function LocationHappyHoursSection({
+  locationName,
   happyHours,
   isLoading,
   isError,
   error,
-}: HappyHoursSectionProps) {
+}: LocationHappyHoursSectionProps) {
   return (
     <>
       <SectionHeader title="Happy Hours" />
@@ -32,13 +34,13 @@ export function HappyHoursSection({
       ) : isError ? (
         <ErrorState message={error?.message ?? 'Happy Hours konnten nicht geladen werden.'} />
       ) : happyHours.length === 0 ? (
-        <EmptyState message="Heute sind keine Happy Hours eingetragen." />
+        <EmptyState message="Aktuell sind keine Happy Hours eingetragen." />
       ) : (
-        <HorizontalCardList accessibilityLabel="Happy Hours heute">
+        <HorizontalCardList accessibilityLabel="Happy Hours dieser Location">
           {happyHours.map((happyHour) => (
             <HappyHourCard
               key={happyHour.id}
-              locationName={happyHour.locationName}
+              locationName={locationName}
               weekdayLabel={WEEKDAY_LABELS[happyHour.weekday]}
               startTime={happyHour.start_time}
               endTime={happyHour.end_time}

@@ -92,15 +92,20 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Error-/Empty-State
 - [x] Live-Auslastungs-Anzeige pro Location (Leer/Mittel/Voll) — Marker-Farbe + Bottom-Sheet-Badge über
   `location_live_status`, per Realtime aktualisiert (kein kompletter Reload)
-- [ ] Location-Detailansicht (Öffnungszeiten, Specials, Events) — Bottom Sheet zeigt bereits Happy
-  Hours/Specials/aktuelle Events kompakt; der „Details"-Button navigiert vorerst zu einem
-  Platzhalter-Screen (`LocationDetailScreen`), der eigentliche Detail-Screen ist ein eigener Auftrag
+- [x] Location-Detailansicht (Öffnungszeiten, Specials, Events) — vollständiger `LocationDetailScreen`:
+  Hero-Header (Bild, Scrim, Zurück/Teilen/Favorit, Auslastung, Distanz, Kategorie), Grundinformationen
+  inkl. Geöffnet/Geschlossen-Status, Live-Auslastung (Realtime, kein kompletter Reload), aktive Happy
+  Hours/Specials, heutige Events (Vorschau, Klick navigiert zum `EventDetail`-Platzhalter), Bewertungen
+  (Durchschnitt/Anzahl/Liste, ohne Reviewer-Namen — RLS erlaubt normalen Nutzern nur das Lesen des
+  eigenen Profils), Route öffnen/Teilen/Favorit. Website/Telefonnummer bewusst nicht enthalten (Felder
+  existieren nicht im Datenmodell, Product-Owner-Entscheidung)
 
 ## Events
 
 - [ ] Tagesprogramm-Ansicht
 - [ ] Kommende Events
-- [ ] Event-Detailansicht (Künstler, Startzeit, Location)
+- [ ] Event-Detailansicht (Künstler, Startzeit, Location) — bislang nur Platzhalter-Screen
+  (`EventDetailScreen`) als Navigationsziel von der Live-Karte/Location Detail aus, kein eigener Auftrag
 
 ## Artists
 
@@ -110,9 +115,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Favorites
 
-- [ ] Locations speichern
+- [x] Locations speichern — Favoriten-Herz im `LocationDetailScreen`-Header (`useLocationFavorite`,
+  `FavoriteService.toggleFavorite`); auch bereits als Filter auf der Live-Karte nutzbar
 - [ ] Künstler speichern
-- [ ] Übersicht gespeicherter Favoriten
+- [ ] Übersicht gespeicherter Favoriten — eigener Favoriten-Screen, nicht Teil dieses Auftrags
 - [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
 
 ## Profile

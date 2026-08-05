@@ -1,18 +1,20 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { EventDetailScreen } from '../features/events/screens/EventDetailScreen';
 import { HomeScreen } from '../features/home/screens/HomeScreen';
 import { LocationDetailScreen } from '../features/locations/screens/LocationDetailScreen';
 import { MapScreen } from '../features/map/screens/MapScreen';
 
 import type { MainStackParamList } from './types';
 
-// Haupt-App nach erfolgreichem Login. Zeigt Home Dashboard, Live-Karte und den Location-Detail-
-// Platzhalter (siehe docs/PRD.md Kapitel 10) über einen einfachen Stack — die endgültige Struktur
-// (5-Tab-Bottom-Navigation mit Community-Report-Schnellzugriff, Hamburger-Drawer, siehe docs/PRD.md
-// Kapitel 11, docs/Architecture.md Kapitel 7) wird erst mit den übrigen Tab-Screens (Events, Profil)
-// umgesetzt, da diese nicht Teil des Live-Map-Auftrags sind. Der bisherige Demo-Logout-Platzhalter
-// entfällt damit — „Abmelden" gehört fachlich zum (noch nicht umgesetzten) Profile-Screen
-// (docs/PRD.md Kapitel 10), nicht zum Home Dashboard.
+// Haupt-App nach erfolgreichem Login. Zeigt Home Dashboard, Live-Karte, den vollständigen
+// Location-Detail-Screen und den Event-Detail-Platzhalter (siehe docs/PRD.md Kapitel 10) über einen
+// einfachen Stack — die endgültige Struktur (5-Tab-Bottom-Navigation mit
+// Community-Report-Schnellzugriff, Hamburger-Drawer, siehe docs/PRD.md Kapitel 11,
+// docs/Architecture.md Kapitel 7) wird erst mit den übrigen Tab-Screens (Events, Profil) umgesetzt, da
+// diese nicht Teil des Location-Detail-Auftrags sind. Der bisherige Demo-Logout-Platzhalter entfällt
+// damit — „Abmelden" gehört fachlich zum (noch nicht umgesetzten) Profile-Screen (docs/PRD.md
+// Kapitel 10), nicht zum Home Dashboard.
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 export function MainNavigator() {
@@ -23,8 +25,9 @@ export function MainNavigator() {
       <Stack.Screen
         name="LocationDetail"
         component={LocationDetailScreen}
-        options={{ title: 'Location' }}
+        options={{ headerShown: false }}
       />
+      <Stack.Screen name="EventDetail" component={EventDetailScreen} options={{ title: 'Event' }} />
     </Stack.Navigator>
   );
 }

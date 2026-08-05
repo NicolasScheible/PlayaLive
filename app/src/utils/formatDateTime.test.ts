@@ -1,4 +1,4 @@
-import { formatDate, formatTime, formatTimeOfDay } from './formatDateTime';
+import { formatDate, formatRelativeTime, formatTime, formatTimeOfDay } from './formatDateTime';
 
 describe('formatDateTime', () => {
   describe('formatTime', () => {
@@ -19,6 +19,30 @@ describe('formatDateTime', () => {
   describe('formatDate', () => {
     it('formatiert ein Postgres-date im deutschen Format', () => {
       expect(formatDate('2026-08-04')).toBe('04.08.2026');
+    });
+  });
+
+  describe('formatRelativeTime', () => {
+    const now = new Date('2026-08-07T12:00:00.000Z');
+
+    it('zeigt „gerade eben" für unter einer Minute', () => {
+      expect(formatRelativeTime('2026-08-07T11:59:40.000Z', now)).toBe('gerade eben');
+    });
+
+    it('zeigt Minuten für unter einer Stunde', () => {
+      expect(formatRelativeTime('2026-08-07T11:45:00.000Z', now)).toBe('vor 15 Min.');
+    });
+
+    it('zeigt Stunden für unter einem Tag', () => {
+      expect(formatRelativeTime('2026-08-07T09:00:00.000Z', now)).toBe('vor 3 Std.');
+    });
+
+    it('zeigt Tage (Singular) für genau einen Tag', () => {
+      expect(formatRelativeTime('2026-08-06T12:00:00.000Z', now)).toBe('vor 1 Tag');
+    });
+
+    it('zeigt Tage (Plural) für mehrere Tage', () => {
+      expect(formatRelativeTime('2026-08-03T12:00:00.000Z', now)).toBe('vor 4 Tagen');
     });
   });
 });

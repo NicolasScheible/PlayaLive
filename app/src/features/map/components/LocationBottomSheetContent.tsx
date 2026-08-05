@@ -16,8 +16,8 @@ import type {
   LocationCategory,
   LocationLiveStatus,
   Special,
-  Weekday,
 } from '../../../types/entities';
+import { WEEKDAY_LABELS } from '../../../utils/weekdayLabels';
 
 // Bottom-Sheet-Inhalt gemäß Auftrag Punkt 5: „Bild, Name, Kategorie, aktuelle Auslastung, Happy Hours,
 // Specials, aktuell laufende Events, Entfernung, Button 'Details'". Ausschließlich Präsentation über
@@ -27,16 +27,6 @@ import type {
 const CATEGORY_LABELS: Record<LocationCategory, string> = {
   club: 'Club',
   bar: 'Bar',
-};
-
-const WEEKDAY_LABELS: Record<Weekday, string> = {
-  monday: 'Montag',
-  tuesday: 'Dienstag',
-  wednesday: 'Mittwoch',
-  thursday: 'Donnerstag',
-  friday: 'Freitag',
-  saturday: 'Samstag',
-  sunday: 'Sonntag',
 };
 
 const IMAGE_HEIGHT = 160;
