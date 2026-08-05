@@ -15,13 +15,17 @@ const MENU_BUTTON_SIZE = 44;
 // `onPressMenu` (optional) zeigt links das Hamburger-Icon „☰" — exakt der in docs/DesignSystem.md
 // Kapitel 16 dokumentierte Glyph („Icon „☰" oben links") — über den bestehenden generischen
 // `IconButton`. Ohne `onPressMenu` unverändert nur die zentrierte Wortmarke (bisheriges Verhalten
-// bleibt für Aufrufer ohne den neuen Prop erhalten). Suche/Benachrichtigung (Kapitel 16 rechts) bleiben
-// weiterhin bewusst außen vor, da die dahinterliegenden Screens nicht Teil dieses Arbeitsschritts sind.
+// bleibt für Aufrufer ohne den neuen Prop erhalten). `onPressSearch` (optional, Suche-Feature) zeigt
+// analog rechts das Lupen-Glyph „⌕" — Kapitel 16 „Übersichts-Screens zeigen Logo mittig + Suche/
+// Benachrichtigung/Kalender rechts" war bislang bewusst nicht umgesetzt, da der dahinterliegende
+// Suchscreen noch nicht existierte; Benachrichtigung/Kalender bleiben weiterhin außen vor (nicht Teil
+// dieses Arbeitsschritts). Ohne `onPressSearch` unverändert nur der Ausgleichs-Spacer.
 type HeaderProps = {
   onPressMenu?: () => void;
+  onPressSearch?: () => void;
 };
 
-export function Header({ onPressMenu }: HeaderProps = {}) {
+export function Header({ onPressMenu, onPressSearch }: HeaderProps = {}) {
   return (
     <View style={styles.container} accessibilityRole="header">
       {onPressMenu ? (
@@ -33,7 +37,11 @@ export function Header({ onPressMenu }: HeaderProps = {}) {
         Playa
         <Text style={styles.wordmarkAccent}>Live</Text>
       </Text>
-      <View style={styles.menuSpacer} />
+      {onPressSearch ? (
+        <IconButton glyph="⌕" accessibilityLabel="Suche öffnen" onPress={onPressSearch} />
+      ) : (
+        <View style={styles.menuSpacer} />
+      )}
     </View>
   );
 }

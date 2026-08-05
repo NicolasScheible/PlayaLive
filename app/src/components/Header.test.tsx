@@ -24,4 +24,20 @@ describe('Header', () => {
 
     expect(onPressMenu).toHaveBeenCalledTimes(1);
   });
+
+  it('zeigt ohne onPressSearch keinen Such-Button', () => {
+    render(<Header />);
+
+    expect(screen.queryByLabelText('Suche öffnen')).toBeNull();
+  });
+
+  it('zeigt mit onPressSearch einen Such-Button und ruft ihn beim Tippen auf', () => {
+    const onPressSearch = jest.fn();
+
+    render(<Header onPressSearch={onPressSearch} />);
+
+    fireEvent.press(screen.getByLabelText('Suche öffnen'));
+
+    expect(onPressSearch).toHaveBeenCalledTimes(1);
+  });
 });

@@ -46,4 +46,5 @@ export type MainStackParamList = {
     targetId: string;
     review?: { id: string; rating: number; commentText: string | null };
   };
+  Search: undefined;
 };

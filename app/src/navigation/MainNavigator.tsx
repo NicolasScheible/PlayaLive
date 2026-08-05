@@ -5,6 +5,7 @@ import { EventDetailScreen } from '../features/events/screens/EventDetailScreen'
 import { LocationDetailScreen } from '../features/locations/screens/LocationDetailScreen';
 import { CommunityReportScreen } from '../features/reports/screens/CommunityReportScreen';
 import { ReviewFormScreen } from '../features/reviews/screens/ReviewFormScreen';
+import { SearchScreen } from '../features/search/screens/SearchScreen';
 import { ChangePasswordScreen } from '../features/settings/screens/ChangePasswordScreen';
 import { PermissionsScreen } from '../features/settings/screens/PermissionsScreen';
 
@@ -64,6 +65,7 @@ export function MainNavigator() {
           title: route.params.review ? 'Bewertung bearbeiten' : 'Bewertung abgeben',
         })}
       />
+      <Stack.Screen name="Search" component={SearchScreen} options={{ title: 'Suche' }} />
     </Stack.Navigator>
   );
 }

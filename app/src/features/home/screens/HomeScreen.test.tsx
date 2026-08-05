@@ -37,6 +37,7 @@ describe('HomeScreen', () => {
     );
 
     expect(screen.getByLabelText('PlayaLive')).toBeTruthy();
+    expect(screen.getByLabelText('Suche öffnen')).toBeTruthy();
     expect(screen.getByText('Guten Abend, Lisa!')).toBeTruthy();
     expect(screen.getByText('LIVE AUSLASTUNG')).toBeTruthy();
     expect(screen.getByText('HIGHLIGHTS HEUTE')).toBeTruthy();

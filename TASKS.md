@@ -96,6 +96,21 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] Header, Begrüßung, Ladezustände (Skeleton), Fehlerzustände, Pull-to-Refresh je Section
   (`useHomeDashboard`, `src/components/Skeleton*`/`ErrorState`/`EmptyState`)
 
+## Suche
+
+- [x] Globale Suche über Locations, Events und Artists gleichzeitig — neuer `SearchScreen` (Stack-Route
+  `Search`, Einstieg über neues Lupen-Icon im `Header` auf dem Home Dashboard). Da keiner der
+  bestehenden Services (`LocationService`/`EventService`/`ArtistService`) serverseitige Textsuche
+  unterstützt, lädt `useGlobalSearch` die vollständigen Listen über dieselben Query-Keys wie an anderer
+  Stelle bereits etabliert (`['locations','list',{}]`/`['events','list',{}]`/`['artists','list',{}]` —
+  Cache-Wiederverwendung mit Home/Favoriten/Profil) und filtert clientseitig nach Name/Titel. Live Search
+  mit neuem, feature-übergreifendem `useDebouncedValue`-Hook (`src/hooks/`): leerer Suchtext löst keinen
+  Request aus, Requests laufen erst nach Debounce. Getrennte Bereiche (Locations/Events/Künstler), nur
+  Bereiche mit Treffern werden angezeigt, Treffer navigieren zu `LocationDetail`/`EventDetail`/
+  `ArtistDetail`. Neue generische `SearchResultRow`-Komponente (keine bestehende Zeilen-Komponente war
+  generisch genug), sonst ausschließlich bestehende Komponenten (`TextField`, `LoadingState`,
+  `ErrorState`, `EmptyState`, `SectionHeader`).
+
 ## Map Screen
 
 - [x] Live Map mit Locations (Clubs/Bars) — `MapScreen`, natives Mapbox-Clustering

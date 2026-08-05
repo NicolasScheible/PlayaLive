@@ -46,7 +46,10 @@ export function HomeScreen() {
         />
       }
     >
-      <Header onPressMenu={() => navigation.openDrawer()} />
+      <Header
+        onPressMenu={() => navigation.openDrawer()}
+        onPressSearch={() => navigation.navigate('Search')}
+      />
       <GreetingHeader
         greeting={dashboard.greeting.greeting}
         displayName={dashboard.greeting.displayName}
