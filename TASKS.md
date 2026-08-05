@@ -58,8 +58,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen` und `ArtistDetailScreen`, noch
-  als einfacher Stack ohne die übrigen Bottom-Tabs)
+  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen` und
+  `FavoritesScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -134,7 +134,13 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   `FavoriteService.toggleFavorite`)
 - [x] Künstler speichern — Favoriten-Herz im `ArtistDetailScreen`-Header (`useArtistFavorite`,
   `FavoriteService.toggleFavorite`)
-- [ ] Übersicht gespeicherter Favoriten — eigener Favoriten-Screen, nicht Teil dieses Auftrags
+- [x] Übersicht gespeicherter Favoriten — vollständiger `FavoritesScreen`: Tabs Locations/Events/Artists
+  (`FavoritesTabs`), je Tab bestehende `LocationCard`/`EventCard`/`ArtistCard` in vertikaler
+  Einspalten-Liste (docs/DesignSystem.md Kapitel 6) mit Favoriten-Herz zum direkten Entfernen
+  (optimistisches Update über TanStack Query), Klick navigiert zum jeweiligen Detail-Screen. Als eigene
+  Stack-Route (`Favorites`) registriert; ein Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü)
+  ist noch nicht Teil dieses Auftrags. Locations ohne Live-Auslastung (kein Batch-Endpunkt vorhanden,
+  hätte einen Report-Request je favorisierter Location erfordert)
 - [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
 
 ## Profile

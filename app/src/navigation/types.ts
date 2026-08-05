@@ -7,15 +7,16 @@ export type AuthStackParamList = {
 };
 
 // Haupt-App-Stack (siehe docs/Architecture.md Kapitel 7). `LocationDetail`/`EventDetail`/`ArtistDetail`
-// sind laut docs/DesignSystem.md Kapitel 17 eigene Stack-Screens (kein Modal/Bottom-Sheet).
-// `ArtistDetail` ist vorerst ein Platzhalter (Navigationsziel für die „Künstler"-Liste auf Event
-// Detail, siehe features/artists/screens/ArtistDetailScreen.tsx) — der eigentliche
-// Artist-Detail-Screen ist nicht Teil des Event-Detail-Auftrags. Die endgültige
-// 5-Tab-Bottom-Navigation (docs/Architecture.md Kapitel 7) entsteht erst mit den übrigen Tab-Screens
-// (Events, Profile) — `Map` ist hier als weiterer Stack-Screen verdrahtet, nicht als Tab.
+// sind laut docs/DesignSystem.md Kapitel 17 eigene Stack-Screens (kein Modal/Bottom-Sheet). Die
+// endgültige 5-Tab-Bottom-Navigation mit Hamburger-Menü (docs/Architecture.md Kapitel 7,
+// docs/PRD.md Kapitel 11) entsteht erst mit den übrigen Tab-/Menü-Screens (Profile, Settings) — `Map`
+// und `Favorites` sind hier als weitere Stack-Screens verdrahtet, nicht als Tab/Menüpunkt; `Favorites`
+// hat (anders als die Detail-Screens) noch keinen Einstiegspunkt aus der übrigen Navigation (der wäre
+// Teil des noch nicht umgesetzten Hamburger-Menüs), ist aber bereits als eigenständige Route erreichbar.
 export type MainStackParamList = {
   Main: undefined;
   Map: undefined;
+  Favorites: undefined;
   LocationDetail: { locationId: string };
   EventDetail: { eventId: string };
   ArtistDetail: { artistId: string };
