@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase-Konfigurationsdateien enthalten Projekt-/API-Schlüssel (docs/ADR/008-Security.md:
+# „API-Schlüssel, Tokens oder Zugangsdaten dürfen niemals im Quellcode oder Repository landen") —
+# lokal ablegen bzw. für CI/Produktion über EAS Secrets bereitstellen, siehe app.json
+# (android.googleServicesFile) und .env.example.
+google-services.json
+GoogleService-Info.plist
