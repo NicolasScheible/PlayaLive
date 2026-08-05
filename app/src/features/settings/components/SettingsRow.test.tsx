@@ -25,4 +25,14 @@ describe('SettingsRow', () => {
 
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('zeigt einen Switch, wenn toggle übergeben wird, und ruft onValueChange auf', () => {
+    const onValueChange = jest.fn();
+
+    render(<SettingsRow label="Benachrichtigungen" toggle={{ value: false, onValueChange }} />);
+
+    fireEvent(screen.getByLabelText('Benachrichtigungen'), 'valueChange', true);
+
+    expect(onValueChange).toHaveBeenCalledWith(true);
+  });
 });

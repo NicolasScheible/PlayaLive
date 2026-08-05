@@ -5,7 +5,10 @@ import type { ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useForegroundNotifications } from './features/notifications/hooks/useForegroundNotifications';
+import { useNotificationListeners } from './features/notifications/hooks/useNotificationListeners';
 import { queryClient } from './lib/queryClient';
+import { navigationRef } from './navigation/navigationRef';
 import { RootNavigator } from './navigation/RootNavigator';
 
 // Globaler AppProvider (siehe docs/Architecture.md Kapitel 5, 8, 10): bündelt die app-weiten,
@@ -23,11 +26,17 @@ function AppProviders({ children }: { children: ReactNode }) {
 }
 
 // Einstiegspunkt der App (siehe docs/Architecture.md Kapitel 5): Auth-Gate (Login-Pflicht) vor der
-// Hauptnavigation läuft über den RootNavigator (docs/ADR/002-Authentication.md).
+// Hauptnavigation läuft über den RootNavigator (docs/ADR/002-Authentication.md). `navigationRef` am
+// `NavigationContainer` sowie die beiden Notification-Listener-Hooks sind app-weite Infrastruktur für
+// das Push-Notification-Feature (docs/ADR/007-Notifications.md) — Registrierung/Berechtigung selbst
+// laufen weiterhin über den nutzerinitiierten Einstieg im Settings-Screen, nicht automatisch beim Start.
 export default function App() {
+  useNotificationListeners();
+  useForegroundNotifications();
+
   return (
     <AppProviders>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <RootNavigator />
       </NavigationContainer>
       <StatusBar style="light" />

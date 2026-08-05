@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import type { AppError } from '../../../lib/errors';
 import { queryClient } from '../../../lib/queryClient';
 import { AuthService } from '../../../services/AuthService';
+import { NotificationService } from '../../../services/NotificationService';
 import { useAuthStore } from '../../../store/authStore';
 
 // Feature-Hook für Auth (siehe docs/Architecture.md Kapitel 5/6): kapselt die Kommunikation zwischen
@@ -67,6 +68,11 @@ export function useAuth() {
     setError(null);
 
     try {
+      // Push-Token-Lebenszyklus (docs/ADR/007-Notifications.md „Konsequenzen": „Entfernung bei
+      // Logout"). Muss vor `signOut()` passieren — danach fehlt die Session, über die
+      // `NotificationService.removePushToken()` den eigenen Profil-Datensatz identifiziert. Ein
+      // Fehlschlag (z. B. kein registriertes Token) darf den Logout selbst nicht verhindern.
+      await NotificationService.removePushToken().catch(() => undefined);
       await AuthService.signOut();
       // Verhindert, dass zwischengespeicherte Daten des vorherigen Nutzers nach dem Logout sichtbar
       // bleiben (z. B. bei Gerätewechsel/Mehrfachnutzung desselben Geräts).

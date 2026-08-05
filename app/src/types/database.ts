@@ -19,6 +19,8 @@ export type Database = {
           reports_count: number;
           confirmed_reports: number;
           rejected_reports: number;
+          push_token: string | null;
+          push_notifications_enabled: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -33,6 +35,8 @@ export type Database = {
           reports_count?: number;
           confirmed_reports?: number;
           rejected_reports?: number;
+          push_token?: string | null;
+          push_notifications_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -47,6 +51,8 @@ export type Database = {
           reports_count?: number;
           confirmed_reports?: number;
           rejected_reports?: number;
+          push_token?: string | null;
+          push_notifications_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };

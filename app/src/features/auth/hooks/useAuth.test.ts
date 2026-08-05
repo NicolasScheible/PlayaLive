@@ -13,6 +13,10 @@ jest.mock('../../../services/AuthService', () => ({
   },
 }));
 
+jest.mock('../../../services/NotificationService', () => ({
+  NotificationService: { removePushToken: jest.fn() },
+}));
+
 jest.mock('../../../lib/queryClient', () => ({
   queryClient: { clear: jest.fn() },
 }));
@@ -20,6 +24,7 @@ jest.mock('../../../lib/queryClient', () => ({
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { queryClient } = require('../../../lib/queryClient');
 const { AuthService } = require('../../../services/AuthService');
+const { NotificationService } = require('../../../services/NotificationService');
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 describe('useAuth', () => {
@@ -63,6 +68,7 @@ describe('useAuth', () => {
 
   it('leert den Query-Cache beim Logout', async () => {
     AuthService.signOut.mockResolvedValue(undefined);
+    NotificationService.removePushToken.mockResolvedValue(undefined);
     const { result } = renderHook(() => useAuth());
 
     await act(async () => {
@@ -71,6 +77,32 @@ describe('useAuth', () => {
 
     expect(AuthService.signOut).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
+  });
+
+  it('entfernt das Push-Token vor dem Abmelden (ADR-007: Token-Lebenszyklus)', async () => {
+    AuthService.signOut.mockResolvedValue(undefined);
+    NotificationService.removePushToken.mockResolvedValue(undefined);
+    const { result } = renderHook(() => useAuth());
+
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    expect(NotificationService.removePushToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('meldet trotzdem ab, wenn das Entfernen des Push-Tokens fehlschlägt', async () => {
+    AuthService.signOut.mockResolvedValue(undefined);
+    NotificationService.removePushToken.mockRejectedValue(new Error('kein Token registriert'));
+    const { result } = renderHook(() => useAuth());
+
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    expect(AuthService.signOut).toHaveBeenCalled();
+    expect(queryClient.clear).toHaveBeenCalled();
+    expect(result.current.error).toBeNull();
   });
 
   it('liefert user aus der Session aus dem authStore', () => {

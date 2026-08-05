@@ -22,7 +22,8 @@ keinen Gastzugriff (siehe `docs/PRD.md` Kapitel 12).
 
 - Felder (geplant): id, E-Mail, Anzeigename, Profilbild, Rolle (`user` / `location_manager` [v2.x] /
   `admin` / `super_admin`), trust_score, trust_level, reports_count, confirmed_reports,
-  rejected_reports, erstellt am, aktualisiert am
+  rejected_reports, Push-Token (Firebase Cloud Messaging, siehe `docs/ADR/007-Notifications.md`),
+  Benachrichtigungen aktiviert (Ja/Nein), erstellt am, aktualisiert am
 - Beziehungen: hat viele Favorites, hat viele Reports, hat viele Report Flags, hat viele
   Trust-Score-Events, empfängt viele Notifications, hat viele Reviews, hat viele Review Flags
 

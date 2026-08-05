@@ -159,8 +159,10 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Konto (Profil bearbeiten → `ProfileScreen`, Passwort ändern → neuer `ChangePasswordScreen` über
   `AuthService.changePassword()`/`supabase.auth.updateUser()`, E-Mail-Verifizierung aus dem bestehenden
   `authStore` ohne zusätzlichen Request, Konto deaktivieren/löschen), App (Sprache, Dark Mode — beide nur
-  Anzeige, da weder eine i18n-Bibliothek noch ein Light-Mode dokumentiert sind, Benachrichtigungen),
-  Datenschutz (Datenschutzerklärung, Datenexport, Berechtigungen → neuer `PermissionsScreen` mit
+  Anzeige, da weder eine i18n-Bibliothek noch ein Light-Mode dokumentiert sind; Benachrichtigungen
+  zunächst als Platzhalter, seit dem Push-Notification-Feature ein echter Ein/Aus-Schalter — siehe
+  Abschnitt „Notifications"), Datenschutz (Datenschutzerklärung, Datenexport, Berechtigungen → neuer
+  `PermissionsScreen` mit
   Standort-/Fotomediathek-Status über `useUserLocation`/neuen `usePhotoLibraryPermission`-Hook und
   `Linking.openSettings()`), Support (Hilfe, Feedback senden, App bewerten), Rechtliches (Impressum,
   Datenschutz, Nutzungsbedingungen). Konto löschen/deaktivieren, Datenexport sowie alle Einträge ohne
@@ -233,10 +235,28 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Notifications
 
-- [ ] Firebase Notifications eingerichtet
-- [ ] Push-Token-Registrierung mit Supabase verknüpft
-- [ ] Benachrichtigungstypen definiert (Favoriten-Update, Event startet bald, Special)
-- [ ] Nutzer-Einstellungen für Benachrichtigungen
+- [x] Firebase Notifications eingerichtet — `NotificationService` als einzige Stelle mit Zugriff auf
+  `@react-native-firebase/messaging` (ADR-007): Berechtigung anfragen/lesen (iOS über die
+  Firebase-API, Android 13+ über `PermissionsAndroid.POST_NOTIFICATIONS`, da die Firebase-Methoden auf
+  Android laut SDK-Dokumentation ein No-op sind), Foreground-Anzeige über `Alert`
+  (`useForegroundNotifications`, keine Toast-Komponente im Designsystem), Background-/Quit-State-Tap
+  löst über den bestehenden `navigationRef` eine Navigation zum passenden, bereits bestehenden
+  Detail-Screen aus (`LocationDetail`/`EventDetail`/`ArtistDetail`, `useNotificationListeners`) — keine
+  neue Navigation, nur Wiederverwendung der bestehenden Stack-Routen. Background-Handler in `index.ts`
+  registriert (Firebase-Vorgabe: außerhalb des React-Lifecycles).
+- [x] Push-Token-Registrierung mit Supabase verknüpft — nach Rückfrage beim Product Owner (die
+  ursprüngliche `notifications`-Migration hatte dies bewusst offengelassen) über zwei neue, additive
+  Spalten auf `profiles` (`push_token`, `push_notifications_enabled`,
+  `supabase/migrations/20260805090000_notifications_push_settings.sql`), verwaltet vom
+  `NotificationService` (Registrierung beim Einschalten in den Settings, Aktualisierung bei
+  Token-Wechsel über `onTokenRefresh`, Entfernung beim Logout in `useAuth`).
+- [ ] Benachrichtigungstypen definiert (Favoriten-Update, Event startet bald, Special) — serverseitige
+  Erzeugungslogik/Trigger sind nicht Teil dieses Schritts (Auftrag beschränkt auf Empfang/Anzeige/
+  Navigation bestehender Notifications), `related_type`/`related_id` unterstützen client-seitig bereits
+  Location/Artist/Event.
+- [x] Nutzer-Einstellungen für Benachrichtigungen — Settings-Screen, Bereich „App": Ein/Aus-Schalter
+  (`useNotificationSettings`, liest/schreibt `push_notifications_enabled` über den bestehenden
+  `['home', 'profile']`-Query-Key, keine granularen Typen — Auftrag verlangt explizit nur „Ein/Aus").
 
 ## Wetter
 

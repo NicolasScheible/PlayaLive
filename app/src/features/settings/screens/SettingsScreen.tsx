@@ -1,17 +1,18 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet } from 'react-native';
 
 import type { MainStackParamList } from '../../../navigation/types';
 import { theme } from '../../../theme/theme';
 import { SettingsRow } from '../components/SettingsRow';
 import { SettingsSection } from '../components/SettingsSection';
+import { useNotificationSettings } from '../hooks/useNotificationSettings';
 import { useSettingsScreen } from '../hooks/useSettingsScreen';
 
 // Vollständiger Settings-Screen (löst den bisherigen Platzhalter ab), orchestriert ausschließlich über
-// `useSettingsScreen()` (CLAUDE.md → Vorgehensweise: keine Business-Logik/kein Datenzugriff im
-// Screen, ausschließlich Hooks). Titel/Zurück-Button kommen vom nativen Stack-Header (analog zu
-// `Favorites`/`Profile`/`CommunityReport`).
+// `useSettingsScreen()`/`useNotificationSettings()` (CLAUDE.md → Vorgehensweise: keine Business-Logik/
+// kein Datenzugriff im Screen, ausschließlich Hooks). Titel/Zurück-Button kommen vom nativen
+// Stack-Header (analog zu `Favorites`/`Profile`/`CommunityReport`).
 //
 // Mehrere im Auftrag geforderte Einträge (Konto löschen/deaktivieren, Datenexport,
 // Datenschutzerklärung, Impressum, Nutzungsbedingungen, Hilfe, Feedback senden, App bewerten) haben
@@ -30,6 +31,8 @@ function showComingSoon(label: string) {
 export function SettingsScreen() {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const { email, isEmailVerified } = useSettingsScreen();
+  const notificationSettings = useNotificationSettings();
+  const isPushDenied = notificationSettings.permissionStatus === 'denied';
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -56,7 +59,13 @@ export function SettingsScreen() {
         <SettingsRow label="Dark Mode" value="Aktiv" />
         <SettingsRow
           label="Benachrichtigungen"
-          onPress={() => showComingSoon('Benachrichtigungen')}
+          value={isPushDenied ? 'In den Einstellungen erlauben' : undefined}
+          onPress={isPushDenied ? () => Linking.openSettings() : undefined}
+          toggle={{
+            value: notificationSettings.enabled,
+            onValueChange: notificationSettings.toggle,
+            disabled: notificationSettings.isSaving || isPushDenied,
+          }}
         />
       </SettingsSection>
 

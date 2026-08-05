@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, Linking } from 'react-native';
 
 import { SettingsScreen } from './SettingsScreen';
 
 const mockNavigate = jest.fn();
 const mockUseSettingsScreen = jest.fn();
+const mockUseNotificationSettings = jest.fn();
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: mockNavigate }),
@@ -14,12 +15,23 @@ jest.mock('../hooks/useSettingsScreen', () => ({
   useSettingsScreen: () => mockUseSettingsScreen(),
 }));
 
+jest.mock('../hooks/useNotificationSettings', () => ({
+  useNotificationSettings: () => mockUseNotificationSettings(),
+}));
+
 describe('SettingsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseSettingsScreen.mockReturnValue({
       email: 'dj@example.com',
       isEmailVerified: true,
+    });
+    mockUseNotificationSettings.mockReturnValue({
+      enabled: false,
+      permissionStatus: 'undetermined',
+      isSaving: false,
+      error: null,
+      toggle: jest.fn(),
     });
   });
 
@@ -83,5 +95,41 @@ describe('SettingsScreen', () => {
       'Konto löschen',
       'Diese Funktion ist noch nicht verfügbar.',
     );
+  });
+
+  it('ruft toggle() aus useNotificationSettings beim Umschalten von Benachrichtigungen auf', () => {
+    const toggle = jest.fn();
+    mockUseNotificationSettings.mockReturnValue({
+      enabled: false,
+      permissionStatus: 'undetermined',
+      isSaving: false,
+      error: null,
+      toggle,
+    });
+
+    render(<SettingsScreen />);
+
+    fireEvent(screen.getByLabelText('Benachrichtigungen'), 'valueChange', true);
+
+    expect(toggle).toHaveBeenCalledWith(true);
+  });
+
+  it('zeigt bei verweigerter Push-Berechtigung einen Hinweis und öffnet die Systemeinstellungen', () => {
+    const openSettingsSpy = jest.spyOn(Linking, 'openSettings').mockResolvedValue();
+    mockUseNotificationSettings.mockReturnValue({
+      enabled: false,
+      permissionStatus: 'denied',
+      isSaving: false,
+      error: null,
+      toggle: jest.fn(),
+    });
+
+    render(<SettingsScreen />);
+
+    expect(screen.getByText('In den Einstellungen erlauben')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('In den Einstellungen erlauben'));
+
+    expect(openSettingsSpy).toHaveBeenCalledTimes(1);
   });
 });
