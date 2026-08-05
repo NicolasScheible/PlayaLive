@@ -58,8 +58,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen` und den `ArtistDetail`-
-  Platzhalter, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
+  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen` und `ArtistDetailScreen`, noch
+  als einfacher Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -110,16 +110,21 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Eventinformationen (Beschreibung, Beginn, Ende, Veranstaltungsort, Distanz — keine
   Altersbeschränkung/Eintritt, da nicht im Datenmodell), Location (wiederverwendete `LocationCard` inkl.
   Live-Auslastung, Klick navigiert zum `LocationDetailScreen`), Künstlerliste (Klick navigiert zum
-  `ArtistDetail`-Platzhalter), aktive Happy Hours/Specials der Location, Route öffnen/Teilen/Favorit.
-  Keine Ticket-/Payment-Funktion, keine Reservierungen (explizit ausgeschlossen)
+  vollständigen `ArtistDetailScreen`), aktive Happy Hours/Specials der Location, Route öffnen/Teilen/
+  Favorit. Keine Ticket-/Payment-Funktion, keine Reservierungen (explizit ausgeschlossen)
 
 ## Artists
 
-- [ ] Künstlerprofile (DJs) — bislang nur Platzhalter-Screen (`ArtistDetailScreen`) als Navigationsziel
-  von der Künstlerliste auf Event Detail aus, kein eigener Auftrag
-- [ ] Auftritte (aktuelle/kommende) pro Künstler
-- [ ] Künstler favorisierbar — `FavoriteService`/`favorite_target_type` unterstützt „artist" bereits,
-  aber ohne echten Artist-Detail-Screen kein UI-Zugriffspunkt
+- [x] Künstlerprofile (DJs) — vollständiger `ArtistDetailScreen`: Hero-Header (Bild, Scrim, Zurück/
+  Teilen/Favorit, Name, Genres), Künstlerinformationen (Biografie, Genres, Social Links — Instagram/
+  Spotify/YouTube/TikTok, nur tatsächlich gesetzte URLs; kein Verifizierungs-Status, da kein
+  entsprechendes Feld im Datenmodell)
+- [x] Auftritte (aktuelle/kommende) pro Künstler — „Aktueller Auftritt" (nur sichtbar, falls laut
+  Zeitfenster-Logik von `EventService.getCurrentEvents()` gerade ein Event läuft, inkl. Location, Klick
+  navigiert zum `EventDetailScreen`) und „Kommende Events" (Vorschauliste, Klick navigiert ebenfalls zum
+  `EventDetailScreen`)
+- [x] Künstler favorisierbar — Favoriten-Herz im `ArtistDetailScreen`-Header (`useArtistFavorite`,
+  `FavoriteService.toggleFavorite`)
 
 ## Favorites
 
@@ -127,7 +132,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   `FavoriteService.toggleFavorite`); auch bereits als Filter auf der Live-Karte nutzbar
 - [x] Events speichern — Favoriten-Herz im `EventDetailScreen`-Header (`useEventFavorite`,
   `FavoriteService.toggleFavorite`)
-- [ ] Künstler speichern — Artist Detail selbst ist noch kein eigener Auftrag
+- [x] Künstler speichern — Favoriten-Herz im `ArtistDetailScreen`-Header (`useArtistFavorite`,
+  `FavoriteService.toggleFavorite`)
 - [ ] Übersicht gespeicherter Favoriten — eigener Favoriten-Screen, nicht Teil dieses Auftrags
 - [ ] Benachrichtigungen bei Neuigkeiten zu Favoriten
 
