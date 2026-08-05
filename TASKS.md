@@ -59,7 +59,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
   `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen`,
-  `FavoritesScreen` und `ProfileScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
+  `FavoritesScreen`, `ProfileScreen` und `CommunityReportScreen`, noch als einfacher Stack ohne die
+  übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -193,7 +194,17 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Community Reports
 
-- [ ] Report-Flow: Nutzer meldet Auslastung einer Location
+- [x] Report-Flow: Nutzer meldet Auslastung einer Location — vollständiger `CommunityReportScreen`:
+  ausgewählte Location (Bild, Name), aktuelle Live-Auslastung + Zeit der letzten Meldung
+  (`OccupancyBadge`, Realtime über den bestehenden `RealtimeService`), Entfernung (bestehende
+  `distanceMeters`-Utility), Formular mit ausschließlich den drei Auslastungsstufen (Wenig los/Gut
+  besucht/Sehr voll — keine Prozentwerte, keine Freitexte), Geofencing-Hinweis/-Sperre clientseitig
+  gespiegelt (150 m, serverseitig ohnehin durchgesetzt), Erfolgszustand mit automatischem Rücksprung,
+  Fehlerzustände (Geofencing/Rate-Limit/Netzwerk) über die bestehende `ErrorState`. Vollständig über den
+  bereits bestehenden `ReportService` (Validierung, Rate Limiting, Geofencing, Trust-Score-Gewichtung
+  bleiben serverseitig bzw. im Service, keine neue Logik im Screen). Als eigene Stack-Route
+  (`CommunityReport: { locationId }`) registriert; der eigentliche zentrale Schnellzugriff-Button der
+  Bottom Navigation (docs/PRD.md Kapitel 11) ist noch nicht Teil dieses Auftrags.
 - [ ] Validierung/Aggregation mehrerer Reports pro Location
 - [ ] Anzeige der aktuellen Auslastung basierend auf Reports
 
