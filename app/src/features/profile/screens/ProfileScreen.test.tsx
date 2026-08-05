@@ -102,7 +102,7 @@ describe('ProfileScreen', () => {
     expect(baseResult.avatarUpload.pickAndUploadAvatar).toHaveBeenCalledTimes(1);
   });
 
-  it('navigiert bei einer Location-Review zum Location-Detail-Screen', () => {
+  it('navigiert bei einer Location-Review zur Bearbeitung im ReviewForm-Screen', () => {
     mockUseProfileScreen.mockReturnValue({
       ...baseResult,
       stats: {
@@ -131,10 +131,14 @@ describe('ProfileScreen', () => {
 
     fireEvent.press(screen.getByText('Test Club'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('LocationDetail', { locationId: 'loc-1' });
+    expect(mockNavigate).toHaveBeenCalledWith('ReviewForm', {
+      targetType: 'location',
+      targetId: 'loc-1',
+      review: { id: 'review-1', rating: 5, commentText: null },
+    });
   });
 
-  it('navigiert bei einer Artist-Review zum Artist-Detail-Screen', () => {
+  it('navigiert bei einer Artist-Review zur Bearbeitung im ReviewForm-Screen', () => {
     mockUseProfileScreen.mockReturnValue({
       ...baseResult,
       stats: {
@@ -163,7 +167,11 @@ describe('ProfileScreen', () => {
 
     fireEvent.press(screen.getByText('DJ Test Artist'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('ArtistDetail', { artistId: 'artist-1' });
+    expect(mockNavigate).toHaveBeenCalledWith('ReviewForm', {
+      targetType: 'artist',
+      targetId: 'artist-1',
+      review: { id: 'review-2', rating: 4, commentText: null },
+    });
   });
 
   it('ruft logout über den bestehenden useAuth-Hook beim Tippen auf Abmelden auf', () => {

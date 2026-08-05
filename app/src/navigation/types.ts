@@ -1,5 +1,7 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+import type { ReviewTargetType } from '../types/entities';
+
 // Navigationstypen für den AuthNavigator (siehe docs/Architecture.md Kapitel 7). Weitere Stacks
 // (Main, Tabs, Drawer) erhalten eigene Param-Lists, sobald die jeweiligen Features entstehen.
 export type AuthStackParamList = {
@@ -39,4 +41,9 @@ export type MainStackParamList = {
   LocationDetail: { locationId: string };
   EventDetail: { eventId: string };
   ArtistDetail: { artistId: string };
+  ReviewForm: {
+    targetType: ReviewTargetType;
+    targetId: string;
+    review?: { id: string; rating: number; commentText: string | null };
+  };
 };

@@ -112,6 +112,18 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   (Durchschnitt/Anzahl/Liste, ohne Reviewer-Namen — RLS erlaubt normalen Nutzern nur das Lesen des
   eigenen Profils), Route öffnen/Teilen/Favorit. Website/Telefonnummer bewusst nicht enthalten (Felder
   existieren nicht im Datenmodell, Product-Owner-Entscheidung)
+- [x] Community-Review-Feature (Erstellen/Bearbeiten/Löschen/Melden) — eigene Bewertung abgeben über
+  neuen `ReviewFormScreen` (Stack-Route `ReviewForm`, Sternebewertung + optionaler Kommentar, gemeinsam
+  für Erstellen und Bearbeiten anhand des optionalen `review`-Route-Parameters), Bearbeiten mit
+  vorausgefüllten Werten, Löschen als Soft Delete über bestehenden `ReviewService.deleteReview()` mit
+  `Alert.alert`-Bestätigungsdialog, Melden fremder Bewertungen über den bestehenden
+  `review_flags`-Mechanismus (`ReviewService.flagReview()`) im generischen `BottomSheet`
+  (`FlagReviewSheet`). `LocationReviewsSection` um eigene Bewertung
+  (Bearbeiten/Löschen-Links) sowie „Melden" bei fremden Bewertungen erweitert; `useLocationReviews`
+  leitet `ownReview` ohne zusätzlichen Request aus der bereits geladenen Liste ab. Neue, lokale Hooks
+  `useDeleteReview`/`useFlagReview` in `features/locations/` (Feature-Isolation), `useCreateReview`/
+  `useUpdateReview` im neuen `features/reviews/`-Modul. Reines UI-/Hook-Feature auf der bereits
+  vollständigen Datenschicht (`ReviewService`/`ReviewRepository`/Migration unverändert)
 
 ## Events
 
@@ -162,7 +174,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   `expo-image-picker` + neuen `StorageService`, Upload in den bereits vorbereiteten `profiles`-Bucket),
   Benutzername (`profiles.display_name` — ein Feld, kein separates „Anzeigename"-Feld im Datenmodell,
   daher nur einmal angezeigt/editierbar), E-Mail (nicht editierbar), Mitglied seit, Trust Score, Anzahl
-  Reports/Reviews/Favoriten, eigene Bewertungen (Klick navigiert zu Location-/Artist-Detail), eigene
+  Reports/Reviews/Favoriten, eigene Bewertungen (Klick navigiert direkt zur Bearbeitung im
+  `ReviewFormScreen`, siehe Community-Review-Feature im Abschnitt „Map Screen"), eigene
   Community Reports. `ReviewService`/`ReviewRepository` um `getOwnReviews()`/`findByUser()` ergänzt
   (analog zu `ReportService.getOwnReports()`, docs/API.md Kapitel 9 aktualisiert). Als eigene
   Drawer-Route (`Profile`) registriert; der Einstiegspunkt aus der übrigen Navigation ist seit der

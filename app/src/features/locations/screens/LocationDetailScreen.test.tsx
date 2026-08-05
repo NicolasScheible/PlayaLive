@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { Linking, Share } from 'react-native';
+import { Alert, Linking, Share } from 'react-native';
 
 import { LocationDetailScreen } from './LocationDetailScreen';
 
@@ -57,7 +57,9 @@ const baseResult = {
   happyHours: { happyHours: [], ...emptySection },
   specials: { specials: [], ...emptySection },
   todayEvents: { events: [], ...emptySection },
-  reviews: { reviews: [], averageRating: null, reviewCount: 0, ...emptySection },
+  reviews: { reviews: [], averageRating: null, reviewCount: 0, ownReview: null, ...emptySection },
+  deleteReview: { deleteReview: jest.fn(), isDeleting: false, error: null },
+  flagReview: { flagReview: jest.fn(), isSubmitting: false, error: null },
   favorite: {
     isFavorited: false,
     toggleFavorite: jest.fn(),
@@ -65,6 +67,18 @@ const baseResult = {
     isToggling: false,
     error: null,
   },
+};
+
+const review = {
+  id: 'rev-1',
+  user_id: 'user-1',
+  target_type: 'location' as const,
+  target_id: 'loc-1',
+  rating: 4,
+  comment_text: 'Ganz ok.',
+  created_at: new Date().toISOString(),
+  updated_at: '',
+  deleted_at: null,
 };
 
 describe('LocationDetailScreen', () => {
@@ -175,5 +189,93 @@ describe('LocationDetailScreen', () => {
     fireEvent.press(screen.getByText('Opening Party'));
 
     expect(mockNavigate).toHaveBeenCalledWith('EventDetail', { eventId: 'ev-1' });
+  });
+
+  it('navigiert beim Tippen auf „Bewertung abgeben" zum ReviewForm-Screen', () => {
+    renderScreen();
+
+    fireEvent.press(screen.getByText('Bewertung abgeben'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('ReviewForm', {
+      targetType: 'location',
+      targetId: 'loc-1',
+    });
+  });
+
+  it('navigiert beim Tippen auf „Bearbeiten" mit den vorhandenen Werten zum ReviewForm-Screen', () => {
+    mockUseLocationDetailScreen.mockReturnValue({
+      ...baseResult,
+      reviews: {
+        reviews: [review],
+        averageRating: 4,
+        reviewCount: 1,
+        ownReview: review,
+        ...emptySection,
+      },
+    });
+
+    renderScreen();
+
+    fireEvent.press(screen.getByText('Bearbeiten'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('ReviewForm', {
+      targetType: 'location',
+      targetId: 'loc-1',
+      review: { id: 'rev-1', rating: 4, commentText: 'Ganz ok.' },
+    });
+  });
+
+  it('löscht die eigene Bewertung nach Bestätigung im Dialog', () => {
+    mockUseLocationDetailScreen.mockReturnValue({
+      ...baseResult,
+      reviews: {
+        reviews: [review],
+        averageRating: 4,
+        reviewCount: 1,
+        ownReview: review,
+        ...emptySection,
+      },
+    });
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
+      const confirmButton = buttons?.find((button) => button.style === 'destructive');
+      confirmButton?.onPress?.();
+    });
+
+    renderScreen();
+
+    fireEvent.press(screen.getByText('Löschen'));
+
+    expect(alertSpy).toHaveBeenCalled();
+    expect(baseResult.deleteReview.deleteReview).toHaveBeenCalledWith('rev-1');
+  });
+
+  it('meldet eine fremde Bewertung über das Bottom Sheet', () => {
+    const otherReview = { ...review, id: 'rev-2', user_id: 'user-2' };
+    mockUseLocationDetailScreen.mockReturnValue({
+      ...baseResult,
+      reviews: {
+        reviews: [otherReview],
+        averageRating: 4,
+        reviewCount: 1,
+        ownReview: null,
+        ...emptySection,
+      },
+    });
+
+    renderScreen();
+
+    fireEvent.press(screen.getByText('Melden'));
+    fireEvent.changeText(
+      screen.getByPlaceholderText('Warum meldest du diese Bewertung?'),
+      'Beleidigend',
+    );
+
+    const submitButtons = screen.getAllByText('Melden');
+    fireEvent.press(submitButtons[submitButtons.length - 1]);
+
+    expect(baseResult.flagReview.flagReview).toHaveBeenCalledWith(
+      { reviewId: 'rev-2', reason: 'Beleidigend' },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
   });
 });

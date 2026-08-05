@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Button } from '../../../components/Button';
 import { EmptyState } from '../../../components/EmptyState';
 import { ErrorState } from '../../../components/ErrorState';
 import { ReviewListItem } from '../../../components/ReviewListItem';
@@ -15,23 +16,35 @@ import type { Review } from '../../../types/entities';
 // Liste mit Trennlinien statt horizontalem Karussell (docs/DesignSystem.md Kapitel 18 „Kompakte
 // Listenzeile ... durch dünne Trennlinien/Abstand statt Cards getrennt" — passender als das
 // Card-Karussell-Muster für textlastige Bewertungen). Durchschnitt/Anzahl kommen bereits berechnet vom
-// Hook (`useLocationReviews`).
+// Hook (`useLocationReviews`). Erstellen/Bearbeiten/Löschen/Melden (Auftrag Punkt 1–4): eigene Review
+// erhält „Bearbeiten"/„Löschen" statt „Melden" — Aktionen als Text-Links unter der jeweiligen Zeile,
+// analog zur bestehenden schlichten Listenzeile ohne zusätzliche Card-Optik.
 type LocationReviewsSectionProps = {
   averageRating: number | null;
   reviewCount: number;
   reviews: Review[];
+  ownReview: Review | null;
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onPressCreate: () => void;
+  onPressEdit: (review: Review) => void;
+  onPressDelete: (review: Review) => void;
+  onPressFlag: (review: Review) => void;
 };
 
 export function LocationReviewsSection({
   averageRating,
   reviewCount,
   reviews,
+  ownReview,
   isLoading,
   isError,
   error,
+  onPressCreate,
+  onPressEdit,
+  onPressDelete,
+  onPressFlag,
 }: LocationReviewsSectionProps) {
   return (
     <>
@@ -43,7 +56,10 @@ export function LocationReviewsSection({
       ) : isError ? (
         <ErrorState message={error?.message ?? 'Bewertungen konnten nicht geladen werden.'} />
       ) : reviewCount === 0 || averageRating === null ? (
-        <EmptyState message="Noch keine Bewertungen." />
+        <View style={styles.padded}>
+          <EmptyState message="Noch keine Bewertungen." />
+          <Button label="Bewertung abgeben" variant="secondary" onPress={onPressCreate} />
+        </View>
       ) : (
         <View style={styles.padded}>
           <View style={styles.summary}>
@@ -52,14 +68,40 @@ export function LocationReviewsSection({
               {averageRating.toFixed(1)} ({reviewCount} Bewertung{reviewCount === 1 ? '' : 'en'})
             </Text>
           </View>
-          {reviews.map((review) => (
-            <ReviewListItem
-              key={review.id}
-              rating={review.rating}
-              commentText={review.comment_text}
-              createdAt={review.created_at}
-            />
-          ))}
+          {!ownReview ? (
+            <View style={styles.createButton}>
+              <Button label="Bewertung abgeben" variant="secondary" onPress={onPressCreate} />
+            </View>
+          ) : null}
+          {reviews.map((review) => {
+            const isOwnReview = review.id === ownReview?.id;
+
+            return (
+              <View key={review.id}>
+                <ReviewListItem
+                  rating={review.rating}
+                  commentText={review.comment_text}
+                  createdAt={review.created_at}
+                />
+                <View style={styles.actions}>
+                  {isOwnReview ? (
+                    <>
+                      <Pressable accessibilityRole="button" onPress={() => onPressEdit(review)}>
+                        <Text style={styles.actionText}>Bearbeiten</Text>
+                      </Pressable>
+                      <Pressable accessibilityRole="button" onPress={() => onPressDelete(review)}>
+                        <Text style={styles.actionText}>Löschen</Text>
+                      </Pressable>
+                    </>
+                  ) : (
+                    <Pressable accessibilityRole="button" onPress={() => onPressFlag(review)}>
+                      <Text style={styles.actionText}>Melden</Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
+            );
+          })}
         </View>
       )}
     </>
@@ -69,15 +111,28 @@ export function LocationReviewsSection({
 const styles = StyleSheet.create({
   padded: {
     paddingHorizontal: theme.spacing.md,
+    gap: theme.spacing.md,
   },
   summary: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
   },
   summaryText: {
     color: theme.colors.text.secondary,
     fontSize: theme.typography.body.fontSize,
+  },
+  createButton: {
+    alignItems: 'flex-start',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    paddingBottom: theme.spacing.xs,
+  },
+  actionText: {
+    color: theme.colors.brand.primary,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: theme.typography.label.fontWeight,
   },
 });

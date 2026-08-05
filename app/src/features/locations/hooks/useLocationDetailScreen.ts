@@ -1,6 +1,8 @@
 import { useUserLocation } from '../../../hooks/useUserLocation';
 import { distanceMeters } from '../../../utils/distance';
 
+import { useDeleteReview } from './useDeleteReview';
+import { useFlagReview } from './useFlagReview';
 import { useLocationDetail } from './useLocationDetail';
 import { useLocationFavorite } from './useLocationFavorite';
 import { useLocationHappyHours } from './useLocationHappyHours';
@@ -11,10 +13,10 @@ import { useLocationTodayEvents } from './useLocationTodayEvents';
 
 // Einziger Hook, den `LocationDetailScreen.tsx` aufruft (analog zu `useHomeDashboard.ts`/
 // `useMapScreen.ts`) — bündelt Grunddaten, Live-Auslastung, Happy Hours, Specials, heutige Events,
-// Bewertungen, Favoriten-Status und Distanz. Jede Sektion behält ihren eigenen Lade-/Fehlerzustand
-// (wie auf dem Home Dashboard) statt eines einzigen Screen-weiten Zustands — nur die Grunddaten
-// (`useLocationDetail`) bestimmen den Top-Level-Zustand (Loading/Error/Not-Found), da ohne sie der
-// gesamte Screen keinen sinnvollen Inhalt hat.
+// Bewertungen (inkl. Löschen/Melden), Favoriten-Status und Distanz. Jede Sektion behält ihren eigenen
+// Lade-/Fehlerzustand (wie auf dem Home Dashboard) statt eines einzigen Screen-weiten Zustands — nur
+// die Grunddaten (`useLocationDetail`) bestimmen den Top-Level-Zustand (Loading/Error/Not-Found), da
+// ohne sie der gesamte Screen keinen sinnvollen Inhalt hat.
 export function useLocationDetailScreen(locationId: string) {
   const detail = useLocationDetail(locationId);
   const liveStatus = useLocationLiveStatus(locationId);
@@ -22,6 +24,8 @@ export function useLocationDetailScreen(locationId: string) {
   const specials = useLocationSpecials(locationId);
   const todayEvents = useLocationTodayEvents(locationId);
   const reviews = useLocationReviews(locationId);
+  const deleteReview = useDeleteReview(locationId);
+  const flagReview = useFlagReview();
   const favorite = useLocationFavorite(locationId);
   const userLocation = useUserLocation();
 
@@ -48,6 +52,8 @@ export function useLocationDetailScreen(locationId: string) {
     specials,
     todayEvents,
     reviews,
+    deleteReview,
+    flagReview,
     favorite,
   };
 }

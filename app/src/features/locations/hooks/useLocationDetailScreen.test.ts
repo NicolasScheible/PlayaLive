@@ -43,6 +43,10 @@ const favoriteResult = {
   error: null,
 };
 const mockUseLocationFavorite = jest.fn(() => favoriteResult);
+const deleteReviewResult = { deleteReview: jest.fn(), isDeleting: false, error: null };
+const mockUseDeleteReview = jest.fn((_locationId: string) => deleteReviewResult);
+const flagReviewResult = { flagReview: jest.fn(), isSubmitting: false, error: null };
+const mockUseFlagReview = jest.fn(() => flagReviewResult);
 type MockUserLocationResult = {
   status: 'undetermined' | 'granted' | 'denied';
   coords: { latitude: number; longitude: number } | null;
@@ -75,6 +79,10 @@ jest.mock('./useLocationReviews', () => ({ useLocationReviews: () => mockUseLoca
 jest.mock('./useLocationFavorite', () => ({
   useLocationFavorite: () => mockUseLocationFavorite(),
 }));
+jest.mock('./useDeleteReview', () => ({
+  useDeleteReview: (locationId: string) => mockUseDeleteReview(locationId),
+}));
+jest.mock('./useFlagReview', () => ({ useFlagReview: () => mockUseFlagReview() }));
 jest.mock('../../../hooks/useUserLocation', () => ({
   useUserLocation: () => mockUseUserLocation(),
 }));
@@ -117,6 +125,8 @@ describe('useLocationDetailScreen', () => {
     expect(result.current.specials).toEqual(mockUseLocationSpecials());
     expect(result.current.todayEvents).toEqual(mockUseLocationTodayEvents());
     expect(result.current.reviews).toEqual(mockUseLocationReviews());
+    expect(result.current.deleteReview).toEqual(deleteReviewResult);
+    expect(result.current.flagReview).toEqual(flagReviewResult);
     expect(result.current.favorite).toEqual(favoriteResult);
   });
 

@@ -12,10 +12,12 @@ import type { OwnReviewWithTargetName } from '../hooks/useOwnReviews';
 const SKELETON_ROW_HEIGHT = 64;
 const SKELETON_COUNT = 2;
 
-// Eigene Reviews gemäß Auftrag Punkt 4: Liste, Klick navigiert zur jeweiligen Location/zum jeweiligen
-// Artist (bestehende Detail-Screens). Bestehendes `ReviewListItem` unverändert wiederverwendet (CLAUDE.md:
-// „kein Refactoring funktionierenden Codes"), Zielname + Klick-Handling über einen umgebenden `Pressable`
-// analog zu `EventArtistsSection.tsx`. Vertikale Liste (docs/DesignSystem.md Kapitel 6: „vollständige
+// Eigene Reviews: Liste, Klick navigiert direkt zur Bearbeitung der jeweiligen Bewertung
+// (Review-Feature Punkt 5: „Profilbereich soll direkt zur Bearbeitung navigieren können" —
+// `onPressReview` wird vom aufrufenden `ProfileScreen.tsx` mit dem `ReviewForm`-Edit-Modus verdrahtet).
+// Bestehendes `ReviewListItem` unverändert wiederverwendet (CLAUDE.md: „kein Refactoring
+// funktionierenden Codes"), Zielname + Klick-Handling über einen umgebenden `Pressable` analog zu
+// `EventArtistsSection.tsx`. Vertikale Liste (docs/DesignSystem.md Kapitel 6: „vollständige
 // Übersichten" sind einspaltig), da dies — anders als die Detail-Screen-Sections — die Hauptliste des
 // Profil-Screens ist, nicht ein kuratiertes Karussell.
 type OwnReviewsSectionProps = {

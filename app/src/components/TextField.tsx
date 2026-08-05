@@ -18,6 +18,7 @@ type TextFieldProps = Pick<
   | 'autoCapitalize'
   | 'autoComplete'
   | 'textContentType'
+  | 'multiline'
 > & {
   label: string;
   error?: string;

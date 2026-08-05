@@ -56,12 +56,18 @@ export function ProfileScreen() {
 
   const profile = screen.profile;
 
-  function handlePressReview(review: { target_type: 'location' | 'artist'; target_id: string }) {
-    if (review.target_type === 'location') {
-      navigation.navigate('LocationDetail', { locationId: review.target_id });
-    } else {
-      navigation.navigate('ArtistDetail', { artistId: review.target_id });
-    }
+  function handlePressReview(review: {
+    id: string;
+    target_type: 'location' | 'artist';
+    target_id: string;
+    rating: number;
+    comment_text: string | null;
+  }) {
+    navigation.navigate('ReviewForm', {
+      targetType: review.target_type,
+      targetId: review.target_id,
+      review: { id: review.id, rating: review.rating, commentText: review.comment_text },
+    });
   }
 
   return (

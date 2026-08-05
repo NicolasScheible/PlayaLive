@@ -4,6 +4,7 @@ import { ArtistDetailScreen } from '../features/artists/screens/ArtistDetailScre
 import { EventDetailScreen } from '../features/events/screens/EventDetailScreen';
 import { LocationDetailScreen } from '../features/locations/screens/LocationDetailScreen';
 import { CommunityReportScreen } from '../features/reports/screens/CommunityReportScreen';
+import { ReviewFormScreen } from '../features/reviews/screens/ReviewFormScreen';
 import { ChangePasswordScreen } from '../features/settings/screens/ChangePasswordScreen';
 import { PermissionsScreen } from '../features/settings/screens/PermissionsScreen';
 
@@ -55,6 +56,13 @@ export function MainNavigator() {
         name="ArtistDetail"
         component={ArtistDetailScreen}
         options={{ title: 'Künstler' }}
+      />
+      <Stack.Screen
+        name="ReviewForm"
+        component={ReviewFormScreen}
+        options={({ route }) => ({
+          title: route.params.review ? 'Bewertung bearbeiten' : 'Bewertung abgeben',
+        })}
       />
     </Stack.Navigator>
   );
