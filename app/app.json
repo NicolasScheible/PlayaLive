@@ -8,6 +8,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
+      "bundleIdentifier": "com.playalive",
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist"
     },
