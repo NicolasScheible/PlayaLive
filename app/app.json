@@ -12,6 +12,7 @@
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "com.playalive",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
