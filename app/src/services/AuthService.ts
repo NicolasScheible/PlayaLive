@@ -9,9 +9,14 @@ import type { Profile } from '../types/entities';
 
 // Service Layer für Authentifizierung (siehe docs/Architecture.md Kapitel 8/12 und
 // docs/ADR/002-Authentication.md). Einzige Stelle im Code, die mit `supabase.auth` kommuniziert.
-// Unterstützte Methode in diesem Ausbauschritt: E-Mail & Passwort (siehe docs/PRD.md Kapitel 12).
-// Apple Sign-In und Google Sign-In sind ebenfalls entschieden, aber noch nicht angebunden — siehe
-// Zusammenfassung in der Abschluss-Antwort dieses Auth-Feature-Schritts.
+// Unterstützte Methoden: E-Mail & Passwort sowie Apple/Google Sign-In (docs/PRD.md Kapitel 12) — Apple
+// und Google laufen beide über `supabase.auth.signInWithIdToken()` (Supabase verifiziert das vom
+// jeweiligen nativen SDK gelieferte ID-Token serverseitig; die native Anmeldung selbst — Apple-Dialog/
+// Google-AuthSession, Nonce-Erzeugung — findet außerhalb dieses Service in den jeweiligen
+// `features/auth/hooks/use*SignIn`-Hooks statt, da es sich um Plattform-/Gerätezugriffe ohne
+// Datenzugriff handelt, nicht um Business-Logik). Rollenzuweisung, Session-Handling und
+// Profilanlage laufen für alle drei Methoden identisch über den bereits bestehenden
+// `onAuthStateChange`-Listener im `authStore` — keine Sonderbehandlung nötig.
 
 // Fehlercode-Katalog für Auth, domänenstrukturiert gemäß docs/Architecture.md Kapitel 15
 // (Architekturentscheidung 9). Nutzerfreundliche deutsche Texte statt technischer Supabase-Meldungen —
@@ -111,6 +116,34 @@ export const AuthService = {
 
   async resetPasswordForEmail(email: string): Promise<void> {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      throw mapAuthError(error);
+    }
+  },
+
+  // docs/PRD.md Kapitel 12 „Apple Sign-In". `identityToken` kommt vom nativen
+  // `expo-apple-authentication`-Dialog (siehe `useAppleSignIn.ts`); `nonce` ist optional, wird aber vom
+  // Hook immer mitgegeben (Schutz vor Replay-Angriffen, siehe Supabase-Dokumentation zu
+  // `signInWithIdToken`: „If the token contains a nonce claim you must supply the nonce used to obtain
+  // the ID token.").
+  async signInWithApple(params: { identityToken: string; nonce?: string }): Promise<void> {
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'apple',
+      token: params.identityToken,
+      nonce: params.nonce,
+    });
+
+    if (error) {
+      throw mapAuthError(error);
+    }
+  },
+
+  // docs/PRD.md Kapitel 12 „Google Sign-In". `idToken` kommt aus der `expo-auth-session`-Google-
+  // AuthSession (siehe `useGoogleSignIn.ts`). Kein Nonce nötig — die von `expo-auth-session` bezogenen
+  // Google-ID-Tokens enthalten standardmäßig keinen `nonce`-Claim, den Supabase prüfen müsste.
+  async signInWithGoogle(idToken: string): Promise<void> {
+    const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken });
 
     if (error) {
       throw mapAuthError(error);

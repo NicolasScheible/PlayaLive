@@ -21,6 +21,7 @@ jest.mock('../lib/supabase', () => ({
       resetPasswordForEmail: jest.fn(),
       updateUser: jest.fn(),
       getSession: jest.fn(),
+      signInWithIdToken: jest.fn(),
     },
     from: jest.fn(),
   },
@@ -79,6 +80,67 @@ describe('AuthService Fehler-Mapping', () => {
     supabase.auth.signInWithPassword.mockResolvedValue({ data: {}, error: null });
 
     await expect(AuthService.signInWithPassword('a@b.de', 'geheim123')).resolves.toBeUndefined();
+  });
+});
+
+describe('AuthService.signInWithApple', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('ruft signInWithIdToken mit provider "apple", Token und Nonce auf', async () => {
+    supabase.auth.signInWithIdToken.mockResolvedValue({ data: {}, error: null });
+
+    await expect(
+      AuthService.signInWithApple({ identityToken: 'apple-identity-token', nonce: 'raw-nonce' }),
+    ).resolves.toBeUndefined();
+
+    expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
+      provider: 'apple',
+      token: 'apple-identity-token',
+      nonce: 'raw-nonce',
+    });
+  });
+
+  it('übersetzt einen Fehler von signInWithIdToken', async () => {
+    supabase.auth.signInWithIdToken.mockResolvedValue({
+      data: {},
+      error: new AuthApiError('Invalid token', 400, 'invalid_credentials'),
+    });
+
+    await expect(
+      AuthService.signInWithApple({ identityToken: 'invalid-token' }),
+    ).rejects.toMatchObject({
+      code: 'AUTH_INVALID_CREDENTIALS',
+    });
+  });
+});
+
+describe('AuthService.signInWithGoogle', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('ruft signInWithIdToken mit provider "google" und Token auf', async () => {
+    supabase.auth.signInWithIdToken.mockResolvedValue({ data: {}, error: null });
+
+    await expect(AuthService.signInWithGoogle('google-id-token')).resolves.toBeUndefined();
+
+    expect(supabase.auth.signInWithIdToken).toHaveBeenCalledWith({
+      provider: 'google',
+      token: 'google-id-token',
+    });
+  });
+
+  it('übersetzt einen Fehler von signInWithIdToken', async () => {
+    supabase.auth.signInWithIdToken.mockResolvedValue({
+      data: {},
+      error: new AuthApiError('Invalid token', 400, 'invalid_credentials'),
+    });
+
+    await expect(AuthService.signInWithGoogle('invalid-token')).rejects.toMatchObject({
+      code: 'AUTH_INVALID_CREDENTIALS',
+    });
   });
 });
 

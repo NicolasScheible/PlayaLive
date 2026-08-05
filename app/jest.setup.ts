@@ -36,6 +36,36 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // Jest-Environment nicht registriert ist — jeder Test, der transitiv `NotificationService.ts`
 // importiert (z. B. App.test.tsx), würde sonst beim Modul-Import abstürzen. Globaler Low-Effort-Mock
 // hier; `NotificationService.test.ts` überschreibt ihn lokal mit spezifischen Spies.
+// Analog zur Firebase-Messaging-Begründung oben: `LoginScreen.tsx` importiert seit Apple/Google
+// Sign-In `expo-apple-authentication`/`expo-auth-session`/`expo-web-browser`/`expo-crypto` — native
+// Module, die im Jest-Environment nicht registriert sind. `App.test.tsx` rendert `LoginScreen` über die
+// echte, ungemockte Navigation (kein direkter Import), daher hier ein globaler Low-Effort-Mock, der
+// Apple/Google standardmäßig als „nicht verfügbar"/„nicht konfiguriert" meldet (kein Button sichtbar).
+// `useAppleSignIn.test.ts`/`useGoogleSignIn.test.ts`/`LoginScreen.test.tsx` überschreiben ihn lokal mit
+// spezifischen Verhalten, genau wie bei `NotificationService.test.ts`.
+jest.mock('expo-apple-authentication', () => ({
+  isAvailableAsync: jest.fn().mockResolvedValue(false),
+  signInAsync: jest.fn(),
+  AppleAuthenticationButton: () => null,
+  AppleAuthenticationButtonType: { SIGN_IN: 0, CONTINUE: 1, SIGN_UP: 2 },
+  AppleAuthenticationButtonStyle: { WHITE: 0, WHITE_OUTLINE: 1, BLACK: 2 },
+  AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+}));
+
+jest.mock('expo-auth-session/providers/google', () => ({
+  useIdTokenAuthRequest: jest.fn(() => [null, null, jest.fn()]),
+}));
+
+jest.mock('expo-web-browser', () => ({
+  maybeCompleteAuthSession: jest.fn(),
+}));
+
+jest.mock('expo-crypto', () => ({
+  randomUUID: jest.fn(() => 'test-nonce'),
+  digestStringAsync: jest.fn().mockResolvedValue('test-hashed-nonce'),
+  CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+}));
+
 jest.mock('@react-native-firebase/messaging', () => ({
   AuthorizationStatus: {
     NOT_DETERMINED: -1,

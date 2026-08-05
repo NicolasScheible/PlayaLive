@@ -214,7 +214,11 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   Stack-Routen, von dort aus erreichbar); der Einstiegspunkt aus der übrigen Navigation ist seit der
   finalen Drawer-Navigation der `MainDrawerNavigator` (siehe Abschnitt „Navigation").
 - [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — „Abmelden" jetzt im
-  `ProfileScreen` statt des bisherigen Main-Platzhalters; Apple/Google Sign-In noch offen)
+  `ProfileScreen` statt des bisherigen Main-Platzhalters; Apple Sign-In und Google Sign-In über neue,
+  zum bestehenden `AuthService` hinzugefügte `signInWithApple()`/`signInWithGoogle()`-Methoden
+  (`supabase.auth.signInWithIdToken()`), angebunden über zwei neue Hooks `useAppleSignIn`/
+  `useGoogleSignIn` und native Buttons auf dem `LoginScreen` — siehe Abschnitt „Supabase Backend" für
+  die noch offene serverseitige Provider-Konfiguration)
 
 ## Supabase Backend
 
@@ -234,10 +238,14 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] Edge Function `weather` (`supabase/functions/weather/`) als serverseitiger OpenWeather-Proxy —
   OpenWeather-API-Key muss vor Betrieb per `supabase secrets set OPENWEATHER_API_KEY=...` gesetzt
   werden (siehe `app/README.md` → „Supabase Edge Functions")
-- [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig implementiert
-  (E-Mail/Passwort: Login, Registrierung, Passwort-Reset, Session-Handling), serverseitige
-  Supabase-Projekt-Konfiguration (Rate Limits, Redirect-URLs, E-Mail-Templates) noch offen; Apple/
-  Google Sign-In noch nicht angebunden
+- [ ] Auth (E-Mail/Passwort und/oder Social Login) konfiguriert — clientseitig vollständig implementiert
+  (E-Mail/Passwort: Login, Registrierung, Passwort-Reset, Session-Handling; Apple Sign-In/Google
+  Sign-In: native Anmeldung + `AuthService.signInWithApple()`/`signInWithGoogle()`), serverseitige
+  Supabase-Projekt-Konfiguration weiterhin offen: Rate Limits, Redirect-URLs, E-Mail-Templates sowie —
+  neu hinzugekommen — die Aktivierung von Apple/Google als Auth-Provider im Supabase-Dashboard
+  (inkl. der dafür nötigen Apple-/Google-Developer-Konten und OAuth-Client-IDs, siehe
+  `.env.example`) — ohne diese serverseitige Freischaltung lehnt Supabase `signInWithIdToken()`
+  weiterhin ab, unabhängig vom bereits vollständigen Client-Code
 
 ## Mapbox Integration
 
