@@ -82,6 +82,19 @@ describe('ReviewRepository', () => {
     expect(result).toEqual(reviews);
   });
 
+  it('findByUser liest nicht-gelöschte Reviews eines Nutzers, neueste zuerst', async () => {
+    const reviews = [{ id: 'review-1' }];
+    const builder = createBuilder({ data: reviews, error: null });
+    mockFrom.mockReturnValue(builder);
+
+    const result = await ReviewRepository.findByUser('user-1');
+
+    expect(builder.eq).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(builder.is).toHaveBeenCalledWith('deleted_at', null);
+    expect(builder.order).toHaveBeenCalledWith('created_at', { ascending: false });
+    expect(result).toEqual(reviews);
+  });
+
   it('insertReviewFlag gibt die eingefügte Zeile zurück', async () => {
     const row = { id: 'flag-1', review_id: 'review-1' };
     mockFrom.mockReturnValue(createBuilder({ data: row, error: null }));

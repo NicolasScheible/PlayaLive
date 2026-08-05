@@ -58,8 +58,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 ## Navigation
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
-  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen` und
-  `FavoritesScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
+  `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen`,
+  `FavoritesScreen` und `ProfileScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -145,10 +145,18 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 ## Profile
 
-- [ ] Profilseite (Nutzerdaten)
+- [x] Profilseite (Nutzerdaten) — vollständiger `ProfileScreen`: Profilbild (bearbeitbar über
+  `expo-image-picker` + neuen `StorageService`, Upload in den bereits vorbereiteten `profiles`-Bucket),
+  Benutzername (`profiles.display_name` — ein Feld, kein separates „Anzeigename"-Feld im Datenmodell,
+  daher nur einmal angezeigt/editierbar), E-Mail (nicht editierbar), Mitglied seit, Trust Score, Anzahl
+  Reports/Reviews/Favoriten, eigene Bewertungen (Klick navigiert zu Location-/Artist-Detail), eigene
+  Community Reports. `ReviewService`/`ReviewRepository` um `getOwnReviews()`/`findByUser()` ergänzt
+  (analog zu `ReportService.getOwnReports()`, docs/API.md Kapitel 9 aktualisiert). Als eigene Stack-Route
+  (`Profile`) registriert; ein Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü) ist noch nicht
+  Teil dieses Auftrags.
 - [ ] Einstellungen (u. a. Benachrichtigungen)
-- [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — Aufruf aktuell auf dem
-  Main-Platzhalter, echter Ort folgt mit dieser Profilseite; Apple/Google Sign-In noch offen)
+- [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — „Abmelden" jetzt im
+  `ProfileScreen` statt des bisherigen Main-Platzhalters; Apple/Google Sign-In noch offen)
 
 ## Supabase Backend
 
@@ -164,7 +172,7 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 - [x] API-/Datenzugriffsschicht im Client implementiert (Service Layer: `AuthService`,
   `LocationService`, `ArtistService`, `EventService`, `FavoriteService`, `ReportService` +
   `ReportRepository`, `SpecialService`, `HappyHourService`, `ReviewService` + `ReviewRepository`,
-  `NotificationService`, `WeatherService`)
+  `NotificationService`, `WeatherService`, `StorageService`)
 - [x] Edge Function `weather` (`supabase/functions/weather/`) als serverseitiger OpenWeather-Proxy —
   OpenWeather-API-Key muss vor Betrieb per `supabase secrets set OPENWEATHER_API_KEY=...` gesetzt
   werden (siehe `app/README.md` → „Supabase Edge Functions")

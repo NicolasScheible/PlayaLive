@@ -113,6 +113,18 @@ export const ReviewService = {
     }
   },
 
+  // docs/API.md Kapitel 9 „Eigene Bewertungen abrufen" — nach demselben Muster wie
+  // `ReportService.getOwnReports()`.
+  async getOwnReviews(): Promise<Review[]> {
+    const userId = await requireUserId();
+
+    try {
+      return await ReviewRepository.findByUser(userId);
+    } catch (error) {
+      throw mapDatabaseError(error);
+    }
+  },
+
   // docs/API.md Kapitel 9 „Missbräuchliche Bewertung melden (review_flags)".
   async flagReview(input: CreateReviewFlagInput): Promise<void> {
     const userId = await requireUserId();

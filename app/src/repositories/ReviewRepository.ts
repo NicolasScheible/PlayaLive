@@ -55,6 +55,23 @@ export const ReviewRepository = {
     return data;
   },
 
+  // docs/API.md Kapitel 9 „Eigene Bewertungen abrufen" — nach demselben Muster wie
+  // `ReportRepository.findOwnReports` (Filter nach `user_id` statt Ziel).
+  async findByUser(userId: string): Promise<Review[]> {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  },
+
   async insertReviewFlag(
     row: Database['public']['Tables']['review_flags']['Insert'],
   ): Promise<ReviewFlag> {

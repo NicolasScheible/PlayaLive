@@ -73,6 +73,8 @@ Favoriten werden über eine zentrale, polymorphe Tabelle abgebildet (siehe `docs
 - Eigene Bewertung bearbeiten oder löschen
 - Bewertungen zu einer Location/einem Artist abrufen, sortierbar nach „Neueste" oder „Hilfreichste"
   (Operationalisierung von „Hilfreichste" noch offen — siehe `docs/PRD.md` Kapitel 22)
+- Eigene abgegebene Bewertungen abrufen (für die Profilübersicht, analog zu „Eigene abgegebene Reports
+  abrufen" in Kapitel 8)
 - Missbräuchliche Bewertung melden (`review_flags`)
 
 ## 10. Notifications

@@ -6,16 +6,17 @@ import { FavoritesScreen } from '../features/favorites/screens/FavoritesScreen';
 import { HomeScreen } from '../features/home/screens/HomeScreen';
 import { LocationDetailScreen } from '../features/locations/screens/LocationDetailScreen';
 import { MapScreen } from '../features/map/screens/MapScreen';
+import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 
 import type { MainStackParamList } from './types';
 
 // Haupt-App nach erfolgreichem Login. Zeigt Home Dashboard, Live-Karte, die vollständigen
-// Location-/Event-/Artist-Detail-Screens sowie den Favoriten-Screen (siehe docs/PRD.md Kapitel 10) über
-// einen einfachen Stack — die endgültige Struktur (5-Tab-Bottom-Navigation mit
+// Location-/Event-/Artist-Detail-Screens sowie die Favoriten-/Profil-Screens (siehe docs/PRD.md
+// Kapitel 10) über einen einfachen Stack — die endgültige Struktur (5-Tab-Bottom-Navigation mit
 // Community-Report-Schnellzugriff, Hamburger-Drawer, siehe docs/PRD.md Kapitel 11,
-// docs/Architecture.md Kapitel 7) wird erst mit den übrigen Tab-/Menü-Screens (Profil, Settings)
-// umgesetzt. Der bisherige Demo-Logout-Platzhalter entfällt damit — „Abmelden" gehört fachlich zum
-// (noch nicht umgesetzten) Profile-Screen (docs/PRD.md Kapitel 10), nicht zum Home Dashboard.
+// docs/Architecture.md Kapitel 7) wird erst mit den übrigen Tab-/Menü-Screens (Settings) umgesetzt. Der
+// bisherige Demo-Logout-Platzhalter entfällt damit — „Abmelden" ist jetzt Teil des `ProfileScreen`
+// (docs/PRD.md Kapitel 10), nicht mehr des Home Dashboards.
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 export function MainNavigator() {
@@ -24,6 +25,7 @@ export function MainNavigator() {
       <Stack.Screen name="Main" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'Favoriten' }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />
       <Stack.Screen
         name="LocationDetail"
         component={LocationDetailScreen}

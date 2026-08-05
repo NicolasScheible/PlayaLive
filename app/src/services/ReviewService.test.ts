@@ -4,6 +4,7 @@ const mockGetSession = jest.fn();
 const mockInsertReview = jest.fn();
 const mockUpdateReview = jest.fn();
 const mockFindByTarget = jest.fn();
+const mockFindByUser = jest.fn();
 const mockInsertReviewFlag = jest.fn();
 
 jest.mock('./AuthService', () => ({
@@ -15,6 +16,7 @@ jest.mock('../repositories/ReviewRepository', () => ({
     insertReview: (...args: unknown[]) => mockInsertReview(...args),
     updateReview: (...args: unknown[]) => mockUpdateReview(...args),
     findByTarget: (...args: unknown[]) => mockFindByTarget(...args),
+    findByUser: (...args: unknown[]) => mockFindByUser(...args),
     insertReviewFlag: (...args: unknown[]) => mockInsertReviewFlag(...args),
   },
 }));
@@ -117,6 +119,28 @@ describe('ReviewService', () => {
       const result = await ReviewService.getReviews({ targetType: 'location', targetId: 'loc-1' });
 
       expect(mockGetSession).not.toHaveBeenCalled();
+      expect(result).toEqual(reviews);
+    });
+  });
+
+  describe('getOwnReviews', () => {
+    it('wirft AUTH_SESSION_MISSING ohne aktive Session', async () => {
+      mockGetSession.mockResolvedValue({ session: null });
+
+      await expect(ReviewService.getOwnReviews()).rejects.toMatchObject({
+        code: 'AUTH_SESSION_MISSING',
+      });
+      expect(mockFindByUser).not.toHaveBeenCalled();
+    });
+
+    it('ruft das Repository mit der Nutzer-ID aus der Session auf', async () => {
+      mockGetSession.mockResolvedValue({ session });
+      const reviews = [{ id: 'review-1' }];
+      mockFindByUser.mockResolvedValue(reviews);
+
+      const result = await ReviewService.getOwnReviews();
+
+      expect(mockFindByUser).toHaveBeenCalledWith('user-1');
       expect(result).toEqual(reviews);
     });
   });
