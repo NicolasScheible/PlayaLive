@@ -59,8 +59,8 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
 
 - [x] React Navigation eingerichtet (RootNavigator/AuthNavigator/MainNavigator; `MainNavigator` zeigt
   `HomeScreen`, `MapScreen`, `LocationDetailScreen`, `EventDetailScreen`, `ArtistDetailScreen`,
-  `FavoritesScreen`, `ProfileScreen` und `CommunityReportScreen`, noch als einfacher Stack ohne die
-  übrigen Bottom-Tabs)
+  `FavoritesScreen`, `ProfileScreen`, `CommunityReportScreen`, `SettingsScreen`,
+  `ChangePasswordScreen` und `PermissionsScreen`, noch als einfacher Stack ohne die übrigen Bottom-Tabs)
 - [ ] Bottom Navigation mit 5 Elementen (Home, Map, Community-Report-Schnellzugriff, Events, Profile)
   definiert — siehe `docs/PRD.md` Kapitel 11
 - [ ] Hamburger-Menü (React-Navigation-Drawer) für sekundäre Bereiche eingerichtet (Artists, Favorites,
@@ -155,7 +155,21 @@ groben zeitlichen Reihenfolge, einzelne Punkte können sich je nach Bedarf über
   (analog zu `ReportService.getOwnReports()`, docs/API.md Kapitel 9 aktualisiert). Als eigene Stack-Route
   (`Profile`) registriert; ein Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü) ist noch nicht
   Teil dieses Auftrags.
-- [ ] Einstellungen (u. a. Benachrichtigungen)
+- [x] Einstellungen — vollständiger `SettingsScreen` (löst den bisherigen Platzhalter ab): Bereiche
+  Konto (Profil bearbeiten → `ProfileScreen`, Passwort ändern → neuer `ChangePasswordScreen` über
+  `AuthService.changePassword()`/`supabase.auth.updateUser()`, E-Mail-Verifizierung aus dem bestehenden
+  `authStore` ohne zusätzlichen Request, Konto deaktivieren/löschen), App (Sprache, Dark Mode — beide nur
+  Anzeige, da weder eine i18n-Bibliothek noch ein Light-Mode dokumentiert sind, Benachrichtigungen),
+  Datenschutz (Datenschutzerklärung, Datenexport, Berechtigungen → neuer `PermissionsScreen` mit
+  Standort-/Fotomediathek-Status über `useUserLocation`/neuen `usePhotoLibraryPermission`-Hook und
+  `Linking.openSettings()`), Support (Hilfe, Feedback senden, App bewerten), Rechtliches (Impressum,
+  Datenschutz, Nutzungsbedingungen). Konto löschen/deaktivieren, Datenexport sowie alle Einträge ohne
+  echte Ziel-URL im Repo (Datenschutzerklärung, Impressum, Nutzungsbedingungen, Hilfe, Feedback senden,
+  App bewerten) sind nach Rückfrage beim Product Owner als ehrliche „Demnächst verfügbar"-Hinweise
+  umgesetzt (kein Fake-Link, keine stillschweigend erfundene Backend-/DSGVO-Architektur — siehe
+  `docs/Architecture.md` Kapitel 17/25, dort selbst als vor der Implementierung zu klärender Punkt
+  markiert). Als eigene Stack-Routen (`Settings`, `ChangePassword`, `Permissions`) registriert; ein
+  Einstiegspunkt aus der übrigen Navigation (Hamburger-Menü) ist noch nicht Teil dieses Auftrags.
 - [x] Login/Logout (E-Mail & Passwort über `useAuth()`/`AuthService` — „Abmelden" jetzt im
   `ProfileScreen` statt des bisherigen Main-Platzhalters; Apple/Google Sign-In noch offen)
 

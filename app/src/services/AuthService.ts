@@ -121,6 +121,18 @@ export const AuthService = {
     return supabase.auth.signOut().then(() => undefined);
   },
 
+  // Settings → Konto → „Passwort ändern" (im Unterschied zu `resetPasswordForEmail`: ändert das
+  // Passwort direkt für die bereits angemeldete Session, kein E-Mail-Link nötig). Nutzt
+  // `supabase.auth.updateUser()` — bereits Teil des installierten Supabase-SDK, keine neue
+  // Abhängigkeit/Architektur, analog zu den übrigen `supabase.auth.*`-Aufrufen in diesem Service.
+  async changePassword(newPassword: string): Promise<void> {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      throw mapAuthError(error);
+    }
+  },
+
   // docs/API.md Kapitel 2 „Nutzerprofil aktualisieren (Anzeigename, Profilbild)" — dort unter
   // Authentication gruppiert, daher hier statt in einem eigenen, nicht dokumentierten ProfileService
   // (docs/Architecture.md Kapitel 8 nennt keinen solchen Service). Greift auf `profiles` zu, nicht auf

@@ -19,6 +19,7 @@ jest.mock('../lib/supabase', () => ({
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
       resetPasswordForEmail: jest.fn(),
+      updateUser: jest.fn(),
       getSession: jest.fn(),
     },
     from: jest.fn(),
@@ -78,6 +79,31 @@ describe('AuthService Fehler-Mapping', () => {
     supabase.auth.signInWithPassword.mockResolvedValue({ data: {}, error: null });
 
     await expect(AuthService.signInWithPassword('a@b.de', 'geheim123')).resolves.toBeUndefined();
+  });
+});
+
+describe('AuthService.changePassword', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('ruft supabase.auth.updateUser mit dem neuen Passwort auf', async () => {
+    supabase.auth.updateUser.mockResolvedValue({ data: {}, error: null });
+
+    await expect(AuthService.changePassword('neuesPasswort123')).resolves.toBeUndefined();
+
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({ password: 'neuesPasswort123' });
+  });
+
+  it('übersetzt einen Fehler von updateUser', async () => {
+    supabase.auth.updateUser.mockResolvedValue({
+      data: {},
+      error: new AuthApiError('Password should be at least 6 characters', 422, 'weak_password'),
+    });
+
+    await expect(AuthService.changePassword('123')).rejects.toMatchObject({
+      code: 'AUTH_WEAK_PASSWORD',
+    });
   });
 });
 
