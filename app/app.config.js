@@ -17,5 +17,5 @@ module.exports = ({ config }) => {
     config.android.googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
   }
 
-  return { expo: config };
+  return config;
 };
