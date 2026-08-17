@@ -2,6 +2,7 @@
   "expo": {
     "name": "PlayaLive",
     "slug": "playalive",
+    "owner": "playaliveapp",
     "scheme": "playalive",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -43,6 +44,11 @@
           "photosPermission": "PlayaLive benötigt Zugriff auf deine Fotos, um ein Profilbild auszuwählen."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "05d45544-ba5b-48ee-8ebf-2ce59c9db0db"
+      }
+    }
   }
 }
