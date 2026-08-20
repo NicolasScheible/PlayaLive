@@ -83,6 +83,39 @@ describe('AuthService Fehler-Mapping', () => {
   });
 });
 
+describe('AuthService.signUpWithPassword', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('meldet needsEmailConfirmation: true, wenn Supabase keine Session zurückgibt', async () => {
+    supabase.auth.signUp.mockResolvedValue({ data: { user: {}, session: null }, error: null });
+
+    await expect(
+      AuthService.signUpWithPassword({
+        email: 'a@b.de',
+        password: 'geheim123',
+        username: 'Nutzer',
+      }),
+    ).resolves.toEqual({ needsEmailConfirmation: true });
+  });
+
+  it('meldet needsEmailConfirmation: false, wenn Supabase direkt eine Session zurückgibt', async () => {
+    supabase.auth.signUp.mockResolvedValue({
+      data: { user: {}, session: { access_token: 'token' } },
+      error: null,
+    });
+
+    await expect(
+      AuthService.signUpWithPassword({
+        email: 'a@b.de',
+        password: 'geheim123',
+        username: 'Nutzer',
+      }),
+    ).resolves.toEqual({ needsEmailConfirmation: false });
+  });
+});
+
 describe('AuthService.signInWithApple', () => {
   afterEach(() => {
     jest.clearAllMocks();

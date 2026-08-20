@@ -27,8 +27,13 @@ export function RegisterScreen({ navigation }: Props) {
     password?: string;
     passwordConfirmation?: string;
   }>({});
+  // Analog zu `wasSent` in `ForgotPasswordScreen.tsx`: Ist eine E-Mail-Bestätigung nötig, übernimmt
+  // der `onAuthStateChange`-Listener im `authStore` die Session NICHT automatisch (Supabase liefert in
+  // diesem Fall bewusst keine Session) — ohne diesen Zustand bliebe die Registrierung ohne jede
+  // sichtbare Rückmeldung stehen.
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const nextFieldErrors: typeof fieldErrors = {};
 
     if (!isValidEmail(email)) {
@@ -49,7 +54,23 @@ export function RegisterScreen({ navigation }: Props) {
       return;
     }
 
-    register({ username, email, password });
+    const needsConfirmation = await register({ username, email, password });
+    setNeedsEmailConfirmation(needsConfirmation);
+  }
+
+  if (needsEmailConfirmation) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Fast geschafft</Text>
+          <Text style={styles.secondaryText}>
+            Wir haben dir eine E-Mail an {email} geschickt. Bitte bestätige deine E-Mail-Adresse
+            über den Link darin, um dich anzumelden.
+          </Text>
+          <Button label="Zurück zum Login" onPress={() => navigation.navigate('Login')} />
+        </View>
+      </View>
+    );
   }
 
   return (

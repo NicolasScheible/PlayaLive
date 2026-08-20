@@ -98,12 +98,16 @@ export const AuthService = {
     }
   },
 
+  // Gibt zurück, ob eine E-Mail-Bestätigung aussteht (Supabase liefert bei aktivierter
+  // „Confirm email"-Einstellung des Projekts erfolgreich `data.session: null` zurück, ohne Fehler —
+  // ohne diese Unterscheidung sähe die Registrierung aus Sicht der UI in diesem Fall so aus, als wäre
+  // gar nichts passiert, obwohl das Konto bereits angelegt wurde).
   async signUpWithPassword(params: {
     email: string;
     password: string;
     username: string;
-  }): Promise<void> {
-    const { error } = await supabase.auth.signUp({
+  }): Promise<{ needsEmailConfirmation: boolean }> {
+    const { data, error } = await supabase.auth.signUp({
       email: params.email,
       password: params.password,
       options: { data: { username: params.username } },
@@ -112,6 +116,8 @@ export const AuthService = {
     if (error) {
       throw mapAuthError(error);
     }
+
+    return { needsEmailConfirmation: data.session === null };
   },
 
   async resetPasswordForEmail(email: string): Promise<void> {

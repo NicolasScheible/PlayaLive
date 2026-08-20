@@ -30,15 +30,23 @@ export function useAuth() {
     }
   }, []);
 
+  // Gibt zurück, ob nach der Registrierung eine E-Mail-Bestätigung aussteht (analog zu
+  // `resetPassword`s `boolean`-Rückgabe) — ist keine Bestätigung nötig, übernimmt der bestehende
+  // `onAuthStateChange`-Listener im `authStore` die Session automatisch, kein weiterer Rückgabewert
+  // hier nötig.
   const register = useCallback(
-    async (params: { email: string; password: string; username: string }) => {
+    async (params: { email: string; password: string; username: string }): Promise<boolean> => {
       setLoading(true);
       setError(null);
 
       try {
-        await AuthService.signUpWithPassword(params);
+        const { needsEmailConfirmation } = await AuthService.signUpWithPassword(params);
+
+        return needsEmailConfirmation;
       } catch (err) {
         setError(err as AppError);
+
+        return false;
       } finally {
         setLoading(false);
       }

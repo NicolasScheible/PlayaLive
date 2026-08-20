@@ -66,6 +66,53 @@ describe('useAuth', () => {
     expect(result.current.loading).toBe(false);
   });
 
+  it('liefert needsEmailConfirmation aus dem AuthService bei register()', async () => {
+    AuthService.signUpWithPassword.mockResolvedValue({ needsEmailConfirmation: true });
+    const { result } = renderHook(() => useAuth());
+
+    let needsConfirmation: boolean | undefined;
+    await act(async () => {
+      needsConfirmation = await result.current.register({
+        email: 'a@b.de',
+        password: 'geheim123',
+        username: 'Nutzer',
+      });
+    });
+
+    expect(AuthService.signUpWithPassword).toHaveBeenCalledWith({
+      email: 'a@b.de',
+      password: 'geheim123',
+      username: 'Nutzer',
+    });
+    expect(needsConfirmation).toBe(true);
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('übernimmt einen AppError aus dem AuthService bei fehlgeschlagener Registrierung', async () => {
+    const appError = {
+      code: 'AUTH_EMAIL_ALREADY_REGISTERED',
+      messageKey: 'errors.auth.AUTH_EMAIL_ALREADY_REGISTERED',
+      message: 'Für diese E-Mail-Adresse besteht bereits ein Konto.',
+      technicalMessage: 'User already registered',
+    };
+    AuthService.signUpWithPassword.mockRejectedValue(appError);
+    const { result } = renderHook(() => useAuth());
+
+    let needsConfirmation: boolean | undefined;
+    await act(async () => {
+      needsConfirmation = await result.current.register({
+        email: 'a@b.de',
+        password: 'geheim123',
+        username: 'Nutzer',
+      });
+    });
+
+    expect(needsConfirmation).toBe(false);
+    expect(result.current.error).toEqual(appError);
+    expect(result.current.loading).toBe(false);
+  });
+
   it('leert den Query-Cache beim Logout', async () => {
     AuthService.signOut.mockResolvedValue(undefined);
     NotificationService.removePushToken.mockResolvedValue(undefined);
