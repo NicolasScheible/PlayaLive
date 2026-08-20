@@ -3,7 +3,7 @@
     "name": "PlayaLive",
     "slug": "playalive",
     "owner": "playaliveapp",
-    "scheme": "playalive",
+    "scheme": ["playalive", "com.playalive"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

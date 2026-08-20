@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { useGoogleSignIn } from './useGoogleSignIn';
 
@@ -18,9 +18,18 @@ jest.mock('../../../services/AuthService', () => ({
   AuthService: { signInWithGoogle: (...args: unknown[]) => mockSignInWithGoogle(...args) },
 }));
 
+// Auf nativen Plattformen liefert `useIdTokenAuthRequest()` das tatsächliche Ergebnis (inkl.
+// id_token nach Code-Tausch) ausschließlich über den zweiten Rückgabewert (`response`), auf einem
+// späteren Render — nicht über den von `promptAsync()` aufgelösten Wert. Der Mock hier bildet das
+// nach: `mockResponse(...)` legt fest, was der NÄCHSTE Render von `useIdTokenAuthRequest`
+// zurückgibt, `promptAsync` selbst liefert nur den rohen (hier irrelevanten) Zwischenstand.
+function mockResponse(response: unknown) {
+  mockUseIdTokenAuthRequest.mockReturnValue([{}, response, mockPromptAsync]);
+}
+
 describe('useGoogleSignIn', () => {
   beforeEach(() => {
-    mockUseIdTokenAuthRequest.mockReturnValue([{}, null, mockPromptAsync]);
+    mockResponse(null);
     process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = 'web-client-id';
   });
 
@@ -51,29 +60,42 @@ describe('useGoogleSignIn', () => {
     expect(result.current.isConfigured).toBe(true);
   });
 
-  it('meldet sich mit dem id_token beim AuthService an', async () => {
-    mockPromptAsync.mockResolvedValue({ type: 'success', params: { id_token: 'google-id-token' } });
+  it('meldet sich mit dem id_token aus der response beim AuthService an', async () => {
+    mockPromptAsync.mockResolvedValue({ type: 'success', params: { code: 'auth-code' } });
     mockSignInWithGoogle.mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useGoogleSignIn());
+    const { result, rerender } = renderHook(() => useGoogleSignIn());
 
     await act(async () => {
       await result.current.signIn();
     });
 
-    expect(mockSignInWithGoogle).toHaveBeenCalledWith('google-id-token');
+    expect(result.current.loading).toBe(true);
+    expect(mockSignInWithGoogle).not.toHaveBeenCalled();
+
+    // Simuliert den asynchronen Code-Tausch von expo-auth-session, der auf einem späteren Render
+    // den zweiten Rückgabewert (`response`) mit dem tatsächlichen id_token aktualisiert.
+    mockResponse({ type: 'success', params: { id_token: 'google-id-token' } });
+    rerender({});
+
+    await waitFor(() => expect(mockSignInWithGoogle).toHaveBeenCalledWith('google-id-token'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBeNull();
   });
 
   it('ignoriert einen abgebrochenen Dialog ohne Fehlermeldung', async () => {
     mockPromptAsync.mockResolvedValue({ type: 'cancel' });
 
-    const { result } = renderHook(() => useGoogleSignIn());
+    const { result, rerender } = renderHook(() => useGoogleSignIn());
 
     await act(async () => {
       await result.current.signIn();
     });
 
+    mockResponse({ type: 'cancel' });
+    rerender({});
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBeNull();
     expect(mockSignInWithGoogle).not.toHaveBeenCalled();
   });
@@ -81,17 +103,20 @@ describe('useGoogleSignIn', () => {
   it('meldet einen Fehler, wenn die AuthSession fehlschlägt', async () => {
     mockPromptAsync.mockResolvedValue({ type: 'error', params: {} });
 
-    const { result } = renderHook(() => useGoogleSignIn());
+    const { result, rerender } = renderHook(() => useGoogleSignIn());
 
     await act(async () => {
       await result.current.signIn();
     });
 
-    expect(result.current.error?.code).toBe('AUTH_GOOGLE_SIGN_IN_FAILED');
+    mockResponse({ type: 'error', params: {} });
+    rerender({});
+
+    await waitFor(() => expect(result.current.error?.code).toBe('AUTH_GOOGLE_SIGN_IN_FAILED'));
   });
 
   it('meldet einen Fehler vom AuthService', async () => {
-    mockPromptAsync.mockResolvedValue({ type: 'success', params: { id_token: 'google-id-token' } });
+    mockPromptAsync.mockResolvedValue({ type: 'success', params: { code: 'auth-code' } });
     mockSignInWithGoogle.mockRejectedValue({
       code: 'AUTH_INVALID_CREDENTIALS',
       messageKey: 'x',
@@ -99,12 +124,15 @@ describe('useGoogleSignIn', () => {
       technicalMessage: 'x',
     });
 
-    const { result } = renderHook(() => useGoogleSignIn());
+    const { result, rerender } = renderHook(() => useGoogleSignIn());
 
     await act(async () => {
       await result.current.signIn();
     });
 
-    expect(result.current.error?.code).toBe('AUTH_INVALID_CREDENTIALS');
+    mockResponse({ type: 'success', params: { id_token: 'google-id-token' } });
+    rerender({});
+
+    await waitFor(() => expect(result.current.error?.code).toBe('AUTH_INVALID_CREDENTIALS'));
   });
 });
