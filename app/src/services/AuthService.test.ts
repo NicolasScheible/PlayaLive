@@ -22,6 +22,8 @@ jest.mock('../lib/supabase', () => ({
       updateUser: jest.fn(),
       getSession: jest.fn(),
       signInWithIdToken: jest.fn(),
+      exchangeCodeForSession: jest.fn(),
+      setSession: jest.fn(),
     },
     from: jest.fn(),
   },
@@ -113,6 +115,93 @@ describe('AuthService.signUpWithPassword', () => {
         username: 'Nutzer',
       }),
     ).resolves.toEqual({ needsEmailConfirmation: false });
+  });
+
+  it('übergibt eine mobile emailRedirectTo für die Bestätigungs-E-Mail, Username bleibt erhalten', async () => {
+    supabase.auth.signUp.mockResolvedValue({ data: { user: {}, session: null }, error: null });
+
+    await AuthService.signUpWithPassword({
+      email: 'a@b.de',
+      password: 'geheim123',
+      username: 'Nutzer',
+    });
+
+    expect(supabase.auth.signUp).toHaveBeenCalledWith({
+      email: 'a@b.de',
+      password: 'geheim123',
+      options: { data: { username: 'Nutzer' }, emailRedirectTo: 'playalive://auth/callback' },
+    });
+  });
+});
+
+describe('AuthService.handleAuthCallbackUrl', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('tauscht einen PKCE-Code gegen eine Session (exchangeCodeForSession)', async () => {
+    supabase.auth.exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
+
+    await expect(
+      AuthService.handleAuthCallbackUrl('playalive://auth/callback?code=abc123&type=signup'),
+    ).resolves.toBeUndefined();
+
+    expect(supabase.auth.exchangeCodeForSession).toHaveBeenCalledWith('abc123');
+    expect(supabase.auth.setSession).not.toHaveBeenCalled();
+  });
+
+  it('übernimmt Access-/Refresh-Token aus dem URL-Fragment (Implicit Flow) via setSession', async () => {
+    supabase.auth.setSession.mockResolvedValue({ data: {}, error: null });
+
+    await expect(
+      AuthService.handleAuthCallbackUrl(
+        'playalive://auth/callback#access_token=at-1&refresh_token=rt-1&type=signup',
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(supabase.auth.setSession).toHaveBeenCalledWith({
+      access_token: 'at-1',
+      refresh_token: 'rt-1',
+    });
+    expect(supabase.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+  });
+
+  it('übersetzt einen abgelaufenen/ungültigen Bestätigungslink (z. B. bereits verwendet)', async () => {
+    await expect(
+      AuthService.handleAuthCallbackUrl(
+        'playalive://auth/callback?error=access_denied&error_description=Email+link+is+invalid+or+has+expired',
+      ),
+    ).rejects.toMatchObject({ code: 'AUTH_LINK_INVALID' });
+
+    expect(supabase.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(supabase.auth.setSession).not.toHaveBeenCalled();
+  });
+
+  it('übersetzt einen Supabase-Fehler von exchangeCodeForSession', async () => {
+    supabase.auth.exchangeCodeForSession.mockResolvedValue({
+      data: {},
+      error: new AuthApiError('Invalid code', 400, 'invalid_credentials'),
+    });
+
+    await expect(
+      AuthService.handleAuthCallbackUrl('playalive://auth/callback?code=abc123'),
+    ).rejects.toMatchObject({ code: 'AUTH_INVALID_CREDENTIALS' });
+  });
+
+  it('tut nichts bei einer URL ohne erkennbare Auth-Parameter (z. B. normaler App-Start)', async () => {
+    await expect(
+      AuthService.handleAuthCallbackUrl('playalive://auth/callback'),
+    ).resolves.toBeUndefined();
+
+    expect(supabase.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(supabase.auth.setSession).not.toHaveBeenCalled();
+  });
+
+  it('tut nichts bei einer nicht parsbaren URL', async () => {
+    await expect(AuthService.handleAuthCallbackUrl('nicht-mal-eine-url')).resolves.toBeUndefined();
+
+    expect(supabase.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(supabase.auth.setSession).not.toHaveBeenCalled();
   });
 });
 

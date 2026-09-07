@@ -1,5 +1,6 @@
 import { isAuthApiError, isAuthRetryableFetchError } from '@supabase/supabase-js';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
 
 import type { AppError } from '../lib/errors';
 import { mapDatabaseError } from '../lib/errors';
@@ -30,6 +31,8 @@ const AUTH_ERROR_MESSAGES = {
   AUTH_WEAK_PASSWORD: 'Das Passwort ist zu kurz.',
   AUTH_EMAIL_NOT_CONFIRMED: 'Bitte bestätige zuerst deine E-Mail-Adresse.',
   AUTH_RATE_LIMITED: 'Zu viele Versuche. Bitte versuche es später erneut.',
+  AUTH_LINK_INVALID:
+    'Der Link ist ungültig oder abgelaufen. Bitte fordere eine neue Bestätigungs-E-Mail an.',
   NETWORK_OFFLINE: 'Bitte überprüfe deine Internetverbindung.',
   UNKNOWN_ERROR: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
 } as const;
@@ -77,6 +80,51 @@ function sessionMissingError(): AppError {
   };
 }
 
+function authLinkInvalidError(technicalMessage: string): AppError {
+  return {
+    code: 'AUTH_LINK_INVALID',
+    messageKey: 'errors.auth.AUTH_LINK_INVALID',
+    message: AUTH_ERROR_MESSAGES.AUTH_LINK_INVALID,
+    technicalMessage,
+  };
+}
+
+// E-Mail-Bestätigungs-Link (siehe docs/Architecture.md Kapitel 12 „E-Mail-Bestätigung: Redirect-URL").
+// `detectSessionInUrl: false` in lib/supabase.ts ist für native Apps korrekt gesetzt (kein
+// `window.location`) — die eingehende URL muss daher hier manuell ausgewertet werden. Je nach
+// Supabase-`flowType` (siehe createClient()-Konfiguration; Standard ist `implicit`, siehe
+// GoTrueClient-Default) liefert der Link entweder Access-/Refresh-Token im URL-Fragment (Implicit
+// Flow) oder einen `code`-Query-Parameter (PKCE) — beide Formen werden unterstützt, statt eines davon
+// anzunehmen.
+const AUTH_CALLBACK_URL = Linking.createURL('auth/callback', { scheme: 'playalive' });
+
+function parseAuthCallbackUrl(url: string): {
+  code?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  errorDescription?: string;
+} {
+  let parsed: URL;
+
+  try {
+    parsed = new URL(url);
+  } catch {
+    return {};
+  }
+
+  const queryParams = new URLSearchParams(parsed.search);
+  const fragmentParams = new URLSearchParams(parsed.hash.replace(/^#/, ''));
+
+  return {
+    code: queryParams.get('code') ?? fragmentParams.get('code') ?? undefined,
+    accessToken: fragmentParams.get('access_token') ?? queryParams.get('access_token') ?? undefined,
+    refreshToken:
+      fragmentParams.get('refresh_token') ?? queryParams.get('refresh_token') ?? undefined,
+    errorDescription:
+      queryParams.get('error_description') ?? fragmentParams.get('error_description') ?? undefined,
+  };
+}
+
 export const AuthService = {
   getSession(): Promise<{ session: Session | null }> {
     return supabase.auth.getSession().then(({ data }) => ({ session: data.session }));
@@ -110,7 +158,7 @@ export const AuthService = {
     const { data, error } = await supabase.auth.signUp({
       email: params.email,
       password: params.password,
-      options: { data: { username: params.username } },
+      options: { data: { username: params.username }, emailRedirectTo: AUTH_CALLBACK_URL },
     });
 
     if (error) {
@@ -118,6 +166,41 @@ export const AuthService = {
     }
 
     return { needsEmailConfirmation: data.session === null };
+  },
+
+  // Verarbeitet den Link aus der Bestätigungs-E-Mail (siehe useAuthDeepLink.ts, gemountet in App.tsx).
+  // Übergibt eine erkannte Session ausschließlich über `setSession`/`exchangeCodeForSession` an das
+  // Supabase-SDK — das löst intern denselben `onAuthStateChange`-Event aus wie jeder andere Login, der
+  // bestehende Listener im authStore übernimmt die Session daher automatisch, ohne eigenen Zustand hier.
+  // Enthält die URL keine erkennbaren Auth-Parameter (z. B. ein App-Start ohne Deep Link), passiert
+  // bewusst nichts — kein Fehlerzustand für einen ganz normalen App-Start.
+  async handleAuthCallbackUrl(url: string): Promise<void> {
+    const { code, accessToken, refreshToken, errorDescription } = parseAuthCallbackUrl(url);
+
+    if (errorDescription) {
+      throw authLinkInvalidError(errorDescription);
+    }
+
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        throw mapAuthError(error);
+      }
+
+      return;
+    }
+
+    if (accessToken && refreshToken) {
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (error) {
+        throw mapAuthError(error);
+      }
+    }
   },
 
   async resetPasswordForEmail(email: string): Promise<void> {

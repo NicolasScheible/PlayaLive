@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useAuthDeepLink } from './features/auth/hooks/useAuthDeepLink';
 import { useForegroundNotifications } from './features/notifications/hooks/useForegroundNotifications';
 import { useNotificationListeners } from './features/notifications/hooks/useNotificationListeners';
 import { queryClient } from './lib/queryClient';
@@ -30,9 +31,12 @@ function AppProviders({ children }: { children: ReactNode }) {
 // `NavigationContainer` sowie die beiden Notification-Listener-Hooks sind app-weite Infrastruktur für
 // das Push-Notification-Feature (docs/ADR/007-Notifications.md) — Registrierung/Berechtigung selbst
 // laufen weiterhin über den nutzerinitiierten Einstieg im Settings-Screen, nicht automatisch beim Start.
+// useAuthDeepLink ist analog app-weite Infrastruktur für den E-Mail-Bestätigungslink (siehe
+// docs/ADR/002-Authentication.md „E-Mail-Verifizierung").
 export default function App() {
   useNotificationListeners();
   useForegroundNotifications();
+  useAuthDeepLink();
 
   return (
     <AppProviders>

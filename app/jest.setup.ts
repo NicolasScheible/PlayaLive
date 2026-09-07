@@ -60,6 +60,17 @@ jest.mock('expo-web-browser', () => ({
   maybeCompleteAuthSession: jest.fn(),
 }));
 
+// `AuthService.ts`/`useAuthDeepLink.ts` importieren `expo-linking` für den E-Mail-Bestätigungslink
+// (siehe docs/ADR/002-Authentication.md). `createURL` liefert hier deterministisch dieselbe
+// `playalive://`-URL wie im echten Build (siehe AUTH_CALLBACK_URL in AuthService.ts), ohne das native
+// Modul zu laden. `AuthService.test.ts`/`useAuthDeepLink.test.ts` überschreiben `getInitialURL`/
+// `addEventListener` lokal mit spezifischem Verhalten, analog zu den übrigen Mocks in dieser Datei.
+jest.mock('expo-linking', () => ({
+  createURL: jest.fn((path: string) => `playalive://${path}`),
+  getInitialURL: jest.fn().mockResolvedValue(null),
+  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
 jest.mock('expo-crypto', () => ({
   randomUUID: jest.fn(() => 'test-nonce'),
   digestStringAsync: jest.fn().mockResolvedValue('test-hashed-nonce'),

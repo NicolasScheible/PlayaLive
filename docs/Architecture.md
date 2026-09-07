@@ -390,6 +390,33 @@ Nutzern vorbehalten sind. Die E-Mail-Verifizierung ergänzt die bereits bestehen
 Missbrauchsschutz-Mechanismen (Login-Pflicht, Trust Score, Rate Limiting, Geofencing, Moderation, siehe
 `docs/PRD.md` Kapitel 15) um eine weitere, unabhängige Schicht.
 
+### E-Mail-Bestätigung: Redirect-URL (Deep Link)
+
+Der Bestätigungslink in der von Supabase versendeten E-Mail muss zurück in die native App führen statt
+in einen Browser. `AuthService.signUpWithPassword()` übergibt dafür `emailRedirectTo:
+"playalive://auth/callback"` (Expo-Scheme `playalive`, siehe `app.json` → `scheme`; das zweite
+registrierte Scheme `com.playalive` ist ausschließlich für den Google-OAuth-Redirect reserviert und wird
+hier bewusst nicht verwendet).
+
+- **In Supabase einzutragen:** Authentication → URL Configuration → Redirect URLs →
+  `playalive://auth/callback` hinzufügen. Ohne diesen Eintrag lehnt Supabase den Redirect ab.
+- **Wofür benötigt:** aktuell für die Bestätigungs-E-Mail nach der Registrierung
+  (`supabase.auth.signUp()`); bei künftigen Auth-Flows mit E-Mail-Link (falls hinzugefügt) ist derselbe
+  Eintrag wiederzuverwenden statt einen weiteren zu erfinden.
+- **Verarbeitung in der App:** `useAuthDeepLink()` (gemountet in `App.tsx`) verarbeitet den Link sowohl
+  bei kaltem App-Start (`Linking.getInitialURL()`) als auch bei bereits offener App
+  (`Linking.addEventListener('url', ...)`) und übergibt eine erkannte Session über
+  `AuthService.handleAuthCallbackUrl()` an `supabase.auth.setSession()`/`exchangeCodeForSession()` — je
+  nachdem, ob der Link Access-/Refresh-Token (Implicit Flow) oder einen `code`-Parameter (PKCE)
+  enthält. Der bestehende `onAuthStateChange`-Listener im `authStore` übernimmt die Session danach wie
+  bei jedem anderen Login.
+- **Neuer nativer Build nötig:** Änderungen am Expo-`scheme` erfordern einen neuen Native-Build
+  (`expo prebuild`/EAS Build) — für diese Änderung nicht der Fall, da `playalive` bereits als Scheme
+  registriert ist.
+- Registrierung/Login funktionieren unabhängig vom Bestätigungslink sofort (siehe oben,
+  „sofort nutzbar (unverifiziert)") — der Redirect ist ausschließlich dafür da, `email_confirmed_at`
+  zu aktualisieren, nicht um eine Session erst zu erzeugen.
+
 ## 13. Rollenmodell
 
 ✅ Entschieden (`docs/PRD.md` Kapitel 12, `docs/Database.md` 2.1):
