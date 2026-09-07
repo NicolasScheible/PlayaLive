@@ -44,6 +44,18 @@ describe('useAppleSignIn', () => {
     expect(mockSignInAsync).not.toHaveBeenCalled();
   });
 
+  it('wirft keinen ungefangenen Fehler, wenn isAvailableAsync() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockIsAvailableAsync.mockRejectedValue(new Error('Nicht unterstützt'));
+
+    const { result } = renderHook(() => useAppleSignIn());
+
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled());
+    expect(result.current.isAvailable).toBe(false);
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('meldet sich mit dem Identity-Token und dem rohen Nonce beim AuthService an', async () => {
     mockIsAvailableAsync.mockResolvedValue(true);
     mockSignInAsync.mockResolvedValue({ identityToken: 'apple-identity-token' });

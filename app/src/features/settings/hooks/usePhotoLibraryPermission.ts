@@ -26,12 +26,23 @@ export function usePhotoLibraryPermission() {
   useEffect(() => {
     let isMounted = true;
 
-    ImagePicker.getMediaLibraryPermissionsAsync().then((response) => {
-      if (isMounted) {
-        setStatus(toPermissionStatus(response.status));
-        setIsLoading(false);
-      }
-    });
+    ImagePicker.getMediaLibraryPermissionsAsync()
+      .then((response) => {
+        if (isMounted) {
+          setStatus(toPermissionStatus(response.status));
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          '[usePhotoLibraryPermission] getMediaLibraryPermissionsAsync() fehlgeschlagen:',
+          error,
+        );
+
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
 
     return () => {
       isMounted = false;

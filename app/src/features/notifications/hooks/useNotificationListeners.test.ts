@@ -116,6 +116,18 @@ describe('useNotificationListeners', () => {
     expect(mockRegisterPushToken).toHaveBeenCalledWith('new-fcm-token');
   });
 
+  it('wirft keinen ungefangenen Fehler, wenn getInitialNotification() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetInitialNotification.mockRejectedValue(new Error('Firebase nicht initialisiert'));
+
+    renderHook(() => useNotificationListeners());
+
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled());
+    expect(mockNavigate).not.toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('meldet sich beim Unmount von beiden Listenern ab', () => {
     const unsubscribeOpened = jest.fn();
     const unsubscribeTokenRefresh = jest.fn();

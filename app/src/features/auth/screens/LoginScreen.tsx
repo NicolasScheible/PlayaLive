@@ -48,7 +48,10 @@ export function LoginScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Deine Playa. Live dabei.</Text>
+        <View style={styles.brand}>
+          <Text style={styles.wordmark}>PLAYALIVE</Text>
+          <Text style={styles.tagline}>Deine Playa. Live dabei.</Text>
+        </View>
 
         <View style={styles.form}>
           <TextField
@@ -125,10 +128,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     gap: theme.spacing.xl,
   },
-  title: {
+  brand: {
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  // Markenschriftzug (kein Logo-Bild verfügbar — assets/icon.png enthält sichtbare
+  // Konstruktionslinien eines unfertigen Icon-Exports und eignet sich nicht als In-App-Logo, siehe
+  // Abschlussbericht). Reine Typografie aus bereits entschiedenen Design-Tokens
+  // (`colors.brand.primary`, `typography.title`) statt eines neuen Bild-Assets.
+  wordmark: {
     fontSize: theme.typography.title.fontSize,
     fontWeight: theme.typography.title.fontWeight,
-    color: theme.colors.text.primary,
+    color: theme.colors.brand.primary,
+    letterSpacing: 2,
+  },
+  tagline: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
     textAlign: 'center',
   },
   form: {

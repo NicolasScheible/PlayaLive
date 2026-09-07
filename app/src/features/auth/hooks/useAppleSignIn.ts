@@ -50,11 +50,15 @@ export function useAppleSignIn() {
   useEffect(() => {
     let isMounted = true;
 
-    AppleAuthentication.isAvailableAsync().then((available) => {
-      if (isMounted) {
-        setIsAvailable(available);
-      }
-    });
+    AppleAuthentication.isAvailableAsync()
+      .then((available) => {
+        if (isMounted) {
+          setIsAvailable(available);
+        }
+      })
+      .catch((error) => {
+        console.error('[useAppleSignIn] isAvailableAsync() fehlgeschlagen:', error);
+      });
 
     return () => {
       isMounted = false;

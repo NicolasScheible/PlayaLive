@@ -31,11 +31,18 @@ function openNotificationTarget(message: RemoteMessage) {
 
 export function useNotificationListeners() {
   useEffect(() => {
-    NotificationService.getInitialNotification().then((message) => {
-      if (message) {
-        openNotificationTarget(message);
-      }
-    });
+    NotificationService.getInitialNotification()
+      .then((message) => {
+        if (message) {
+          openNotificationTarget(message);
+        }
+      })
+      .catch((error) => {
+        // Firebase Messaging kann hier ablehnen, wenn das native Modul nicht korrekt initialisiert
+        // ist (siehe docs/ADR/007-Notifications.md) — ohne diesen Catch würde React Native das als
+        // unhandled promise rejection melden, statt dass der App-Start davon unbeeinflusst bleibt.
+        console.error('[useNotificationListeners] getInitialNotification() fehlgeschlagen:', error);
+      });
 
     const unsubscribeOpened = NotificationService.onNotificationOpened(openNotificationTarget);
 

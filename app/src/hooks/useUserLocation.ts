@@ -27,12 +27,23 @@ export function useUserLocation() {
   useEffect(() => {
     let isMounted = true;
 
-    Location.getForegroundPermissionsAsync().then((response) => {
-      if (isMounted) {
-        setStatus(response.status);
-        setIsLoading(false);
-      }
-    });
+    Location.getForegroundPermissionsAsync()
+      .then((response) => {
+        if (isMounted) {
+          setStatus(response.status);
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        // Ohne diesen Catch bliebe `isLoading` bei einem Fehler (z. B. Standortdienste auf
+        // Systemebene deaktiviert) dauerhaft `true` — Aufrufer würden nie einen nutzbaren Zustand
+        // sehen, statt regulär mit `status: 'undetermined'` weiterzumachen.
+        console.error('[useUserLocation] getForegroundPermissionsAsync() fehlgeschlagen:', error);
+
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
 
     return () => {
       isMounted = false;
@@ -47,11 +58,18 @@ export function useUserLocation() {
     let isMounted = true;
     let subscription: Location.LocationSubscription | undefined;
 
-    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }).then((position) => {
-      if (isMounted) {
-        setCoords(position.coords);
-      }
-    });
+    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+      .then((position) => {
+        if (isMounted) {
+          setCoords(position.coords);
+        }
+      })
+      .catch((error) => {
+        // Schlägt auf Emulatoren/Geräten ohne GPS-Fix oder mit deaktivierten Standortdiensten fehl,
+        // obwohl die Berechtigung erteilt ist — `coords` bleibt dann `null` (bereits von Aufrufern als
+        // „noch kein Standort" behandelt), statt einer ungefangenen Promise-Ablehnung.
+        console.error('[useUserLocation] getCurrentPositionAsync() fehlgeschlagen:', error);
+      });
 
     Location.watchPositionAsync(
       { accuracy: Location.Accuracy.Balanced, distanceInterval: WATCH_DISTANCE_INTERVAL_METERS },
@@ -60,13 +78,17 @@ export function useUserLocation() {
           setCoords(position.coords);
         }
       },
-    ).then((newSubscription) => {
-      if (isMounted) {
-        subscription = newSubscription;
-      } else {
-        newSubscription.remove();
-      }
-    });
+    )
+      .then((newSubscription) => {
+        if (isMounted) {
+          subscription = newSubscription;
+        } else {
+          newSubscription.remove();
+        }
+      })
+      .catch((error) => {
+        console.error('[useUserLocation] watchPositionAsync() fehlgeschlagen:', error);
+      });
 
     return () => {
       isMounted = false;

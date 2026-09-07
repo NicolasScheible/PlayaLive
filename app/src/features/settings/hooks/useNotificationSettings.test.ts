@@ -120,4 +120,19 @@ describe('useNotificationSettings', () => {
     expect(mockUpdateNotificationSettings).toHaveBeenCalledWith(false);
     expect(mockRequestPushPermission).not.toHaveBeenCalled();
   });
+
+  it('wirft keinen ungefangenen Fehler, wenn getPushPermissionStatus() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetPushPermissionStatus.mockRejectedValue(new Error('Firebase nicht initialisiert'));
+
+    const { result, unmount } = renderHook(() => useNotificationSettings(), {
+      wrapper: createQueryWrapper(),
+    });
+
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled());
+    expect(result.current.permissionStatus).toBe('undetermined');
+
+    unmount();
+    consoleErrorSpy.mockRestore();
+  });
 });

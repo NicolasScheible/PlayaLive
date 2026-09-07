@@ -25,11 +25,15 @@ export function SkeletonBlock({
   useEffect(() => {
     let isMounted = true;
 
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (isMounted) {
-        setReduceMotionEnabled(enabled);
-      }
-    });
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => {
+        if (isMounted) {
+          setReduceMotionEnabled(enabled);
+        }
+      })
+      .catch((error) => {
+        console.error('[SkeletonBlock] isReduceMotionEnabled() fehlgeschlagen:', error);
+      });
 
     return () => {
       isMounted = false;

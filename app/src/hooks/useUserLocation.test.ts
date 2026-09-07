@@ -67,6 +67,31 @@ describe('useUserLocation', () => {
     expect(result.current.status).toBe('granted');
   });
 
+  it('beendet das Laden auch, wenn getForegroundPermissionsAsync() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetForegroundPermissionsAsync.mockRejectedValue(new Error('Standortdienste deaktiviert'));
+
+    const { result } = renderHook(() => useUserLocation());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.status).toBe('undetermined');
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('wirft keinen ungefangenen Fehler, wenn getCurrentPositionAsync() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    mockGetCurrentPositionAsync.mockRejectedValue(new Error('Kein GPS-Fix'));
+    mockWatchPositionAsync.mockResolvedValue({ remove: mockRemove });
+
+    renderHook(() => useUserLocation());
+
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled());
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('beendet das watchPositionAsync-Abonnement beim Unmount', async () => {
     mockGetForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
     mockGetCurrentPositionAsync.mockResolvedValue({ coords });

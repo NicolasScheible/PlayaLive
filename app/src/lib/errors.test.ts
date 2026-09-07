@@ -61,6 +61,27 @@ describe('mapDatabaseError', () => {
     expect(result.message).toBe('Diese Location wurde nicht gefunden.');
   });
 
+  it('übersetzt eine fehlende Tabelle im Schema-Cache (PGRST205) als SERVER_ERROR', () => {
+    const result = mapDatabaseError({
+      message: "Could not find the table 'public.profiles' in the schema cache",
+      code: 'PGRST205',
+    });
+
+    expect(result.code).toBe('SERVER_ERROR');
+    expect(result.message).toBe(
+      'Der Server ist aktuell nicht erreichbar. Bitte versuche es später erneut.',
+    );
+    expect(result.technicalMessage).toBe(
+      "Could not find the table 'public.profiles' in the schema cache",
+    );
+  });
+
+  it('übersetzt eine fehlende Funktion im Schema-Cache (PGRST202) als SERVER_ERROR', () => {
+    const result = mapDatabaseError({ message: 'Could not find the function', code: 'PGRST202' });
+
+    expect(result.code).toBe('SERVER_ERROR');
+  });
+
   it('übersetzt einen TypeError als NETWORK_OFFLINE', () => {
     const result = mapDatabaseError(new TypeError('Network request failed'));
 

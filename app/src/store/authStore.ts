@@ -20,9 +20,18 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   isInitializing: true,
 
   initialize: () => {
-    AuthService.getSession().then(({ session }) => {
-      set({ session, isInitializing: false });
-    });
+    AuthService.getSession()
+      .then(({ session }) => {
+        set({ session, isInitializing: false });
+      })
+      .catch((error) => {
+        // Ohne diesen Catch bliebe die App bei einem Fehler hier (z. B. transienter Netzwerkfehler
+        // beim kalten Start) dauerhaft auf der LoadingScreen hängen, da `isInitializing` nie auf
+        // `false` gesetzt würde — ein Fehlschlag wird daher wie „keine Session" behandelt, der
+        // Nutzer landet regulär auf dem Login statt in einer Sackgasse.
+        console.error('[authStore] getSession() beim Start fehlgeschlagen:', error);
+        set({ session: null, isInitializing: false });
+      });
 
     AuthService.onAuthStateChange((_event, session) => {
       set({ session });

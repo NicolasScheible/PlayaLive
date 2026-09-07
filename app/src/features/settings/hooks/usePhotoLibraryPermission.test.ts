@@ -37,6 +37,18 @@ describe('usePhotoLibraryPermission', () => {
     await waitFor(() => expect(result.current.status).toBe('granted'));
   });
 
+  it('beendet das Laden auch, wenn getMediaLibraryPermissionsAsync() ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetMediaLibraryPermissionsAsync.mockRejectedValue(new Error('Fehler'));
+
+    const { result } = renderHook(() => usePhotoLibraryPermission());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.status).toBe('undetermined');
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('requestPermission fragt aktiv an und aktualisiert den Status', async () => {
     mockGetMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'undetermined' });
     mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({ status: 'denied' });

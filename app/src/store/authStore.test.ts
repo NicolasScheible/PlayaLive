@@ -36,6 +36,21 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().isInitializing).toBe(false);
   });
 
+  it('beendet isInitializing auch, wenn getSession() beim Start fehlschlägt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    AuthService.getSession.mockRejectedValue(new Error('Netzwerkfehler'));
+    AuthService.onAuthStateChange.mockReturnValue({ unsubscribe: jest.fn() });
+
+    useAuthStore.getState().initialize();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(useAuthStore.getState().session).toBeNull();
+    expect(useAuthStore.getState().isInitializing).toBe(false);
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('übernimmt Session-Änderungen aus onAuthStateChange', () => {
     AuthService.getSession.mockResolvedValue({ session: null });
     let capturedCallback: (event: string, session: unknown) => void = () => {};

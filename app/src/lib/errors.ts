@@ -65,6 +65,16 @@ export function mapDatabaseError(error: unknown, options: MapDatabaseErrorOption
         return 'PERMISSION_DENIED';
       case 'PGRST116':
         return options.notFound?.code ?? 'NOT_FOUND';
+      // PGRST205: Tabelle/View nicht im PostgREST-Schema-Cache gefunden (z. B. "Could not find the
+      // table 'public.profiles' in the schema cache") — PGRST202 analog für eine RPC-Funktion. Deutet
+      // fast immer auf ein Deployment-Problem hin (Migrationen nicht auf das verbundene Supabase-
+      // Projekt angewendet, oder Schema-Cache seit einer manuellen Änderung nicht neu geladen), nicht
+      // auf einen für Endnutzer behebbaren Zustand — daher SERVER_ERROR statt UNKNOWN_ERROR, damit die
+      // UI-Meldung ehrlich bleibt („Server nicht erreichbar" statt „versuche es erneut", was hier nichts
+      // bringen würde). `technicalMessage` behält den originalen PostgREST-Text für die Diagnose.
+      case 'PGRST205':
+      case 'PGRST202':
+        return 'SERVER_ERROR';
       default:
         return error instanceof TypeError ? 'NETWORK_OFFLINE' : 'UNKNOWN_ERROR';
     }

@@ -23,6 +23,14 @@ export const theme = {
     border: {
       subtle: 'rgba(255, 255, 255, 0.15)',
     },
+    // Eingabefeld-Füllung (siehe TextField.tsx-Kommentar: Feld-Stil für Formulare ist in
+    // docs/DesignSystem.md Kapitel 13 offen). Bisher identisch mit `background.base` — dadurch waren
+    // Eingabefelder nur über den 1px-Rand vom Hintergrund zu unterscheiden. Opazitäts-Ableitung von
+    // Weiß (bereits entschiedene `colors.text.primary`), kein neuer Hex-Wert, analog zu
+    // `text.secondary`/`border.subtle` oben.
+    surface: {
+      input: 'rgba(255, 255, 255, 0.06)',
+    },
     // Dunkles Verlaufs-/Scrim-Overlay für Bild-Cards (Kapitel 12: „dunkles Verlaufs-Overlay am unteren
     // Bildrand, damit darüberliegender weißer Text lesbar bleibt") sowie Badge-Hintergründe auf Bildern
     // — Opazitäts-Ableitung von Schwarz, kein neuer Marken-/Statuswert.

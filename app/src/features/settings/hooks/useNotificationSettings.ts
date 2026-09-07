@@ -26,11 +26,15 @@ export function useNotificationSettings() {
   useEffect(() => {
     let isMounted = true;
 
-    NotificationService.getPushPermissionStatus().then((status) => {
-      if (isMounted) {
-        setPermissionStatus(status);
-      }
-    });
+    NotificationService.getPushPermissionStatus()
+      .then((status) => {
+        if (isMounted) {
+          setPermissionStatus(status);
+        }
+      })
+      .catch((error) => {
+        console.error('[useNotificationSettings] getPushPermissionStatus() fehlgeschlagen:', error);
+      });
 
     return () => {
       isMounted = false;
