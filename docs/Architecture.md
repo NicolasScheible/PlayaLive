@@ -390,32 +390,58 @@ Nutzern vorbehalten sind. Die E-Mail-Verifizierung ergänzt die bereits bestehen
 Missbrauchsschutz-Mechanismen (Login-Pflicht, Trust Score, Rate Limiting, Geofencing, Moderation, siehe
 `docs/PRD.md` Kapitel 15) um eine weitere, unabhängige Schicht.
 
-### E-Mail-Bestätigung: Redirect-URL (Deep Link)
+### E-Mail-Bestätigung: technische Umsetzung (anonyme Session + Redirect-URL)
 
-Der Bestätigungslink in der von Supabase versendeten E-Mail muss zurück in die native App führen statt
-in einen Browser. `AuthService.signUpWithPassword()` übergibt dafür `emailRedirectTo:
-"playalive://auth/callback"` (Expo-Scheme `playalive`, siehe `app.json` → `scheme`; das zweite
-registrierte Scheme `com.playalive` ist ausschließlich für den Google-OAuth-Redirect reserviert und wird
-hier bewusst nicht verwendet).
+Die „sofort nutzbar (unverifiziert)"-Anforderung oben lässt sich mit `supabase.auth.signUp()` allein
+nicht umsetzen: die projektweite „Confirm email"-Einstellung ist binär — entweder liefert `signUp()`
+sofort eine Session UND setzt `email_confirmed_at` sofort (kein echtes Verifizierungsfenster), oder sie
+liefert gar keine Session bis zum Klick (keine sofortige Nutzbarkeit). Stattdessen läuft die
+Registrierung über eine **anonyme Session, die zu einem permanenten Account erweitert wird**
+(`app/src/services/AuthService.ts` → `signUpWithPassword()`):
 
-- **In Supabase einzutragen:** Authentication → URL Configuration → Redirect URLs →
-  `playalive://auth/callback` hinzufügen. Ohne diesen Eintrag lehnt Supabase den Redirect ab.
-- **Wofür benötigt:** aktuell für die Bestätigungs-E-Mail nach der Registrierung
-  (`supabase.auth.signUp()`); bei künftigen Auth-Flows mit E-Mail-Link (falls hinzugefügt) ist derselbe
-  Eintrag wiederzuverwenden statt einen weiteren zu erfinden.
-- **Verarbeitung in der App:** `useAuthDeepLink()` (gemountet in `App.tsx`) verarbeitet den Link sowohl
-  bei kaltem App-Start (`Linking.getInitialURL()`) als auch bei bereits offener App
-  (`Linking.addEventListener('url', ...)`) und übergibt eine erkannte Session über
-  `AuthService.handleAuthCallbackUrl()` an `supabase.auth.setSession()`/`exchangeCodeForSession()` — je
-  nachdem, ob der Link Access-/Refresh-Token (Implicit Flow) oder einen `code`-Parameter (PKCE)
-  enthält. Der bestehende `onAuthStateChange`-Listener im `authStore` übernimmt die Session danach wie
-  bei jedem anderen Login.
-- **Neuer nativer Build nötig:** Änderungen am Expo-`scheme` erfordern einen neuen Native-Build
-  (`expo prebuild`/EAS Build) — für diese Änderung nicht der Fall, da `playalive` bereits als Scheme
-  registriert ist.
-- Registrierung/Login funktionieren unabhängig vom Bestätigungslink sofort (siehe oben,
-  „sofort nutzbar (unverifiziert)") — der Redirect ist ausschließlich dafür da, `email_confirmed_at`
-  zu aktualisieren, nicht um eine Session erst zu erzeugen.
+1. `supabase.auth.signInAnonymously({ options: { data: { username } } })` — erzeugt sofort eine echte,
+   persistente Session (native Nutzbarkeit, kein Sonderzustand). Der `username` läuft wie bisher über
+   `raw_user_meta_data`, `handle_new_user()` (siehe `20260804122719_profiles.sql`) legt das Profil wie
+   gewohnt an.
+2. `supabase.auth.updateUser({ email, password }, { emailRedirectTo: "playalive://auth/callback" })` —
+   hängt Zugangsdaten an genau diesen bereits bestehenden Nutzer an (kein zweiter Account) und löst den
+   Versand der Bestätigungs-E-Mail aus.
+3. **Verifizierungssignal:** der native `is_anonymous`-Claim des Access-Tokens (kein eigenes
+   `profiles`-Feld). Bis zum Klick auf den Bestätigungslink bleibt `is_anonymous: true` —
+   `useSettingsScreen.ts` liest `session.user.is_anonymous !== true` für „E-Mail bestätigt", die
+   RLS-Policies `reports_insert_own`/`reviews_insert_own`
+   (`20260907100100_require_verified_email_for_community_content.sql`) prüfen serverseitig
+   `(auth.jwt() ->> 'is_anonymous')::boolean is not true`.
+4. Klick auf den Link → `playalive://auth/callback` öffnet die App → `useAuthDeepLink()` (gemountet in
+   `App.tsx`) verarbeitet ihn sowohl bei kaltem App-Start (`Linking.getInitialURL()`) als auch bei
+   bereits offener App (`Linking.addEventListener('url', ...)`) und übergibt eine erkannte Session über
+   `AuthService.handleAuthCallbackUrl()` an `supabase.auth.setSession()`/`exchangeCodeForSession()` — je
+   nachdem, ob der Link Access-/Refresh-Token (Implicit Flow) oder einen `code`-Parameter (PKCE)
+   enthält; unabhängig davon, ob es sich um `type=signup` oder `type=email_change` handelt. Der
+   bestehende `onAuthStateChange`-Listener im `authStore` übernimmt die aktualisierte Session (jetzt
+   `is_anonymous: false`) danach wie bei jedem anderen Login.
+5. `profiles.email` wird zusätzlich per Trigger synchron gehalten
+   (`20260907100000_sync_profiles_email_on_auth_user_update.sql`), da es bei der anonymen
+   Konto-Erstellung noch leer ist und erst mit Schritt 2 gesetzt wird.
+
+**Supabase-Konfiguration** (Expo-Scheme `playalive`, siehe `app.json` → `scheme`; das zweite registrierte
+Scheme `com.playalive` ist ausschließlich für den Google-OAuth-Redirect reserviert):
+
+- **Redirect URLs:** Authentication → URL Configuration → Redirect URLs →
+  `playalive://auth/callback` hinzufügen (lokal bereits in `supabase/config.toml` →
+  `additional_redirect_urls` hinterlegt — das gehostete Projekt synchronisiert sich davon nicht
+  automatisch, Dashboard-Eintrag bleibt zusätzlich nötig).
+- **Anonymous Sign-Ins:** muss aktiviert sein (Authentication → Sign In / Providers → Anonymous
+  Sign-Ins), sonst schlägt jede Registrierung mit `anonymous_provider_disabled` fehl (lokal in
+  `supabase/config.toml` → `enable_anonymous_sign_ins = true`).
+- **Secure Email Change:** lokal deaktiviert (`double_confirm_changes = false`), da die anonyme Session
+  bei Schritt 2 noch keine „alte" E-Mail-Adresse hat, die zusätzlich bestätigt werden könnte. 🔴 Nicht
+  gegen das reale Projekt verifiziert (siehe Migrationskommentar) — vor Produktivnahme mit einer echten
+  Registrierung prüfen.
+- **Confirm email:** für diesen Flow irrelevant, da nicht mehr `signUp()` verwendet wird — Wert kann
+  unverändert bleiben.
+- **Neuer nativer Build nötig:** nur bei Änderungen am Expo-`scheme` selbst (`expo prebuild`/EAS Build)
+  — für diese Änderung nicht der Fall, da `playalive` bereits als Scheme registriert ist.
 
 ## 13. Rollenmodell
 

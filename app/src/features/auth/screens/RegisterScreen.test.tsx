@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 
 import { RegisterScreen } from './RegisterScreen';
 
@@ -53,31 +54,34 @@ describe('RegisterScreen', () => {
     });
   });
 
-  // Kernfall des Bugfixes: Supabase liefert bei aktivierter E-Mail-Bestätigung erfolgreich, aber
-  // ohne Session — ohne diesen Zustand bliebe die Registrierung ohne jede sichtbare Rückmeldung
-  // stehen (siehe AuthService.signUpWithPassword).
-  it('zeigt den Bestätigungs-Hinweis, wenn eine E-Mail-Bestätigung aussteht', async () => {
+  // ADR-002: Registrierung erzeugt sofort eine nutzbare (zunächst anonyme) Session — der
+  // RootNavigator wechselt dafür selbstständig anhand der Session in die Haupt-App (nicht Aufgabe
+  // von RegisterScreen). Die verbleibende Aufgabe hier ist ausschließlich der Hinweis, die E-Mail zu
+  // bestätigen — über `Alert.alert`, da diese Komponente durch den Navigator-Wechsel bereits
+  // unmountet sein kann, bevor lokaler State dafür noch rendern würde.
+  it('zeigt einen Bestätigungs-Hinweis per Alert, wenn die Registrierung erfolgreich war', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
     mockRegister.mockResolvedValue(true);
     renderRegisterScreen();
 
     fillValidForm();
     fireEvent.press(screen.getByText('Registrieren'));
 
-    await waitFor(() => expect(screen.getByText('Fast geschafft')).toBeTruthy());
-    expect(screen.getByText(/nutzer@beispiel\.de/)).toBeTruthy();
+    await waitFor(() => expect(alertSpy).toHaveBeenCalled());
+    expect(alertSpy.mock.calls[0][0]).toBe('Fast geschafft');
+    expect(alertSpy.mock.calls[0][1]).toEqual(expect.stringContaining('nutzer@beispiel.de'));
   });
 
-  it('navigiert vom Bestätigungs-Hinweis zurück zum Login', async () => {
-    mockRegister.mockResolvedValue(true);
-    const { navigate } = renderRegisterScreen();
+  it('zeigt keinen Bestätigungs-Hinweis, wenn die Registrierung fehlgeschlagen ist', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    mockRegister.mockResolvedValue(false);
+    renderRegisterScreen();
 
     fillValidForm();
     fireEvent.press(screen.getByText('Registrieren'));
 
-    await waitFor(() => expect(screen.getByText('Fast geschafft')).toBeTruthy());
-    fireEvent.press(screen.getByText('Zurück zum Login'));
-
-    expect(navigate).toHaveBeenCalledWith('Login');
+    await waitFor(() => expect(mockRegister).toHaveBeenCalled());
+    expect(alertSpy).not.toHaveBeenCalled();
   });
 
   it('navigiert zu Login über den Link', () => {

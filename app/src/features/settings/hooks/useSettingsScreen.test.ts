@@ -14,7 +14,7 @@ describe('useSettingsScreen', () => {
       user: {
         id: 'user-1',
         email: 'dj@example.com',
-        email_confirmed_at: '2026-01-01T00:00:00.000Z',
+        is_anonymous: false,
       },
     } as never;
     useAuthStore.setState({ session, isInitializing: false });
@@ -25,9 +25,12 @@ describe('useSettingsScreen', () => {
     expect(result.current.isEmailVerified).toBe(true);
   });
 
-  it('erkennt eine noch nicht bestätigte E-Mail-Adresse', () => {
+  // ADR-002/Option E: Registrierung erzeugt zunächst eine anonyme Session — bis zum Klick auf den
+  // Bestätigungslink bleibt `is_anonymous` `true`, unabhängig davon, dass bereits eine E-Mail-Adresse
+  // per `updateUser()` hinterlegt wurde.
+  it('erkennt eine noch nicht bestätigte E-Mail-Adresse (anonyme Session)', () => {
     const session = {
-      user: { id: 'user-1', email: 'dj@example.com', email_confirmed_at: undefined },
+      user: { id: 'user-1', email: 'dj@example.com', is_anonymous: true },
     } as never;
     useAuthStore.setState({ session, isInitializing: false });
 

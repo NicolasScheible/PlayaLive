@@ -66,13 +66,13 @@ describe('useAuth', () => {
     expect(result.current.loading).toBe(false);
   });
 
-  it('liefert needsEmailConfirmation aus dem AuthService bei register()', async () => {
-    AuthService.signUpWithPassword.mockResolvedValue({ needsEmailConfirmation: true });
+  it('meldet Erfolg, wenn AuthService.signUpWithPassword auflöst', async () => {
+    AuthService.signUpWithPassword.mockResolvedValue(undefined);
     const { result } = renderHook(() => useAuth());
 
-    let needsConfirmation: boolean | undefined;
+    let success: boolean | undefined;
     await act(async () => {
-      needsConfirmation = await result.current.register({
+      success = await result.current.register({
         email: 'a@b.de',
         password: 'geheim123',
         username: 'Nutzer',
@@ -84,7 +84,7 @@ describe('useAuth', () => {
       password: 'geheim123',
       username: 'Nutzer',
     });
-    expect(needsConfirmation).toBe(true);
+    expect(success).toBe(true);
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
   });
@@ -99,16 +99,16 @@ describe('useAuth', () => {
     AuthService.signUpWithPassword.mockRejectedValue(appError);
     const { result } = renderHook(() => useAuth());
 
-    let needsConfirmation: boolean | undefined;
+    let success: boolean | undefined;
     await act(async () => {
-      needsConfirmation = await result.current.register({
+      success = await result.current.register({
         email: 'a@b.de',
         password: 'geheim123',
         username: 'Nutzer',
       });
     });
 
-    expect(needsConfirmation).toBe(false);
+    expect(success).toBe(false);
     expect(result.current.error).toEqual(appError);
     expect(result.current.loading).toBe(false);
   });

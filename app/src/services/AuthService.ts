@@ -15,9 +15,11 @@ import type { Profile } from '../types/entities';
 // jeweiligen nativen SDK gelieferte ID-Token serverseitig; die native Anmeldung selbst — Apple-Dialog/
 // Google-AuthSession, Nonce-Erzeugung — findet außerhalb dieses Service in den jeweiligen
 // `features/auth/hooks/use*SignIn`-Hooks statt, da es sich um Plattform-/Gerätezugriffe ohne
-// Datenzugriff handelt, nicht um Business-Logik). Rollenzuweisung, Session-Handling und
-// Profilanlage laufen für alle drei Methoden identisch über den bereits bestehenden
-// `onAuthStateChange`-Listener im `authStore` — keine Sonderbehandlung nötig.
+// Datenzugriff handelt, nicht um Business-Logik). E-Mail & Passwort läuft über eine anonyme Session,
+// die per `updateUser()` zu einem permanenten Account erweitert wird (siehe `signUpWithPassword()`
+// unten). Rollenzuweisung, Session-Handling und Profilanlage laufen für alle drei Methoden identisch
+// über den bereits bestehenden `onAuthStateChange`-Listener im `authStore` — keine Sonderbehandlung
+// nötig.
 
 // Fehlercode-Katalog für Auth, domänenstrukturiert gemäß docs/Architecture.md Kapitel 15
 // (Architekturentscheidung 9). Nutzerfreundliche deutsche Texte statt technischer Supabase-Meldungen —
@@ -33,6 +35,8 @@ const AUTH_ERROR_MESSAGES = {
   AUTH_RATE_LIMITED: 'Zu viele Versuche. Bitte versuche es später erneut.',
   AUTH_LINK_INVALID:
     'Der Link ist ungültig oder abgelaufen. Bitte fordere eine neue Bestätigungs-E-Mail an.',
+  AUTH_ANONYMOUS_SIGN_IN_DISABLED:
+    'Registrierung ist aktuell nicht verfügbar. Bitte versuche es später erneut.',
   NETWORK_OFFLINE: 'Bitte überprüfe deine Internetverbindung.',
   UNKNOWN_ERROR: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
 } as const;
@@ -56,6 +60,8 @@ function mapAuthError(error: unknown): AppError {
       case 'over_email_send_rate_limit':
       case 'over_request_rate_limit':
         return 'AUTH_RATE_LIMITED';
+      case 'anonymous_provider_disabled':
+        return 'AUTH_ANONYMOUS_SIGN_IN_DISABLED';
       default:
         return isAuthRetryableFetchError(error) || error instanceof TypeError
           ? 'NETWORK_OFFLINE'
@@ -90,6 +96,9 @@ function authLinkInvalidError(technicalMessage: string): AppError {
 }
 
 // E-Mail-Bestätigungs-Link (siehe docs/Architecture.md Kapitel 12 „E-Mail-Bestätigung: Redirect-URL").
+// Wird sowohl vom `updateUser()`-Bestätigungslink (Registrierung, `type=email_change`) als auch von
+// einem etwaigen künftigen `type=recovery`/`type=signup`-Link verwendet — die URL-Form hängt nicht vom
+// `type`-Parameter ab, sondern ausschließlich vom Supabase-`flowType` (Client-weite Einstellung).
 // `detectSessionInUrl: false` in lib/supabase.ts ist für native Apps korrekt gesetzt (kein
 // `window.location`) — die eingehende URL muss daher hier manuell ausgewertet werden. Je nach
 // Supabase-`flowType` (siehe createClient()-Konfiguration; Standard ist `implicit`, siehe
@@ -146,26 +155,44 @@ export const AuthService = {
     }
   },
 
-  // Gibt zurück, ob eine E-Mail-Bestätigung aussteht (Supabase liefert bei aktivierter
-  // „Confirm email"-Einstellung des Projekts erfolgreich `data.session: null` zurück, ohne Fehler —
-  // ohne diese Unterscheidung sähe die Registrierung aus Sicht der UI in diesem Fall so aus, als wäre
-  // gar nichts passiert, obwohl das Konto bereits angelegt wurde).
+  // Registrierung nach ADR-002 „E-Mail-Verifizierung": die App ist sofort nach der Registrierung
+  // nutzbar, auch unverifiziert — mit `supabase.auth.signUp()` allein nicht gleichzeitig mit einer
+  // echten, bis zum Klick fortbestehenden Verifizierungslücke erreichbar (die projektweite „Confirm
+  // email"-Einstellung ist binär: entweder liefert signUp() sofort eine Session UND setzt
+  // `email_confirmed_at` sofort, oder sie liefert gar keine Session bis zum Klick — siehe
+  // GoTrueClient.js-JSDoc zu `signUp()`). Stattdessen: `signInAnonymously()` erzeugt sofort eine echte
+  // Session (native, nicht simulierte Nutzbarkeit), danach hängt `updateUser({ email, password })`
+  // Zugangsdaten an genau diesen bereits bestehenden Nutzer an — kein zweiter Account. Solange der per
+  // `emailRedirectTo` verschickte Bestätigungslink nicht angeklickt wurde, bleibt der native
+  // `is_anonymous`-Claim `true` (siehe useSettingsScreen.ts, RLS-Policies für Reports/Reviews) — kein
+  // eigenes `profiles`-Verifizierungsfeld nötig. `getSession()` verhindert einen zweiten anonymen
+  // Nutzer, falls `updateUser()` bei einem vorherigen Versuch fehlgeschlagen ist und erneut
+  // registriert wird.
   async signUpWithPassword(params: {
     email: string;
     password: string;
     username: string;
-  }): Promise<{ needsEmailConfirmation: boolean }> {
-    const { data, error } = await supabase.auth.signUp({
-      email: params.email,
-      password: params.password,
-      options: { data: { username: params.username }, emailRedirectTo: AUTH_CALLBACK_URL },
-    });
+  }): Promise<void> {
+    const { session } = await this.getSession();
+
+    if (!session) {
+      const { error: anonymousSignInError } = await supabase.auth.signInAnonymously({
+        options: { data: { username: params.username } },
+      });
+
+      if (anonymousSignInError) {
+        throw mapAuthError(anonymousSignInError);
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser(
+      { email: params.email, password: params.password },
+      { emailRedirectTo: AUTH_CALLBACK_URL },
+    );
 
     if (error) {
       throw mapAuthError(error);
     }
-
-    return { needsEmailConfirmation: data.session === null };
   },
 
   // Verarbeitet den Link aus der Bestätigungs-E-Mail (siehe useAuthDeepLink.ts, gemountet in App.tsx).

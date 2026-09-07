@@ -18,6 +18,7 @@ jest.mock('../lib/supabase', () => ({
     auth: {
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
+      signInAnonymously: jest.fn(),
       resetPasswordForEmail: jest.fn(),
       updateUser: jest.fn(),
       getSession: jest.fn(),
@@ -49,10 +50,12 @@ describe('AuthService Fehler-Mapping', () => {
     });
   });
 
-  it('übersetzt user_already_exists beim Registrieren', async () => {
-    supabase.auth.signUp.mockResolvedValue({
+  it('übersetzt email_exists beim Registrieren (Konto existiert bereits)', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+    supabase.auth.signInAnonymously.mockResolvedValue({ data: {}, error: null });
+    supabase.auth.updateUser.mockResolvedValue({
       data: {},
-      error: new AuthApiError('User already registered', 422, 'user_already_exists'),
+      error: new AuthApiError('Email address already in use', 422, 'email_exists'),
     });
 
     await expect(
@@ -90,35 +93,10 @@ describe('AuthService.signUpWithPassword', () => {
     jest.clearAllMocks();
   });
 
-  it('meldet needsEmailConfirmation: true, wenn Supabase keine Session zurückgibt', async () => {
-    supabase.auth.signUp.mockResolvedValue({ data: { user: {}, session: null }, error: null });
-
-    await expect(
-      AuthService.signUpWithPassword({
-        email: 'a@b.de',
-        password: 'geheim123',
-        username: 'Nutzer',
-      }),
-    ).resolves.toEqual({ needsEmailConfirmation: true });
-  });
-
-  it('meldet needsEmailConfirmation: false, wenn Supabase direkt eine Session zurückgibt', async () => {
-    supabase.auth.signUp.mockResolvedValue({
-      data: { user: {}, session: { access_token: 'token' } },
-      error: null,
-    });
-
-    await expect(
-      AuthService.signUpWithPassword({
-        email: 'a@b.de',
-        password: 'geheim123',
-        username: 'Nutzer',
-      }),
-    ).resolves.toEqual({ needsEmailConfirmation: false });
-  });
-
-  it('übergibt eine mobile emailRedirectTo für die Bestätigungs-E-Mail, Username bleibt erhalten', async () => {
-    supabase.auth.signUp.mockResolvedValue({ data: { user: {}, session: null }, error: null });
+  it('erzeugt zunächst eine anonyme Session, wenn noch keine besteht', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+    supabase.auth.signInAnonymously.mockResolvedValue({ data: {}, error: null });
+    supabase.auth.updateUser.mockResolvedValue({ data: {}, error: null });
 
     await AuthService.signUpWithPassword({
       email: 'a@b.de',
@@ -126,11 +104,81 @@ describe('AuthService.signUpWithPassword', () => {
       username: 'Nutzer',
     });
 
-    expect(supabase.auth.signUp).toHaveBeenCalledWith({
+    expect(supabase.auth.signInAnonymously).toHaveBeenCalledWith({
+      options: { data: { username: 'Nutzer' } },
+    });
+  });
+
+  it('erzeugt keine zweite anonyme Session, wenn bereits eine besteht (Retry nach fehlgeschlagenem Upgrade)', async () => {
+    supabase.auth.getSession.mockResolvedValue({
+      data: { session: { user: { id: 'user-1', is_anonymous: true } } },
+    });
+    supabase.auth.updateUser.mockResolvedValue({ data: {}, error: null });
+
+    await AuthService.signUpWithPassword({
       email: 'a@b.de',
       password: 'geheim123',
-      options: { data: { username: 'Nutzer' }, emailRedirectTo: 'playalive://auth/callback' },
+      username: 'Nutzer',
     });
+
+    expect(supabase.auth.signInAnonymously).not.toHaveBeenCalled();
+    expect(supabase.auth.updateUser).toHaveBeenCalled();
+  });
+
+  it('hängt E-Mail, Passwort und eine mobile emailRedirectTo per updateUser an die anonyme Session an', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+    supabase.auth.signInAnonymously.mockResolvedValue({ data: {}, error: null });
+    supabase.auth.updateUser.mockResolvedValue({ data: {}, error: null });
+
+    await AuthService.signUpWithPassword({
+      email: 'a@b.de',
+      password: 'geheim123',
+      username: 'Nutzer',
+    });
+
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith(
+      { email: 'a@b.de', password: 'geheim123' },
+      { emailRedirectTo: 'playalive://auth/callback' },
+    );
+  });
+
+  it('übersetzt einen Fehler beim anonymen Sign-in (z. B. anonymous_provider_disabled)', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+    supabase.auth.signInAnonymously.mockResolvedValue({
+      data: {},
+      error: new AuthApiError(
+        'Anonymous sign-ins are disabled',
+        422,
+        'anonymous_provider_disabled',
+      ),
+    });
+
+    await expect(
+      AuthService.signUpWithPassword({
+        email: 'a@b.de',
+        password: 'geheim123',
+        username: 'Nutzer',
+      }),
+    ).rejects.toMatchObject({ code: 'AUTH_ANONYMOUS_SIGN_IN_DISABLED' });
+
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled();
+  });
+
+  it('übersetzt einen Fehler beim Anhängen von E-Mail/Passwort (Account-Upgrade)', async () => {
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+    supabase.auth.signInAnonymously.mockResolvedValue({ data: {}, error: null });
+    supabase.auth.updateUser.mockResolvedValue({
+      data: {},
+      error: new AuthApiError('Password should be at least 6 characters', 422, 'weak_password'),
+    });
+
+    await expect(
+      AuthService.signUpWithPassword({
+        email: 'a@b.de',
+        password: '123',
+        username: 'Nutzer',
+      }),
+    ).rejects.toMatchObject({ code: 'AUTH_WEAK_PASSWORD' });
   });
 });
 
@@ -164,6 +212,21 @@ describe('AuthService.handleAuthCallbackUrl', () => {
       refresh_token: 'rt-1',
     });
     expect(supabase.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+  });
+
+  it('verarbeitet den Account-Upgrade-Bestätigungslink (type=email_change) genau wie andere Auth-Links', async () => {
+    supabase.auth.setSession.mockResolvedValue({ data: {}, error: null });
+
+    await expect(
+      AuthService.handleAuthCallbackUrl(
+        'playalive://auth/callback#access_token=at-1&refresh_token=rt-1&type=email_change',
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(supabase.auth.setSession).toHaveBeenCalledWith({
+      access_token: 'at-1',
+      refresh_token: 'rt-1',
+    });
   });
 
   it('übersetzt einen abgelaufenen/ungültigen Bestätigungslink (z. B. bereits verwendet)', async () => {

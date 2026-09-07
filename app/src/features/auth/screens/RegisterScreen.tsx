@@ -1,6 +1,14 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Button } from '../../../components/Button';
 import { TextField } from '../../../components/TextField';
@@ -27,11 +35,6 @@ export function RegisterScreen({ navigation }: Props) {
     password?: string;
     passwordConfirmation?: string;
   }>({});
-  // Analog zu `wasSent` in `ForgotPasswordScreen.tsx`: Ist eine E-Mail-Bestätigung nötig, übernimmt
-  // der `onAuthStateChange`-Listener im `authStore` die Session NICHT automatisch (Supabase liefert in
-  // diesem Fall bewusst keine Session) — ohne diesen Zustand bliebe die Registrierung ohne jede
-  // sichtbare Rückmeldung stehen.
-  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
 
   async function handleSubmit() {
     const nextFieldErrors: typeof fieldErrors = {};
@@ -54,23 +57,22 @@ export function RegisterScreen({ navigation }: Props) {
       return;
     }
 
-    const needsConfirmation = await register({ username, email, password });
-    setNeedsEmailConfirmation(needsConfirmation);
-  }
+    const success = await register({ username, email, password });
 
-  if (needsEmailConfirmation) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Fast geschafft</Text>
-          <Text style={styles.secondaryText}>
-            Wir haben dir eine E-Mail an {email} geschickt. Bitte bestätige deine E-Mail-Adresse
-            über den Link darin, um dich anzumelden.
-          </Text>
-          <Button label="Zurück zum Login" onPress={() => navigation.navigate('Login')} />
-        </View>
-      </View>
-    );
+    // Nach ADR-002 ist die App sofort nutzbar — der bestehende `onAuthStateChange`-Listener im
+    // `authStore` übernimmt die neue (zunächst anonyme) Session automatisch, der RootNavigator
+    // wechselt daraufhin selbstständig in die Haupt-App (siehe RootNavigator.tsx). Ein eigener
+    // Erfolgs-Screen hier würde also in der Praxis nie sichtbar, da diese Komponente durch den
+    // Navigator-Wechsel bereits unmountet sein kann, bevor React erneut rendert — `Alert.alert` ist
+    // davon als imperativer, nicht an den Component-Lifecycle gebundener Aufruf unabhängig.
+    if (success) {
+      Alert.alert(
+        'Fast geschafft',
+        `Wir haben dir eine E-Mail an ${email} geschickt. Bestätige deine Adresse über den Link ` +
+          'darin, um Community-Reports und Bewertungen veröffentlichen zu können. PlayaLive kannst ' +
+          'du bereits jetzt nutzen.',
+      );
+    }
   }
 
   return (
