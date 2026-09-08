@@ -68,6 +68,18 @@ describe('useAuthDeepLink', () => {
     expect(remove).toHaveBeenCalledTimes(1);
   });
 
+  it('wirft keinen ungefangenen Fehler, wenn getInitialURL() selbst ablehnt', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockGetInitialURL.mockRejectedValue(new Error('Linking nicht verfügbar'));
+
+    renderHook(() => useAuthDeepLink());
+
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled());
+    expect(mockHandleAuthCallbackUrl).not.toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('wirft keinen ungefangenen Fehler, wenn die Verarbeitung fehlschlägt', async () => {
     mockGetInitialURL.mockResolvedValue('playalive://auth/callback?error_description=abgelaufen');
     mockHandleAuthCallbackUrl.mockRejectedValue({

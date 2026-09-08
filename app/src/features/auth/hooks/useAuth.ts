@@ -17,18 +17,29 @@ export function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
 
-  const login = useCallback(async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      // Verhindert doppelte Login-Anfragen bei schnellem Mehrfach-Tippen auf „Login" (der Button ist
+      // zwar über `loading` deaktiviert, React aktualisiert diesen Zustand aber erst beim nächsten
+      // Render — ohne diese Prüfung könnten zwei Tipps im selben Frame beide durchkommen), analog zum
+      // bestehenden Muster in `useAppleSignIn.ts` (`if (loading) return;`).
+      if (loading) {
+        return;
+      }
 
-    try {
-      await AuthService.signInWithPassword(email, password);
-    } catch (err) {
-      setError(err as AppError);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      setLoading(true);
+      setError(null);
+
+      try {
+        await AuthService.signInWithPassword(email, password);
+      } catch (err) {
+        setError(err as AppError);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
 
   // Gibt zurück, ob die Registrierung erfolgreich war (analog zu `resetPassword`s `boolean`-
   // Rückgabe) — die neue Session (zunächst anonym, siehe AuthService.signUpWithPassword) übernimmt der
@@ -37,6 +48,10 @@ export function useAuth() {
   // bestätigt" — die Bestätigung bleibt laut ADR-002 unabhängig davon offen.
   const register = useCallback(
     async (params: { email: string; password: string; username: string }): Promise<boolean> => {
+      if (loading) {
+        return false;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -52,27 +67,38 @@ export function useAuth() {
         setLoading(false);
       }
     },
-    [],
+    [loading],
   );
 
-  const resetPassword = useCallback(async (email: string) => {
-    setLoading(true);
-    setError(null);
+  const resetPassword = useCallback(
+    async (email: string) => {
+      if (loading) {
+        return false;
+      }
 
-    try {
-      await AuthService.resetPasswordForEmail(email);
+      setLoading(true);
+      setError(null);
 
-      return true;
-    } catch (err) {
-      setError(err as AppError);
+      try {
+        await AuthService.resetPasswordForEmail(email);
 
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        return true;
+      } catch (err) {
+        setError(err as AppError);
+
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
 
   const logout = useCallback(async () => {
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -91,7 +117,7 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loading]);
 
   return {
     session,

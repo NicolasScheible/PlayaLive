@@ -57,6 +57,17 @@ describe('StorageService', () => {
     expect(mockUpload).not.toHaveBeenCalled();
   });
 
+  it('wirft einen gemappten Fehler statt eines rohen TypeError, wenn die lokale Datei nicht gelesen werden kann', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockRejectedValue(new TypeError('Network request failed')) as never;
+
+    await expect(
+      StorageService.uploadAvatar({ uri: 'file:///tmp/avatar.jpg', mimeType: 'image/jpeg' }),
+    ).rejects.toMatchObject({ code: 'NETWORK_OFFLINE' });
+    expect(mockUpload).not.toHaveBeenCalled();
+  });
+
   it('wirft einen gemappten Fehler, wenn der Upload fehlschlägt', async () => {
     mockUpload.mockResolvedValue({ error: { message: 'upload failed' } });
 

@@ -26,7 +26,11 @@ function handleUrl(url: string | null) {
 
 export function useAuthDeepLink() {
   useEffect(() => {
-    Linking.getInitialURL().then(handleUrl);
+    Linking.getInitialURL()
+      .then(handleUrl)
+      .catch((error) => {
+        console.error('[useAuthDeepLink] getInitialURL() fehlgeschlagen:', error);
+      });
 
     const subscription = Linking.addEventListener('url', ({ url }) => handleUrl(url));
 

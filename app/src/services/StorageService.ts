@@ -56,8 +56,19 @@ export const StorageService = {
   // aktuellen Session, nicht als Parameter, analog zu den übrigen Services.
   async uploadAvatar(asset: AvatarAsset): Promise<string> {
     const userId = await requireUserId();
-    const response = await fetch(asset.uri);
-    const blob = await response.blob();
+
+    let blob: Blob;
+
+    try {
+      const response = await fetch(asset.uri);
+      blob = await response.blob();
+    } catch (error) {
+      // Lässt die lokale Bilddatei sich nicht lesen (z. B. ungültige/gelöschte URI aus der
+      // Mediathek), soll das dieselbe zugeordnete AppError-Form haben wie jeder andere Fehler
+      // dieses Service — sonst würde hier ein roher `TypeError` bis zur UI durchgereicht.
+      throw mapDatabaseError(error);
+    }
+
     const path = `${userId}/avatar-${Date.now()}.${extensionForMimeType(asset.mimeType)}`;
 
     const { error: uploadError } = await supabase.storage

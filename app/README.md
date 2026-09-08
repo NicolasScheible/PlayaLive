@@ -36,6 +36,12 @@ erforderlich:
   siehe `.env.example`) sowie ein Mapbox-Downloads-Token für den nativen Build (als
   `RNMapboxMapsDownloadToken` im `@rnmapbox/maps`-Plugin-Eintrag in `app.json`, sobald vorhanden).
 
+`app.json` → `android.permissions` deklariert zusätzlich explizit `POST_NOTIFICATIONS` (Android 13+
+verlangt diese Berechtigung im Manifest, bevor `PermissionsAndroid.request(...)` überhaupt einen
+Dialog anzeigen kann — ohne sie wird die Anfrage sonst stillschweigend als „denied" behandelt, ohne
+Fehler). Wie jede `app.json`-Änderung an `android`/`plugins` wird sie erst nach einem neuen nativen
+Build wirksam (`expo prebuild --clean` bzw. `expo run:android` neu ausführen).
+
 ## Datenbank-Migrationen
 
 Die Migrationen unter `supabase/migrations/` beschreiben das vollständige Schema (u. a. `profiles`,

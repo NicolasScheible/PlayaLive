@@ -48,6 +48,39 @@ describe('useAuth', () => {
     expect(result.current.error).toBeNull();
   });
 
+  it('ignoriert einen zweiten Login-Aufruf, während der erste noch läuft (Doppel-Tap-Schutz)', async () => {
+    let resolveSignIn: (() => void) | undefined;
+    AuthService.signInWithPassword.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveSignIn = resolve;
+      }),
+    );
+    const { result } = renderHook(() => useAuth());
+
+    // Zwei getrennte `act()`-Aufrufe simulieren zwei echte, getrennte Touch-Events (wie bei einem
+    // schnellen Doppel-Tap) — dazwischen verarbeitet React das `setLoading(true)` aus dem ersten
+    // Aufruf, sodass der zweite Aufruf denselben aktualisierten `loading`-Wert sieht wie der Button in
+    // der echten App.
+    let firstCall!: Promise<void>;
+    act(() => {
+      firstCall = result.current.login('a@b.de', 'geheim123');
+    });
+
+    expect(result.current.loading).toBe(true);
+
+    let secondCall!: Promise<void>;
+    act(() => {
+      secondCall = result.current.login('a@b.de', 'geheim123');
+    });
+
+    expect(AuthService.signInWithPassword).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveSignIn?.();
+      await Promise.all([firstCall, secondCall]);
+    });
+  });
+
   it('übernimmt einen AppError aus dem AuthService bei fehlgeschlagenem Login', async () => {
     const appError = {
       code: 'AUTH_INVALID_CREDENTIALS',
