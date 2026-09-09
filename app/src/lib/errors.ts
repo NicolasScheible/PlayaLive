@@ -85,10 +85,24 @@ export function mapDatabaseError(error: unknown, options: MapDatabaseErrorOption
     (DATABASE_ERROR_MESSAGES as Record<string, string>)[code] ??
     DATABASE_ERROR_MESSAGES.UNKNOWN_ERROR;
 
+  const technicalMessage = rawMessage || String(error);
+
+  // Auftrag „Fehleranzeige verbessern": die UI zeigt ausschließlich `message` (verständlich, ohne
+  // Supabase-/Postgrest-Details). Nur für die drei „undurchsichtigen" Sammel-Codes — dahinter kann
+  // buchstäblich jede Ursache stecken (fehlende Tabelle, RLS-Fehlkonfiguration, Netzwerkausfall, ein
+  // unbekannter Postgrest-Fehler) — bleibt der technische Originaltext zentral im Log erhalten, damit
+  // beim Testen erkennbar ist, welche konkrete Datenquelle fehlgeschlagen ist (z. B.
+  // `PGRST205: Could not find the table 'public.profiles' ...`). Die übrigen, bereits fachlich
+  // eindeutigen Codes (REPORT_RATE_LIMITED, NOT_FOUND, PERMISSION_DENIED, ...) sind erwartetes
+  // Anwendungsverhalten, kein Logging-würdiger technischer Defekt.
+  if (code === 'SERVER_ERROR' || code === 'UNKNOWN_ERROR' || code === 'NETWORK_OFFLINE') {
+    console.error(`[mapDatabaseError] ${code}:`, technicalMessage);
+  }
+
   return {
     code,
     messageKey: `errors.database.${code}`,
     message,
-    technicalMessage: rawMessage || String(error),
+    technicalMessage,
   };
 }

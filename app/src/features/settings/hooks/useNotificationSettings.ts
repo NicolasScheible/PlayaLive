@@ -78,7 +78,19 @@ export function useNotificationSettings() {
   );
 
   return {
-    enabled: profileQuery.data?.push_notifications_enabled ?? false,
+    // `push_notifications_enabled` ist standardmäßig `true` (siehe
+    // supabase/migrations/20260804122740_notifications.sql) — das allein bedeutet aber nicht, dass der
+    // Nutzer die OS-Berechtigung je erteilt hat (z. B. direkt nach der Registrierung, bevor Settings
+    // je geöffnet wurde) UND dass für DIESEN Account tatsächlich ein Push-Token hinterlegt ist: die
+    // OS-Berechtigung gilt geräteweit, nicht pro Account — meldet sich auf demselben Gerät ein anderer
+    // Nutzer an (Logout/Login, `useAuth.ts` löscht `push_token` beim Logout), bliebe `permissionStatus`
+    // weiterhin `granted`, ohne dass für den neuen Account je ein Token registriert wurde. Ohne
+    // Token können keine Benachrichtigungen zugestellt werden — der Schalter würde sonst fälschlich
+    // „an" anzeigen.
+    enabled:
+      Boolean(profileQuery.data?.push_token) &&
+      (profileQuery.data?.push_notifications_enabled ?? false) &&
+      permissionStatus === 'granted',
     permissionStatus,
     isLoading: profileQuery.isLoading,
     isSaving: mutation.isPending,

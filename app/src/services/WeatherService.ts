@@ -78,19 +78,36 @@ async function mapWeatherError(error: unknown): Promise<AppError> {
     return error instanceof TypeError ? 'NETWORK_OFFLINE' : 'UNKNOWN_ERROR';
   })();
 
+  const technicalMessage = error instanceof Error ? error.message : String(error);
+
+  // Auftrag „Fehleranzeige verbessern" (analog zu mapDatabaseError() in lib/errors.ts): die UI zeigt
+  // ausschließlich die verständliche `message` ("Die Wetteranzeige ist aktuell nicht verfügbar."), die
+  // technische Ursache (fehlendes Secret, nicht deploytes Edge-Function, OpenWeather nicht erreichbar,
+  // Timeout, ...) bleibt zentral im Log erhalten — anders als bei Auth/DB-Fehlern gibt es hier keine
+  // vom Nutzer selbst verursachten, „erwarteten" Fehlerfälle (kein Formularinput), daher wird hier
+  // jeder Code geloggt.
+  console.error(`[mapWeatherError] ${code}:`, technicalMessage);
+
   return {
     code,
     messageKey: `errors.weather.${code}`,
     message: WEATHER_ERROR_MESSAGES[code],
-    technicalMessage: error instanceof Error ? error.message : String(error),
+    technicalMessage,
   };
 }
+
+// Ohne explizites Timeout würde ein hängender Upstream (OpenWeather bzw. die Edge Function selbst,
+// siehe supabase/functions/weather/index.ts) das Wetter-Widget unbegrenzt im Loading-Zustand belassen
+// statt in den Error-Zustand überzugehen (Auftrag „Wetter vollständig prüfen": „Timeout").
+const WEATHER_REQUEST_TIMEOUT_MS = 10_000;
 
 export const WeatherService = {
   // docs/API.md Kapitel 11 „Aktuelles Wetter ... für Playa de Palma abrufen" — feste Koordinate
   // serverseitig in der Edge Function hinterlegt, kein Standort-Parameter vom Client nötig.
   async getCurrentWeather(): Promise<WeatherSnapshot> {
-    const { data, error } = await supabase.functions.invoke<WeatherSnapshot>('weather');
+    const { data, error } = await supabase.functions.invoke<WeatherSnapshot>('weather', {
+      timeout: WEATHER_REQUEST_TIMEOUT_MS,
+    });
 
     if (error) {
       throw await mapWeatherError(error);

@@ -65,7 +65,11 @@ Deno.serve(async (req: Request) => {
   let upstreamResponse: Response;
 
   try {
-    upstreamResponse = await fetch(url);
+    // Ohne Timeout würde ein hängender OpenWeather-Upstream diese Function (und damit den wartenden
+    // Client, siehe app/src/services/WeatherService.ts) unbegrenzt blockieren statt einen Fehler
+    // zurückzugeben — `AbortSignal.timeout()` lässt den bestehenden catch-Block den Abbruch wie jeden
+    // anderen Netzwerkfehler behandeln.
+    upstreamResponse = await fetch(url, { signal: AbortSignal.timeout(8000) });
   } catch {
     return jsonResponse({ error: 'WEATHER_UPSTREAM_UNREACHABLE' }, 502);
   }

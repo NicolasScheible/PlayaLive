@@ -32,5 +32,10 @@ export function useSpecials() {
     isLoading: specialsQuery.isLoading || locationsQuery.isLoading,
     isError: specialsQuery.isError || locationsQuery.isError,
     error: specialsQuery.error ?? locationsQuery.error ?? null,
+    // Ermöglicht einen gezielten Retry nur dieser Section (siehe ErrorState.tsx `onRetry`).
+    retry: () => {
+      specialsQuery.refetch();
+      locationsQuery.refetch();
+    },
   };
 }

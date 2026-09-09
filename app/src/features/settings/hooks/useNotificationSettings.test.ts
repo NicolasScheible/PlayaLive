@@ -121,6 +121,56 @@ describe('useNotificationSettings', () => {
     expect(mockRequestPushPermission).not.toHaveBeenCalled();
   });
 
+  it('zeigt den Schalter als aus, wenn push_notifications_enabled=true ist, aber die OS-Berechtigung nie erteilt wurde', async () => {
+    mockGetProfile.mockResolvedValue({ ...profile, push_notifications_enabled: true });
+    mockGetPushPermissionStatus.mockResolvedValue('undetermined');
+
+    const { result } = renderHook(() => useNotificationSettings(), {
+      wrapper: createQueryWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.permissionStatus).toBe('undetermined'));
+
+    expect(result.current.enabled).toBe(false);
+  });
+
+  it('zeigt den Schalter als an, wenn push_notifications_enabled=true, Berechtigung erteilt UND ein Token hinterlegt ist', async () => {
+    mockGetProfile.mockResolvedValue({
+      ...profile,
+      push_notifications_enabled: true,
+      push_token: 'fcm-token-123',
+    });
+    mockGetPushPermissionStatus.mockResolvedValue('granted');
+
+    const { result } = renderHook(() => useNotificationSettings(), {
+      wrapper: createQueryWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.permissionStatus).toBe('granted'));
+
+    expect(result.current.enabled).toBe(true);
+  });
+
+  it('zeigt den Schalter als aus, wenn kein Token hinterlegt ist — z. B. nach Login eines anderen Users auf demselben Gerät (OS-Berechtigung bleibt geräteweit granted, push_token wurde aber beim vorherigen Logout gelöscht)', async () => {
+    mockGetProfile.mockResolvedValue({
+      ...profile,
+      push_notifications_enabled: true,
+      push_token: null,
+    });
+    mockGetPushPermissionStatus.mockResolvedValue('granted');
+
+    const { result } = renderHook(() => useNotificationSettings(), {
+      wrapper: createQueryWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.permissionStatus).toBe('granted'));
+
+    expect(result.current.enabled).toBe(false);
+  });
+
   it('wirft keinen ungefangenen Fehler, wenn getPushPermissionStatus() ablehnt', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     mockGetPushPermissionStatus.mockRejectedValue(new Error('Firebase nicht initialisiert'));

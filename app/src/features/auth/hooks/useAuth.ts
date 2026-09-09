@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 
 import type { AppError } from '../../../lib/errors';
-import { queryClient } from '../../../lib/queryClient';
 import { AuthService } from '../../../services/AuthService';
 import { NotificationService } from '../../../services/NotificationService';
 import { useAuthStore } from '../../../store/authStore';
@@ -109,9 +108,9 @@ export function useAuth() {
       // Fehlschlag (z. B. kein registriertes Token) darf den Logout selbst nicht verhindern.
       await NotificationService.removePushToken().catch(() => undefined);
       await AuthService.signOut();
-      // Verhindert, dass zwischengespeicherte Daten des vorherigen Nutzers nach dem Logout sichtbar
-      // bleiben (z. B. bei Gerätewechsel/Mehrfachnutzung desselben Geräts).
-      queryClient.clear();
+      // Das Leeren des TanStack-Query-Caches (verhindert sichtbare Daten des vorherigen Nutzers nach
+      // dem Logout) übernimmt zentral `authStore.ts` — dort reagiert `onAuthStateChange()` auf JEDEN
+      // Nutzerwechsel, nicht nur den expliziten Logout über diesen Hook (siehe dortiger Kommentar).
     } catch (err) {
       setError(err as AppError);
     } finally {

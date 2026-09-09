@@ -49,4 +49,19 @@ describe('useTodayHighlights', () => {
 
     expect(result.current.events[0].locationName).toBe('Unbekannte Location');
   });
+
+  it('stößt über retry() Events- und Locations-Query erneut an', async () => {
+    mockGetUpcomingEvents.mockResolvedValue([]);
+    mockGetLocations.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useTodayHighlights(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetUpcomingEvents).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetUpcomingEvents).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetLocations).toHaveBeenCalledTimes(2));
+  });
 });

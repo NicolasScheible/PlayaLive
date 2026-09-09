@@ -38,5 +38,11 @@ export function useLiveOccupancy() {
     isLoading: locationsQuery.isLoading || liveStatusQuery.isLoading,
     isError: locationsQuery.isError || liveStatusQuery.isError,
     error: locationsQuery.error ?? liveStatusQuery.error ?? null,
+    // Ermöglicht einen gezielten Retry nur dieser Section (siehe ErrorState.tsx `onRetry`) — beide
+    // zugrundeliegenden Queries erneut anstoßen, unabhängig davon, welche fehlgeschlagen ist.
+    retry: () => {
+      locationsQuery.refetch();
+      liveStatusQuery.refetch();
+    },
   };
 }

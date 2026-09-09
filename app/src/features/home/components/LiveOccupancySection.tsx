@@ -14,6 +14,7 @@ type LiveOccupancySectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
 export function LiveOccupancySection({
@@ -21,6 +22,7 @@ export function LiveOccupancySection({
   isLoading,
   isError,
   error,
+  onRetry,
 }: LiveOccupancySectionProps) {
   return (
     <>
@@ -28,7 +30,10 @@ export function LiveOccupancySection({
       {isLoading ? (
         <SkeletonRow accessibilityLabel="Live Auslastung wird geladen" />
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Live-Auslastung konnte nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Live-Auslastung konnte nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : occupancies.length === 0 ? (
         <EmptyState message="Aktuell keine Locations verfügbar." />
       ) : (

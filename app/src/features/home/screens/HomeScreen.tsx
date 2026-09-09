@@ -59,6 +59,7 @@ export function HomeScreen() {
         isLoading={dashboard.weather.isLoading}
         isError={dashboard.weather.isError}
         error={dashboard.weather.error}
+        onRetry={dashboard.weather.retry}
       />
       <MapQuickAccessButton onPress={() => navigation.navigate('Map')} />
       <LiveOccupancySection
@@ -66,36 +67,42 @@ export function HomeScreen() {
         isLoading={dashboard.liveOccupancy.isLoading}
         isError={dashboard.liveOccupancy.isError}
         error={dashboard.liveOccupancy.error}
+        onRetry={dashboard.liveOccupancy.retry}
       />
       <TodayHighlightsSection
         events={dashboard.todayHighlights.events}
         isLoading={dashboard.todayHighlights.isLoading}
         isError={dashboard.todayHighlights.isError}
         error={dashboard.todayHighlights.error}
+        onRetry={dashboard.todayHighlights.retry}
       />
       <CurrentActsSection
         acts={dashboard.currentActs.acts}
         isLoading={dashboard.currentActs.isLoading}
         isError={dashboard.currentActs.isError}
         error={dashboard.currentActs.error}
+        onRetry={dashboard.currentActs.retry}
       />
       <NextActSection
         nextAct={dashboard.nextAct.nextAct}
         isLoading={dashboard.nextAct.isLoading}
         isError={dashboard.nextAct.isError}
         error={dashboard.nextAct.error}
+        onRetry={dashboard.nextAct.retry}
       />
       <HappyHoursSection
         happyHours={dashboard.happyHours.happyHours}
         isLoading={dashboard.happyHours.isLoading}
         isError={dashboard.happyHours.isError}
         error={dashboard.happyHours.error}
+        onRetry={dashboard.happyHours.retry}
       />
       <SpecialsSection
         specials={dashboard.specials.specials}
         isLoading={dashboard.specials.isLoading}
         isError={dashboard.specials.isError}
         error={dashboard.specials.error}
+        onRetry={dashboard.specials.retry}
       />
     </ScrollView>
   );

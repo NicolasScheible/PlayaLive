@@ -44,4 +44,19 @@ describe('useCurrentActs', () => {
 
     expect(result.current.acts).toEqual([]);
   });
+
+  it('stößt über retry() Events- und Locations-Query erneut an', async () => {
+    mockGetCurrentEvents.mockResolvedValue([]);
+    mockGetLocations.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useCurrentActs(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetCurrentEvents).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetCurrentEvents).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetLocations).toHaveBeenCalledTimes(2));
+  });
 });

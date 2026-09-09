@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { Location, LocationLiveStatus } from '../../../types/entities';
 import type { LocationOccupancy } from '../hooks/useLiveOccupancy';
@@ -53,6 +53,24 @@ describe('LiveOccupancySection', () => {
     );
 
     expect(screen.getByText('Fehler beim Laden.')).toBeTruthy();
+  });
+
+  it('ruft onRetry auf, wenn im Fehlerzustand „Erneut versuchen" getippt wird', () => {
+    const onRetry = jest.fn();
+
+    render(
+      <LiveOccupancySection
+        occupancies={[]}
+        isLoading={false}
+        isError
+        error={{ code: 'X', messageKey: 'x', message: 'Fehler beim Laden.', technicalMessage: 'x' }}
+        onRetry={onRetry}
+      />,
+    );
+
+    fireEvent.press(screen.getByText('Erneut versuchen'));
+
+    expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
   it('zeigt einen Leerzustand ohne Locations', () => {

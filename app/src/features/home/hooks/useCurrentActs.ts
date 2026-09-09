@@ -33,5 +33,10 @@ export function useCurrentActs() {
     isLoading: eventsQuery.isLoading || locationsQuery.isLoading,
     isError: eventsQuery.isError || locationsQuery.isError,
     error: eventsQuery.error ?? locationsQuery.error ?? null,
+    // Ermöglicht einen gezielten Retry nur dieser Section (siehe ErrorState.tsx `onRetry`).
+    retry: () => {
+      eventsQuery.refetch();
+      locationsQuery.refetch();
+    },
   };
 }

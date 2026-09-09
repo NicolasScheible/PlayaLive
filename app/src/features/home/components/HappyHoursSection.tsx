@@ -16,6 +16,7 @@ type HappyHoursSectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
 export function HappyHoursSection({
@@ -23,6 +24,7 @@ export function HappyHoursSection({
   isLoading,
   isError,
   error,
+  onRetry,
 }: HappyHoursSectionProps) {
   return (
     <>
@@ -30,7 +32,10 @@ export function HappyHoursSection({
       {isLoading ? (
         <SkeletonRow accessibilityLabel="Happy Hours werden geladen" />
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Happy Hours konnten nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Happy Hours konnten nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : happyHours.length === 0 ? (
         <EmptyState message="Heute sind keine Happy Hours eingetragen." />
       ) : (

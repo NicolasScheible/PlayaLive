@@ -44,4 +44,25 @@ describe('useWeather', () => {
     expect(result.current.weather).toBeNull();
     expect(result.current.error?.code).toBe('WEATHER_NOT_CONFIGURED');
   });
+
+  it('lädt die Daten über retry() erneut, ohne den gesamten Dashboard-Cache zu invalidieren', async () => {
+    mockGetCurrentWeather.mockResolvedValue({
+      temperatureCelsius: 28,
+      feelsLikeCelsius: 30,
+      condition: 'klarer Himmel',
+      conditionIcon: '01d',
+      humidityPercent: 55,
+      windSpeedKmh: 12,
+      fetchedAt: '2026-08-04T12:00:00.000Z',
+    });
+
+    const { result } = renderHook(() => useWeather(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetCurrentWeather).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetCurrentWeather).toHaveBeenCalledTimes(2));
+  });
 });

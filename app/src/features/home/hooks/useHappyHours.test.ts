@@ -35,4 +35,19 @@ describe('useHappyHours', () => {
       { id: 'hh-1', location_id: 'loc-1', weekday: 'friday', locationName: 'Test Club' },
     ]);
   });
+
+  it('stößt über retry() Happy-Hours- und Locations-Query erneut an', async () => {
+    mockGetActiveHappyHours.mockResolvedValue([]);
+    mockGetLocations.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useHappyHours(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetActiveHappyHours).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetActiveHappyHours).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetLocations).toHaveBeenCalledTimes(2));
+  });
 });

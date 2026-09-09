@@ -1,7 +1,15 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Button } from '../../../components/Button';
 import { TextField } from '../../../components/TextField';
@@ -47,7 +55,11 @@ export function LoginScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.brand}>
           <Text style={styles.wordmark}>PLAYALIVE</Text>
           <Text style={styles.tagline}>Deine Playa. Live dabei.</Text>
@@ -112,7 +124,7 @@ export function LoginScreen({ navigation }: Props) {
             Noch kein Konto? <Text style={styles.link}>Registrieren</Text>
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -122,10 +134,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.base,
   },
+  // `flexGrow` statt `flex` (siehe HomeScreen.tsx-Muster) — als `contentContainerStyle` einer
+  // `ScrollView`: zentriert den Inhalt, solange er in den sichtbaren Bereich passt, wird bei
+  // geöffneter Tastatur/auf kleinen Geräten aber scrollbar statt Felder am unteren Rand unerreichbar
+  // zu machen (Auftrag „Login/Register/Forgot Password UI": „Keyboard-Verhalten").
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
     gap: theme.spacing.xl,
   },
   brand: {

@@ -93,4 +93,38 @@ describe('mapDatabaseError', () => {
 
     expect(result.code).toBe('UNKNOWN_ERROR');
   });
+
+  describe('Logging der technischen Ursache (Auftrag „Fehleranzeige verbessern")', () => {
+    let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
+
+    beforeEach(() => {
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('loggt die technische Ursache für den undurchsichtigen Sammel-Code SERVER_ERROR (z. B. PGRST205)', () => {
+      mapDatabaseError({
+        message: "Could not find the table 'public.profiles' in the schema cache",
+        code: 'PGRST205',
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[mapDatabaseError] SERVER_ERROR:',
+        "Could not find the table 'public.profiles' in the schema cache",
+      );
+    });
+
+    it('loggt NICHT bei fachlich eindeutigen, erwarteten Fehlercodes (z. B. REPORT_RATE_LIMITED)', () => {
+      mapDatabaseError({
+        message:
+          'REPORT_RATE_LIMITED: Bereits ein Report für diese Location in den letzten 10 Minuten.',
+        code: 'P0001',
+      });
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -17,9 +17,16 @@ type NextActSectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
-export function NextActSection({ nextAct, isLoading, isError, error }: NextActSectionProps) {
+export function NextActSection({
+  nextAct,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: NextActSectionProps) {
   return (
     <>
       <SectionHeader title="Nächster Act" />
@@ -28,7 +35,10 @@ export function NextActSection({ nextAct, isLoading, isError, error }: NextActSe
           <SkeletonBlock width={200} height={140} />
         </View>
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Der nächste Act konnte nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Der nächste Act konnte nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : !nextAct ? (
         <EmptyState message="Aktuell ist kein weiteres Event angekündigt." />
       ) : (

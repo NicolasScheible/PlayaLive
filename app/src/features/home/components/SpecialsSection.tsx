@@ -14,16 +14,26 @@ type SpecialsSectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
-export function SpecialsSection({ specials, isLoading, isError, error }: SpecialsSectionProps) {
+export function SpecialsSection({
+  specials,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: SpecialsSectionProps) {
   return (
     <>
       <SectionHeader title="Specials" />
       {isLoading ? (
         <SkeletonRow accessibilityLabel="Specials werden geladen" />
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Specials konnten nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Specials konnten nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : specials.length === 0 ? (
         <EmptyState message="Aktuell sind keine Specials eingetragen." />
       ) : (

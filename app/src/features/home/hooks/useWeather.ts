@@ -21,5 +21,9 @@ export function useWeather() {
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
+    // Ermöglicht einen gezielten Retry nur dieser Section (siehe ErrorState.tsx `onRetry`) statt eines
+    // kompletten Pull-to-Refresh über den gesamten Dashboard (`useHomeDashboard.onRefresh`), wenn
+    // ausschließlich das Wetter fehlgeschlagen ist.
+    retry: query.refetch,
   };
 }

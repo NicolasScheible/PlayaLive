@@ -1,0 +1,4 @@
+# Lokaler Ordner mit EAS-/Umgebungs-Secrets (Google-Services-Datei, Zugangsdaten) — analog zu
+# app/.gitignore (.env*.local, google-services.json, GoogleService-Info.plist): darf nie
+# versioniert werden, unabhängig davon, ob er versehentlich im Repo-Root angelegt wird.
+app.eas.env/

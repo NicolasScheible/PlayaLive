@@ -40,18 +40,46 @@ export function ProfileScreen() {
   const screen = useProfileScreen();
   const { logout, loading: isLoggingOut } = useAuth();
 
+  // Logout bleibt bewusst in JEDEM Zustand erreichbar — auch hier beim Laden: ohne eigenen Ausgang
+  // wäre „Abmelden" ausschließlich über den vollständig geladenen Profil-Screen erreichbar (siehe
+  // Kommentar oben — Logout existiert absichtlich nirgends sonst in der App). Ohne Supabase-seitiges
+  // Timeout auf `AuthService.getProfile()` (anders als beim Wetter-Abruf, siehe WeatherService.ts) kann
+  // ein hängender Request diesen Ladezustand unbegrenzt offen halten — ohne diesen Button wäre das eine
+  // Sackgasse ohne Abmelde-Möglichkeit.
   if (screen.isLoading) {
-    return <LoadingState label="Profil wird geladen" />;
+    return (
+      <View style={styles.container}>
+        <LoadingState label="Profil wird geladen" />
+        <View style={styles.logoutButton}>
+          <Button label="Abmelden" variant="secondary" onPress={logout} loading={isLoggingOut} />
+        </View>
+      </View>
+    );
   }
 
+  // Fehlendes/nicht ladbares Profil (z. B. `profiles`-Zeile fehlt trotz bestehendem `auth.users`-
+  // Eintrag, oder die `profiles`-Tabelle selbst ist serverseitig nicht erreichbar) wäre ohne diesen
+  // Button ebenfalls eine Sackgasse ohne Abmelde-Möglichkeit.
   if (screen.isError) {
     return (
-      <ErrorState message={screen.error?.message ?? 'Das Profil konnte nicht geladen werden.'} />
+      <View style={styles.container}>
+        <ErrorState message={screen.error?.message ?? 'Das Profil konnte nicht geladen werden.'} />
+        <View style={styles.logoutButton}>
+          <Button label="Abmelden" variant="secondary" onPress={logout} loading={isLoggingOut} />
+        </View>
+      </View>
     );
   }
 
   if (!screen.profile) {
-    return <EmptyState message="Dieses Profil wurde nicht gefunden." />;
+    return (
+      <View style={styles.container}>
+        <EmptyState message="Dieses Profil wurde nicht gefunden." />
+        <View style={styles.logoutButton}>
+          <Button label="Abmelden" variant="secondary" onPress={logout} loading={isLoggingOut} />
+        </View>
+      </View>
+    );
   }
 
   const profile = screen.profile;

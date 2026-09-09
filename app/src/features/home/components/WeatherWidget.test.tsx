@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { WeatherWidget } from './WeatherWidget';
 
@@ -35,6 +35,29 @@ describe('WeatherWidget', () => {
     );
 
     expect(screen.getByText('Die Wetteranzeige ist aktuell nicht verfügbar.')).toBeTruthy();
+  });
+
+  it('ruft onRetry auf, wenn im Fehlerzustand „Erneut versuchen" getippt wird', () => {
+    const onRetry = jest.fn();
+
+    render(
+      <WeatherWidget
+        weather={null}
+        isLoading={false}
+        isError
+        error={{
+          code: 'WEATHER_NOT_CONFIGURED',
+          messageKey: 'x',
+          message: 'Die Wetteranzeige ist aktuell nicht verfügbar.',
+          technicalMessage: 'x',
+        }}
+        onRetry={onRetry}
+      />,
+    );
+
+    fireEvent.press(screen.getByText('Erneut versuchen'));
+
+    expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
   it('zeigt Temperatur und Zustand bei Erfolg', () => {

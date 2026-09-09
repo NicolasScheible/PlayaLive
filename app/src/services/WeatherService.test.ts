@@ -26,7 +26,7 @@ describe('WeatherService', () => {
 
       const result = await WeatherService.getCurrentWeather();
 
-      expect(mockInvoke).toHaveBeenCalledWith('weather');
+      expect(mockInvoke).toHaveBeenCalledWith('weather', { timeout: 10_000 });
       expect(result).toEqual(snapshot);
     });
 
@@ -55,6 +55,25 @@ describe('WeatherService', () => {
       await expect(WeatherService.getCurrentWeather()).rejects.toMatchObject({
         code: 'UNKNOWN_ERROR',
       });
+    });
+
+    it('loggt die technische Ursache, damit beim Testen erkennbar ist, warum das Wetter fehlschlägt', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      mockInvoke.mockResolvedValue({
+        data: null,
+        error: { context: { json: () => Promise.resolve({ error: 'WEATHER_NOT_CONFIGURED' }) } },
+      });
+
+      await expect(WeatherService.getCurrentWeather()).rejects.toMatchObject({
+        code: 'WEATHER_NOT_CONFIGURED',
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '[mapWeatherError] WEATHER_NOT_CONFIGURED:',
+        expect.any(String),
+      );
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });

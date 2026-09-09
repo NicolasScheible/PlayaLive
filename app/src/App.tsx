@@ -9,6 +9,7 @@ import { useAuthDeepLink } from './features/auth/hooks/useAuthDeepLink';
 import { useForegroundNotifications } from './features/notifications/hooks/useForegroundNotifications';
 import { useNotificationListeners } from './features/notifications/hooks/useNotificationListeners';
 import { queryClient } from './lib/queryClient';
+import { useQueryFocusManager } from './lib/queryFocusManager';
 import { navigationRef } from './navigation/navigationRef';
 import { RootNavigator } from './navigation/RootNavigator';
 
@@ -37,6 +38,7 @@ export default function App() {
   useNotificationListeners();
   useForegroundNotifications();
   useAuthDeepLink();
+  useQueryFocusManager();
 
   return (
     <AppProviders>

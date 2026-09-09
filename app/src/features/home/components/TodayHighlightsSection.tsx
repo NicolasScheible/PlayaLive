@@ -14,6 +14,7 @@ type TodayHighlightsSectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
 export function TodayHighlightsSection({
@@ -21,6 +22,7 @@ export function TodayHighlightsSection({
   isLoading,
   isError,
   error,
+  onRetry,
 }: TodayHighlightsSectionProps) {
   return (
     <>
@@ -28,7 +30,10 @@ export function TodayHighlightsSection({
       {isLoading ? (
         <SkeletonRow accessibilityLabel="Highlights heute werden geladen" />
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Highlights konnten nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Highlights konnten nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : events.length === 0 ? (
         <EmptyState message="Heute sind noch keine Highlights eingetragen." />
       ) : (

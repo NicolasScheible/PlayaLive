@@ -7,8 +7,14 @@ jest.mock('../services/AuthService', () => ({
   },
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('../lib/queryClient', () => ({
+  queryClient: { clear: jest.fn() },
+}));
+
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { AuthService } = require('../services/AuthService');
+const { queryClient } = require('../lib/queryClient');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 describe('useAuthStore', () => {
   beforeEach(() => {
@@ -67,5 +73,62 @@ describe('useAuthStore', () => {
     capturedCallback('SIGNED_IN', newSession);
 
     expect(useAuthStore.getState().session).toBe(newSession);
+  });
+
+  describe('Query-Cache beim Nutzerwechsel (Account A -> Logout -> Account B)', () => {
+    let capturedCallback: (event: string, session: unknown) => void;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      capturedCallback = () => {};
+      AuthService.getSession.mockResolvedValue({ session: null });
+      AuthService.onAuthStateChange.mockImplementation(
+        (callback: (event: string, session: unknown) => void) => {
+          capturedCallback = callback;
+
+          return { unsubscribe: jest.fn() };
+        },
+      );
+    });
+
+    it('leert den Cache, wenn die Session extern ungültig wird (nicht nur beim expliziten Logout)', () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-a' } } as never,
+        isInitializing: false,
+      });
+      useAuthStore.getState().initialize();
+
+      // Simuliert einen abgelaufenen Refresh-Token/Sign-out auf einem anderen Gerät — nicht den
+      // expliziten Abmelden-Button (useAuth.ts ruft `queryClient.clear()` bewusst nicht mehr selbst
+      // auf, siehe dortiger Kommentar).
+      capturedCallback('SIGNED_OUT', null);
+
+      expect(queryClient.clear).toHaveBeenCalledTimes(1);
+      expect(useAuthStore.getState().session).toBeNull();
+    });
+
+    it('leert den Cache, wenn sich ein anderer Nutzer auf demselben Gerät anmeldet', () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-a' } } as never,
+        isInitializing: false,
+      });
+      useAuthStore.getState().initialize();
+
+      capturedCallback('SIGNED_IN', { user: { id: 'user-b' } });
+
+      expect(queryClient.clear).toHaveBeenCalledTimes(1);
+    });
+
+    it('leert den Cache NICHT bei einem reinen Token-Refresh desselben Nutzers', () => {
+      useAuthStore.setState({
+        session: { user: { id: 'user-a' } } as never,
+        isInitializing: false,
+      });
+      useAuthStore.getState().initialize();
+
+      capturedCallback('TOKEN_REFRESHED', { user: { id: 'user-a' } });
+
+      expect(queryClient.clear).not.toHaveBeenCalled();
+    });
   });
 });

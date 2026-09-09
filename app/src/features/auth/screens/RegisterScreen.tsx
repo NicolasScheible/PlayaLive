@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -80,7 +81,11 @@ export function RegisterScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.title}>Konto erstellen</Text>
 
         <View style={styles.form}>
@@ -137,7 +142,7 @@ export function RegisterScreen({ navigation }: Props) {
             Schon ein Konto? <Text style={styles.link}>Login</Text>
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -147,10 +152,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.base,
   },
+  // `flexGrow` statt `flex` (siehe LoginScreen.tsx-Kommentar) — als `contentContainerStyle` einer
+  // `ScrollView`: das (mit vier Feldern längste) Registrierungsformular bleibt bei geöffneter Tastatur
+  // oder auf kleinen Geräten vollständig erreichbar statt am unteren Rand abgeschnitten zu werden.
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
     gap: theme.spacing.xl,
   },
   title: {

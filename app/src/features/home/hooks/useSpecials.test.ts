@@ -33,4 +33,19 @@ describe('useSpecials', () => {
       { id: 'special-1', location_id: 'loc-1', title: 'Ladies Night', locationName: 'Test Club' },
     ]);
   });
+
+  it('stößt über retry() Specials- und Locations-Query erneut an', async () => {
+    mockGetActiveSpecials.mockResolvedValue([]);
+    mockGetLocations.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useSpecials(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetActiveSpecials).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetActiveSpecials).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetLocations).toHaveBeenCalledTimes(2));
+  });
 });

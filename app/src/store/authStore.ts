@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { create } from 'zustand';
 
+import { queryClient } from '../lib/queryClient';
 import { AuthService } from '../services/AuthService';
 
 // Globaler Client State für den Login-Status (siehe docs/ADR/001-State-Management.md — Zustand
@@ -15,7 +16,7 @@ type AuthActions = {
   initialize: () => void;
 };
 
-export const useAuthStore = create<AuthState & AuthActions>((set) => ({
+export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   session: null,
   isInitializing: true,
 
@@ -34,6 +35,21 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       });
 
     AuthService.onAuthStateChange((_event, session) => {
+      // Der TanStack-Query-Cache wird ausschließlich hier geleert, an der EINEN Stelle, die
+      // wirklich jeden Nutzerwechsel sieht — nicht (nur) im expliziten `logout()` (useAuth.ts):
+      // eine Session kann auch OHNE den Abmelden-Button ungültig werden (abgelaufener Refresh-Token,
+      // Sign-out auf einem anderen Gerät) und `onAuthStateChange` feuert dafür ebenfalls. Ohne diese
+      // Prüfung würden zwischengespeicherte Home-/Profil-Daten des vorherigen Nutzers nach einem
+      // Accountwechsel auf demselben Gerät kurzzeitig weiter sichtbar bleiben. Verglichen wird die
+      // User-ID statt nur „Session vorhanden/nicht vorhanden", damit ein reiner Token-Refresh
+      // (`TOKEN_REFRESHED`, gleicher Nutzer) den Cache NICHT unnötig verwirft.
+      const previousUserId = get().session?.user?.id ?? null;
+      const nextUserId = session?.user?.id ?? null;
+
+      if (previousUserId !== nextUserId) {
+        queryClient.clear();
+      }
+
       set({ session });
     });
   },

@@ -6,11 +6,12 @@ import { RefreshControl, Text } from 'react-native';
 import { HomeScreen } from './HomeScreen';
 
 const mockOnRefresh = jest.fn();
+const mockUseHomeDashboard = jest.fn();
 
 const emptySectionState = { isLoading: false, isError: false, error: null };
 
-jest.mock('../hooks/useHomeDashboard', () => ({
-  useHomeDashboard: () => ({
+function baseDashboard() {
+  return {
     greeting: { greeting: 'Guten Abend', displayName: 'Lisa' },
     weather: { weather: null, ...emptySectionState },
     liveOccupancy: { occupancies: [], ...emptySectionState },
@@ -21,10 +22,18 @@ jest.mock('../hooks/useHomeDashboard', () => ({
     specials: { specials: [], ...emptySectionState },
     isRefreshing: false,
     onRefresh: mockOnRefresh,
-  }),
+  };
+}
+
+jest.mock('../hooks/useHomeDashboard', () => ({
+  useHomeDashboard: () => mockUseHomeDashboard(),
 }));
 
 describe('HomeScreen', () => {
+  beforeEach(() => {
+    mockUseHomeDashboard.mockReturnValue(baseDashboard());
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -81,5 +90,30 @@ describe('HomeScreen', () => {
     fireEvent.press(screen.getByLabelText('Menü öffnen'));
 
     await waitFor(() => expect(screen.getByText('drawer-open')).toBeTruthy());
+  });
+
+  it('verdrahtet den Retry einer einzelnen Section, statt nur den globalen Pull-to-Refresh anzubieten', () => {
+    const mockRetryWeather = jest.fn();
+    mockUseHomeDashboard.mockReturnValue({
+      ...baseDashboard(),
+      weather: {
+        weather: null,
+        isLoading: false,
+        isError: true,
+        error: { code: 'X', messageKey: 'x', message: 'Wetterfehler.', technicalMessage: 'x' },
+        retry: mockRetryWeather,
+      },
+    });
+
+    render(
+      <NavigationContainer>
+        <HomeScreen />
+      </NavigationContainer>,
+    );
+
+    fireEvent.press(screen.getByText('Erneut versuchen'));
+
+    expect(mockRetryWeather).toHaveBeenCalledTimes(1);
+    expect(mockOnRefresh).not.toHaveBeenCalled();
   });
 });

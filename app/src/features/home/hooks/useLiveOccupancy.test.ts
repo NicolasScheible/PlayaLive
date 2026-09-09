@@ -50,4 +50,19 @@ describe('useLiveOccupancy', () => {
 
     expect(result.current.occupancies).toEqual([]);
   });
+
+  it('stößt über retry() beide zugrundeliegenden Queries erneut an', async () => {
+    mockGetLocations.mockResolvedValue([{ id: 'loc-1', name: 'Club A' }]);
+    mockGetLiveStatus.mockResolvedValue({ location_id: 'loc-1', occupancy_level: 'high' });
+
+    const { result } = renderHook(() => useLiveOccupancy(), { wrapper: createQueryWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(mockGetLocations).toHaveBeenCalledTimes(1);
+
+    result.current.retry();
+
+    await waitFor(() => expect(mockGetLocations).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockGetLiveStatus).toHaveBeenCalledTimes(2));
+  });
 });

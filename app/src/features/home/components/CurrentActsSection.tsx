@@ -14,16 +14,26 @@ type CurrentActsSectionProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
-export function CurrentActsSection({ acts, isLoading, isError, error }: CurrentActsSectionProps) {
+export function CurrentActsSection({
+  acts,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: CurrentActsSectionProps) {
   return (
     <>
       <SectionHeader title="Spielt gerade" />
       {isLoading ? (
         <SkeletonRow accessibilityLabel="Aktuelle Acts werden geladen" />
       ) : isError ? (
-        <ErrorState message={error?.message ?? 'Aktuelle Acts konnten nicht geladen werden.'} />
+        <ErrorState
+          message={error?.message ?? 'Aktuelle Acts konnten nicht geladen werden.'}
+          onRetry={onRetry}
+        />
       ) : acts.length === 0 ? (
         <EmptyState message="Aktuell läuft nirgends ein Event." />
       ) : (

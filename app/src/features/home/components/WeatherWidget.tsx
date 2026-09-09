@@ -16,15 +16,21 @@ type WeatherWidgetProps = {
   isLoading: boolean;
   isError: boolean;
   error: AppError | null;
+  onRetry?: () => void;
 };
 
-export function WeatherWidget({ weather, isLoading, isError, error }: WeatherWidgetProps) {
+export function WeatherWidget({ weather, isLoading, isError, error, onRetry }: WeatherWidgetProps) {
   if (isLoading) {
     return <SkeletonBlock width="100%" height={100} />;
   }
 
   if (isError) {
-    return <ErrorState message={error?.message ?? 'Das Wetter konnte nicht geladen werden.'} />;
+    return (
+      <ErrorState
+        message={error?.message ?? 'Das Wetter konnte nicht geladen werden.'}
+        onRetry={onRetry}
+      />
+    );
   }
 
   if (!weather) {

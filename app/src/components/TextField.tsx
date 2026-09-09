@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
 import { theme } from '../theme/theme';
@@ -24,15 +25,41 @@ type TextFieldProps = Pick<
   error?: string;
 };
 
-export function TextField({ label, error, ...inputProps }: TextFieldProps) {
+export function TextField({ label, error, secureTextEntry, ...inputProps }: TextFieldProps) {
+  const [isValueVisible, setIsValueVisible] = useState(false);
+  // Sichtbarkeits-Umschalter gilt ausschließlich echten Passwortfeldern (`secureTextEntry`) — alle
+  // anderen Felder (E-Mail, mehrzeilig, ...) bleiben unverändert. Textlabel statt Augen-Icon: die App
+  // nutzt bewusst keine Icon-Bibliothek (siehe IconButton.tsx-Kommentar „keine neue Abhängigkeit"),
+  // Glyphen sind dort nur für einzelne, bereits im DesignSystem dokumentierte Fälle (☰/⌕) entschieden.
+  const canToggleVisibility = secureTextEntry === true;
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        {...inputProps}
-        style={[styles.input, error ? styles.inputError : null]}
-        placeholderTextColor={theme.colors.text.secondary}
-      />
+      <View style={styles.inputWrapper}>
+        <TextInput
+          {...inputProps}
+          accessibilityLabel={label}
+          secureTextEntry={canToggleVisibility ? !isValueVisible : secureTextEntry}
+          style={[
+            styles.input,
+            canToggleVisibility ? styles.inputWithToggle : null,
+            error ? styles.inputError : null,
+          ]}
+          placeholderTextColor={theme.colors.text.secondary}
+        />
+        {canToggleVisibility ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={isValueVisible ? 'Passwort verbergen' : 'Passwort anzeigen'}
+            hitSlop={theme.spacing.sm}
+            onPress={() => setIsValueVisible((visible) => !visible)}
+            style={styles.toggle}
+          >
+            <Text style={styles.toggleLabel}>{isValueVisible ? 'Verbergen' : 'Anzeigen'}</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
@@ -47,6 +74,9 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.label.fontWeight,
     color: theme.colors.text.primary,
   },
+  inputWrapper: {
+    justifyContent: 'center',
+  },
   input: {
     borderRadius: theme.radius.pill,
     borderWidth: 1,
@@ -57,8 +87,22 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.body.fontSize,
     color: theme.colors.text.primary,
   },
+  // Genug Raum rechts, damit der Umschalter-Text („Anzeigen"/„Verbergen") nicht mit eingegebenem Text
+  // überlappt.
+  inputWithToggle: {
+    paddingRight: 88,
+  },
   inputError: {
     borderColor: theme.colors.status.high,
+  },
+  toggle: {
+    position: 'absolute',
+    right: theme.spacing.md,
+  },
+  toggleLabel: {
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: theme.typography.label.fontWeight,
+    color: theme.colors.brand.primary,
   },
   errorText: {
     fontSize: theme.typography.caption.fontSize,

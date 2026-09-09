@@ -31,5 +31,10 @@ export function useHappyHours() {
     isLoading: happyHoursQuery.isLoading || locationsQuery.isLoading,
     isError: happyHoursQuery.isError || locationsQuery.isError,
     error: happyHoursQuery.error ?? locationsQuery.error ?? null,
+    // Ermöglicht einen gezielten Retry nur dieser Section (siehe ErrorState.tsx `onRetry`).
+    retry: () => {
+      happyHoursQuery.refetch();
+      locationsQuery.refetch();
+    },
   };
 }

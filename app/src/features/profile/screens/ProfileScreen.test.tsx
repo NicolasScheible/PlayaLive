@@ -63,6 +63,16 @@ describe('ProfileScreen', () => {
     expect(screen.getByText('Profil wird geladen')).toBeTruthy();
   });
 
+  it('bietet auch während des Ladens einen Logout-Ausgang (kein Dead-End bei hängendem Request)', () => {
+    mockUseProfileScreen.mockReturnValue({ ...baseResult, isLoading: true });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getByText('Abmelden'));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+  });
+
   it('zeigt den Fehlerzustand', () => {
     mockUseProfileScreen.mockReturnValue({
       ...baseResult,
@@ -73,6 +83,32 @@ describe('ProfileScreen', () => {
     render(<ProfileScreen />);
 
     expect(screen.getByText('Fehler beim Laden')).toBeTruthy();
+  });
+
+  it('bietet auch im Fehlerzustand einen Ausgang über „Abmelden" (kein Dead-End ohne Logout-Möglichkeit)', () => {
+    mockUseProfileScreen.mockReturnValue({
+      ...baseResult,
+      isError: true,
+      error: { code: 'ERR', messageKey: 'x', message: 'Fehler beim Laden', technicalMessage: 'x' },
+    });
+
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getByText('Abmelden'));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+  });
+
+  it('bietet auch bei fehlendem Profil (auth.users ohne zugehörige profiles-Zeile) einen Logout-Ausgang', () => {
+    mockUseProfileScreen.mockReturnValue({ ...baseResult, profile: null });
+
+    render(<ProfileScreen />);
+
+    expect(screen.getByText('Dieses Profil wurde nicht gefunden.')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('Abmelden'));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
   it('zeigt Benutzername, Statistiken und Formular', () => {

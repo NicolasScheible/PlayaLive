@@ -1,6 +1,14 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Button } from '../../../components/Button';
 import { TextField } from '../../../components/TextField';
@@ -49,7 +57,11 @@ export function ForgotPasswordScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.title}>Passwort vergessen</Text>
         <Text style={styles.secondaryText}>
           Gib deine E-Mail-Adresse ein — wir schicken dir einen Link zum Zurücksetzen deines
@@ -79,7 +91,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
             Zurück zum <Text style={styles.link}>Login</Text>
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -89,10 +101,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.base,
   },
+  // `flexGrow` statt `flex` (siehe LoginScreen.tsx-Kommentar) — als `contentContainerStyle` einer
+  // `ScrollView`, damit das Formular bei geöffneter Tastatur/auf kleinen Geräten erreichbar bleibt.
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.xl,
     gap: theme.spacing.xl,
   },
   title: {
